@@ -1,5 +1,5 @@
 # This code interpolates for the missing points in an image. The code is specifically designed for removing Bragg peaks using the punch and fill algorithm. This code needs the image and the coordinates where the Bragg peaks needs to be removed and the radius (which can be the approximate width of the peaks). The code assumes all the "punches" will be of the same size and there are no Bragg peaks on the boundaries. Lines 2 to ~ 175 consists of helper functions and 175 onwards corresponds to the driver code.
-using Laplacians, LinearAlgebra, SparseArrays
+using LinearAlgebra, SparseArrays
 using TestImages, Colors, Plots, FileIO, JLD, BenchmarkTools
 
 function spdiagm_nonsquare(m, n, args...)
@@ -50,13 +50,30 @@ function return_boundary_nodes(xpoints, ypoints, zpoints)
     return BoundaryNodes3D
 end
 
+function return_boundary_nodes2D(xpoints, ypoints)
+    BoundaryNodes2D =[];
+    counter = 0;
+    
+    for j = 1:ypoints
+        for i = 1:xpoints
+            counter=counter+1;
+            if( j == 1|| j == ypoints || i == 1 || i == xpoints)
+                BoundaryNodes2D = push!(BoundaryNodes2D, counter)
+            end
+        end
+    end
+    
+    return BoundaryNodes2D
+end
+
+
 function punch_holes_3D(centers, radius, xpoints, ypoints, zpoints)
     clen = length(centers);
     masking_data_points = [];
     absolute_indices = Int64[];
 
     for a = 1:clen
-        c=cent[a];
+        c=centers[a];
         count = 1;
         for i = 1:zpoints
             for j = 1:ypoints
@@ -71,6 +88,34 @@ function punch_holes_3D(centers, radius, xpoints, ypoints, zpoints)
                 end
             end
         end
+    end
+    return absolute_indices
+
+end
+
+function punch_holes_2D(centers, radius, xpoints, ypoints)
+    clen = length(centers);
+    masking_data_points = [];
+    absolute_indices = Int64[];
+    
+
+    for a = 1:clen
+        c=centers[a];
+       
+        count = 1;
+        
+        for j = 1:ypoints
+            for h = 1:xpoints
+                if((h-c[1])^2 + (j-c[2])^2  <= radius^2)
+                    #imgg_copy[h,j,i] = 1
+                    append!(masking_data_points,[(h,j)]);
+                    append!(absolute_indices, count);
+                        
+                end
+                count = count +1;
+            end
+        end
+        
     end
     return absolute_indices
 
@@ -94,36 +139,48 @@ function Matern1D(h,N,f_array, args...)
     return (C-(Id -C)*A2)\(C*f_array);
 end
 
-function Matern2D(rows, columns, discard, mat, BoundaryNodes, args...)
-    A = ∇²(rows,columns);
-    epsilon = 0.3;
-    sizeA = size(A,1);
-    for i = 1:sizeA
-        A[i,i] = A[i,i] + epsilon^2
-    end
-    C = sparse(I, rows*columns, rows*columns)
-    # A[BoundaryNodes,:] .= 0
-    # A[:,BoundaryNodes] .= 0
-    
-    A[BoundaryNodes, BoundaryNodes] = sparse(I, length(BoundaryNodes), length(BoundaryNodes));
+function Matern2D(xpoints, ypoints, imgg, epsilon, centers, radius, args...)
+    A2D = ∇²(xpoints, ypoints);
+
+    BoundaryNodes = return_boundary_nodes2D(xpoints, ypoints);
     for i in BoundaryNodes
-        rowindices = A.rowval[nzrange(A, i)];
-        A[rowindices,i].=0;
-        A[i,i] = 1.0
+        rowindices = A2D.rowval[nzrange(A2D, i)];
+        A2D[rowindices,i].=0;
+        A2D[i,i] = 1.0;
     end
-    
-    
+
+    sizeA = size(A2D,1);
+    for i = 1:sizeA
+        A2D[i,i] = A2D[i,i] + epsilon^2
+    end
+    A2DMatern = A2D*A2D;
+
+    discard = punch_holes_2D(centers, radius, xpoints, ypoints);
+
+    punched_image = copy(imgg);
+    punched_image[discard] .= 1;
+
+    totalsize = prod(size(imgg));
+    C = sparse(I, totalsize, totalsize)
     for i in discard
-        C[i,i] =0.
+        C[i,i] = 0;
     end
-    A2 = A*A;
     #C[discard,discard] .= 0
-    Id = sparse(I, rows*columns,rows*columns);
-    f = mat[:];
-    return ((C-(Id -C)*A2)) \ (C*f);
-    # ml = ruge_stuben(((C-(Id -C)*A2)))
-    # u_amg = solve(ml, (C*f))
-    #return restored_img = reshape(u, size(mat,1), size(mat,2));
+    Id = sparse(I, totalsize, totalsize);
+    f = punched_image[:];
+    C*f
+    #u =((C-(Id -C)*A3DGiphy)) \ (C*f);
+    #restored_img = reshape(u, xpoints, ypoints, zpoints);
+
+    rhs_a = C*f;
+
+    rhs_a = Float64.(rhs_a);
+
+    u =((C-(Id -C)*A2DMatern)) \ rhs_a;
+
+    restored_img = reshape(u, xpoints, ypoints);
+    restored_img = Gray.(restored_img);
+    return restored_img, punched_image;
 end
 
 function Matern3D(xpoints, ypoints, zpoints, imgg, epsilon, centers, radius, args...)
@@ -171,6 +228,26 @@ function Matern3D(xpoints, ypoints, zpoints, imgg, epsilon, centers, radius, arg
 end
 
 
+#2D Example: Mandrill
+
+img = testimage("mandrill");
+
+imgg = Gray.(img);
+
+mat = convert(Array{Float64}, imgg)[1:256,1:512];
+# This image is square
+plot(imgg)
+cent = [(100, 200), (200, 100), (200, 400)]
+radius = 20;
+xpoints = size(mat,1);
+ypoints = size(mat,2);
+restored_image, punched_image =  Matern2D(xpoints, ypoints, mat, epsilon, cent, radius);
+
+BenchmarkTools.DEFAULT_PARAMETERS.seconds = 100;
+@benchmark Matern2D(xpoints, ypoints, mat, epsilon, cent, radius);
+
+plot(Gray.(restored_image), title="restored Image")
+
 obj = load("/Users/vishwasrao/Research/BES_Project/Repo/laplaceinterpolation/cat_bow.gif")
 obj_copy = load("/Users/vishwasrao/Research/BES_Project/Repo/laplaceinterpolation/cat_bow.gif")
 
@@ -186,7 +263,11 @@ xpoints = size(imgg, 1);
 ypoints = size(imgg, 2);
 zpoints = size(imgg, 3);
 
-restored_image, punched_image  = Matern3D(xpoints, ypoints, zpoints, imgg, epsilon, cent, radius);
+# @benchmark restored_image, punched_image  = Matern3D(xpoints, ypoints, zpoints, imgg, epsilon, cent, radius);
+print()
+BenchmarkTools.DEFAULT_PARAMETERS.seconds = 600;
+BenchmarkTools.DEFAULT_PARAMETERS.samples = 50;
+@benchmark Matern3D(xpoints, ypoints, zpoints, imgg, epsilon, cent, radius);
 
 restored_image = Gray.(restored_image);
 plot1 = plot(imgg[:,:,15], title = "Original Image");
