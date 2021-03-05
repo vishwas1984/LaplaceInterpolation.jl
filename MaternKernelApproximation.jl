@@ -241,39 +241,40 @@ cent = [(100, 200), (200, 100), (200, 400)]
 radius = 20;
 xpoints = size(mat,1);
 ypoints = size(mat,2);
+epsilon = 0.2
 restored_image, punched_image =  Matern2D(xpoints, ypoints, mat, epsilon, cent, radius);
 
-BenchmarkTools.DEFAULT_PARAMETERS.seconds = 100;
-@benchmark Matern2D(xpoints, ypoints, mat, epsilon, cent, radius);
+# BenchmarkTools.DEFAULT_PARAMETERS.seconds = 100;
+# @benchmark Matern2D(xpoints, ypoints, mat, epsilon, cent, radius);
 
 plot(Gray.(restored_image), title="restored Image")
 
-obj = load("/Users/vishwasrao/Research/BES_Project/Repo/laplaceinterpolation/cat_bow.gif")
-obj_copy = load("/Users/vishwasrao/Research/BES_Project/Repo/laplaceinterpolation/cat_bow.gif")
+# obj = load("/Users/vishwasrao/Research/BES_Project/Repo/laplaceinterpolation/cat_bow.gif")
+# obj_copy = load("/Users/vishwasrao/Research/BES_Project/Repo/laplaceinterpolation/cat_bow.gif")
 
-imgg = Gray.(obj);
-imgg_copy = Gray.(obj_copy);
+# imgg = Gray.(obj);
+# imgg_copy = Gray.(obj_copy);
 
-cent = [(50, 50,30), (50, 100,30), (50, 150,30), (100, 50, 30),
-    (100, 100,30), (100, 150, 30)];
+# cent = [(50, 50,30), (50, 100,30), (50, 150,30), (100, 50, 30),
+#     (100, 100,30), (100, 150, 30)];
 
-radius = 20;
-epsilon = 0.1;
-xpoints = size(imgg, 1);
-ypoints = size(imgg, 2);
-zpoints = size(imgg, 3);
+# radius = 20;
+# epsilon = 0.1;
+# xpoints = size(imgg, 1);
+# ypoints = size(imgg, 2);
+# zpoints = size(imgg, 3);
 
-# @benchmark restored_image, punched_image  = Matern3D(xpoints, ypoints, zpoints, imgg, epsilon, cent, radius);
-print()
-BenchmarkTools.DEFAULT_PARAMETERS.seconds = 600;
-BenchmarkTools.DEFAULT_PARAMETERS.samples = 50;
-@benchmark Matern3D(xpoints, ypoints, zpoints, imgg, epsilon, cent, radius);
+# # @benchmark restored_image, punched_image  = Matern3D(xpoints, ypoints, zpoints, imgg, epsilon, cent, radius);
+# print()
+# BenchmarkTools.DEFAULT_PARAMETERS.seconds = 600;
+# BenchmarkTools.DEFAULT_PARAMETERS.samples = 50;
+# @benchmark Matern3D(xpoints, ypoints, zpoints, imgg, epsilon, cent, radius);
 
-restored_image = Gray.(restored_image);
-plot1 = plot(imgg[:,:,15], title = "Original Image");
-plot2 = plot(restored_image[:,:,15], title = "Restored Image");
-plot3 = plot(punched_image[:,:,15], title = "Punched Image");
-plot(plot1, plot3, plot2, layout = (1, 3), legend = false)
+# restored_image = Gray.(restored_image);
+# plot1 = plot(imgg[:,:,15], title = "Original Image");
+# plot2 = plot(restored_image[:,:,15], title = "Restored Image");
+# plot3 = plot(punched_image[:,:,15], title = "Punched Image");
+# plot(plot1, plot3, plot2, layout = (1, 3), legend = false)
 
 
 
