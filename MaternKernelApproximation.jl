@@ -34,6 +34,22 @@ function ∇²3d(n₁,n₂,n3)
     return kron(sparse(I,n3,n3),sparse(I,n₂,n₂), ∂₁'*∂₁) + kron(sparse(I,n3,n3), ∂₂'*∂₂, sparse(I,n₁,n₁)) + kron(del3'*del3, sparse(I,n₂,n₂), sparse(I,n₁,n₁))
 end
 
+function ∇²3d_Grid(n₁,n₂,n3, h)
+    o₁ = ones(n₁)/h
+    ∂₁ = spdiagm_nonsquare(n₁+1,n₁,-1=>-o₁,0=>o₁)
+    o₂ = ones(n₂)/h
+    ∂₂ = spdiagm_nonsquare(n₂+1,n₂,-1=>-o₂,0=>o₂)
+    O3 = ones(n3)/h
+    del3 = spdiagm_nonsquare(n3+1,n3,-1=>-O3,0=>O3)
+    # sx_sparse = sparse(I,n₁,n₁);
+    # sy_sparse = sparse(I,n₂,n₂);
+    # sz_sparse = sparse(I,n3,n3);
+    #A1 = 1/h^2*(kron(sparse(I,n3,n3),sparse(I,n₂,n₂), ∂₁'*∂₁));
+
+
+    return (kron(sparse(I,n3,n3),sparse(I,n₂,n₂), ∂₁'*∂₁) + kron(sparse(I,n3,n3), ∂₂'*∂₂, sparse(I,n₁,n₁)) + kron(del3'*del3, sparse(I,n₂,n₂), sparse(I,n₁,n₁)))
+end
+
 function return_boundary_nodes(xpoints, ypoints, zpoints)
     BoundaryNodes3D =[];
     counter = 0;
@@ -64,6 +80,37 @@ function return_boundary_nodes2D(xpoints, ypoints)
     end
     
     return BoundaryNodes2D
+end
+
+function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
+    xlen = length(xpoints);
+    ylen = length(ypoints);
+    zlen = length(zpoints);
+    masking_data_points = [];
+    absolute_indices = Int64[];
+
+    count = 1;
+    for i = 1:zlen
+        ir = round(zpoints[i]);
+        for j = 1:ylen
+            jr = round(ypoints[j]);
+            for h = 1:xlen
+                hr = round(xpoints[h]);
+                if(ir>=1 && ir <= 7 && jr >= 1 && jr <= 7 && hr >= 1 && hr <= 5)
+                    if((hr-xpoints[h])^2 + (jr-ypoints[j])^2/(1.5^2) + (ir - zpoints[i])^2/(1.5^2) <= radius^2)
+                        #imgg_copy[h,j,i] = 1
+                        #append!(masking_data_points,[(h,j,i)]);
+                        append!(absolute_indices, count);
+                            
+                    end
+                end
+                count = count +1;
+            end
+        end
+    end
+
+    return absolute_indices
+
 end
 
 
@@ -227,27 +274,76 @@ function Matern3D(xpoints, ypoints, zpoints, imgg, epsilon, centers, radius, arg
     return restored_img, punched_image;
 end
 
+function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, args...)
+    xlen = length(xpoints);
+    ylen = length(ypoints);
+    zlen = length(zpoints);
+    print(xlen)
+    A3D = ∇²3d_Grid(xlen, ylen, zlen, h);
+
+    BoundaryNodes = return_boundary_nodes(xlen, ylen, zlen);
+    for i in BoundaryNodes
+        rowindices = A3D.rowval[nzrange(A3D, i)];
+        A3D[rowindices,i].=0;
+        A3D[i,i] = 1.0;
+    end
+
+    sizeA = size(A3D,1);
+    for i = 1:sizeA
+        A3D[i,i] = A3D[i,i] + epsilon^2
+    end
+    A3DMatern = A3D*A3D;
+
+    discard = punch_holes_nexus(xpoints, ypoints, zpoints, radius);
+    print(discard)
+
+    punched_image = copy(imgg);
+    punched_image[discard] .= 1;
+
+    totalsize = prod(size(imgg));
+    C = sparse(I, totalsize, totalsize)
+    for i in discard
+        C[i,i] = 0;
+    end
+    #C[discard,discard] .= 0
+    Id = sparse(I, totalsize, totalsize);
+    f = punched_image[:];
+    C*f
+    #u =((C-(Id -C)*A3DGiphy)) \ (C*f);
+    #restored_img = reshape(u, xpoints, ypoints, zpoints);
+
+    rhs_a = C*f;
+
+    rhs_a = Float64.(rhs_a);
+
+    u =((C-(Id -C)*A3DMatern)) \ rhs_a;
+
+    restored_img = reshape(u, xlen, ylen, zlen);
+    # restored_img = Gray.(restored_img);
+    return u, punched_image[:];
+end
+
 
 #2D Example: Mandrill
 
-img = testimage("mandrill");
+# img = testimage("mandrill");
 
-imgg = Gray.(img);
+# imgg = Gray.(img);
 
-mat = convert(Array{Float64}, imgg)[1:256,1:512];
-# This image is square
-plot(imgg)
-cent = [(100, 200), (200, 100), (200, 400)]
-radius = 20;
-xpoints = size(mat,1);
-ypoints = size(mat,2);
-epsilon = 0.2
-restored_image, punched_image =  Matern2D(xpoints, ypoints, mat, epsilon, cent, radius);
+# mat = convert(Array{Float64}, imgg)[1:256,1:512];
+# # This image is square
+# plot(imgg)
+# cent = [(100, 200), (200, 100), (200, 400)]
+# radius = 20;
+# xpoints = size(mat,1);
+# ypoints = size(mat,2);
+# epsilon = 0.2
+# restored_image, punched_image =  Matern2D(xpoints, ypoints, mat, epsilon, cent, radius);
 
-# BenchmarkTools.DEFAULT_PARAMETERS.seconds = 100;
-# @benchmark Matern2D(xpoints, ypoints, mat, epsilon, cent, radius);
+# # BenchmarkTools.DEFAULT_PARAMETERS.seconds = 100;
+# # @benchmark Matern2D(xpoints, ypoints, mat, epsilon, cent, radius);
 
-plot(Gray.(restored_image), title="restored Image")
+# plot(Gray.(restored_image), title="restored Image")
 
 # obj = load("/Users/vishwasrao/Research/BES_Project/Repo/laplaceinterpolation/cat_bow.gif")
 # obj_copy = load("/Users/vishwasrao/Research/BES_Project/Repo/laplaceinterpolation/cat_bow.gif")
