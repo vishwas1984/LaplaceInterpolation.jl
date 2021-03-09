@@ -1,4 +1,6 @@
 
+*.npy
+*.jld
 Notebooks/Manifest.toml
 *checkpoint.ipynb
 
