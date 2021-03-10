@@ -1,6 +1,7 @@
 # This code interpolates for the missing points in an image. The code is specifically designed for removing Bragg peaks using the punch and fill algorithm. This code needs the image and the coordinates where the Bragg peaks needs to be removed and the radius (which can be the approximate width of the peaks). The code assumes all the "punches" will be of the same size and there are no Bragg peaks on the boundaries. Lines 2 to ~ 175 consists of helper functions and 175 onwards corresponds to the driver code.
 using LinearAlgebra, SparseArrays
 using TestImages, Colors, Plots, FileIO, JLD, BenchmarkTools
+include("PyAMG.jl")
 
 function spdiagm_nonsquare(m, n, args...)
     I, J, V = SparseArrays.spdiagm_internal(args...)
@@ -223,7 +224,9 @@ function Matern2D(xpoints, ypoints, imgg, epsilon, centers, radius, args...)
 
     rhs_a = Float64.(rhs_a);
 
-    u =((C-(Id -C)*A2DMatern)) \ rhs_a;
+    #u =((C-(Id -C)*A2DMatern)) \ rhs_a;
+    Amat = ((C-(Id -C)*A2DMatern));
+    u = PyAMG.solve(Amat, rhs_a);
 
     restored_img = reshape(u, xpoints, ypoints);
     restored_img = Gray.(restored_img);
@@ -295,31 +298,75 @@ function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, args
     A3DMatern = A3D*A3D;
 
     discard = punch_holes_nexus(xpoints, ypoints, zpoints, radius);
-    print(discard)
 
     punched_image = copy(imgg);
     punched_image[discard] .= 1;
 
     totalsize = prod(size(imgg));
     C = sparse(I, totalsize, totalsize)
+    rhs_a = punched_image[:];
     for i in discard
         C[i,i] = 0;
+        rhs_a[i] = 0;
     end
     #C[discard,discard] .= 0
     Id = sparse(I, totalsize, totalsize);
-    f = punched_image[:];
-    C*f
+    
     #u =((C-(Id -C)*A3DGiphy)) \ (C*f);
     #restored_img = reshape(u, xpoints, ypoints, zpoints);
 
-    rhs_a = C*f;
+    #rhs_a = C*f;
 
-    rhs_a = Float64.(rhs_a);
+    #rhs_a = Float64.(rhs_a);
+    # Amat = ((C-(Id -C)*A3DMatern));
+    # u = PyAMG.solve(Amat, rhs_a);
 
     u =((C-(Id -C)*A3DMatern)) \ rhs_a;
 
-    restored_img = reshape(u, xlen, ylen, zlen);
+    #restored_img = reshape(u, xlen, ylen, zlen);
     # restored_img = Gray.(restored_img);
+    return u, punched_image[:];
+end
+
+function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, args...)
+    xlen = length(xpoints);
+    ylen = length(ypoints);
+    zlen = length(zpoints);
+    print(xlen)
+    A3D = ∇²3d_Grid(xlen, ylen, zlen, h);
+
+    BoundaryNodes = return_boundary_nodes(xlen, ylen, zlen);
+    for i in BoundaryNodes
+        rowindices = A3D.rowval[nzrange(A3D, i)];
+        A3D[rowindices,i].=0;
+        A3D[i,i] = 1.0;
+    end
+
+    discard = punch_holes_nexus(xpoints, ypoints, zpoints, radius);
+
+    punched_image = copy(imgg);
+    punched_image[discard] .= 1;
+
+    totalsize = prod(size(imgg));
+    C = sparse(I, totalsize, totalsize)
+    rhs_a = punched_image[:];
+    for i in discard
+        C[i,i] = 0;
+        rhs_a[i] = 0;
+    end
+    #C[discard,discard] .= 0
+    Id = sparse(I, totalsize, totalsize);
+    
+    #u =((C-(Id -C)*A3DGiphy)) \ (C*f);
+    #restored_img = reshape(u, xpoints, ypoints, zpoints);
+
+    #rhs_a = C*f;
+
+    #rhs_a = Float64.(rhs_a);
+    # Amat = (Id -C)*A3D -C;
+    # u = PyAMG.solve(Amat, -rhs_a);
+    u =((C-(Id -C)*A3D)) \ rhs_a;
+
     return u, punched_image[:];
 end
 
