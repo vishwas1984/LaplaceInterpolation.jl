@@ -321,7 +321,7 @@ function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, args
     # Amat = ((C-(Id -C)*A3DMatern));
     # u = PyAMG.solve(Amat, rhs_a);
 
-    u =((C-(Id -C)*A3DMatern)) \ rhs_a;
+u =((C-(Id -C)*A3DMatern)) \ rhs_a;
 
     #restored_img = reshape(u, xlen, ylen, zlen);
     # restored_img = Gray.(restored_img);
