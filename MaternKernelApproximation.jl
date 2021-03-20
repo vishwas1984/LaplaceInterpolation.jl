@@ -1,7 +1,7 @@
 # This code interpolates for the missing points in an image. The code is specifically designed for removing Bragg peaks using the punch and fill algorithm. This code needs the image and the coordinates where the Bragg peaks needs to be removed and the radius (which can be the approximate width of the peaks). The code assumes all the "punches" will be of the same size and there are no Bragg peaks on the boundaries. Lines 2 to ~ 175 consists of helper functions and 175 onwards corresponds to the driver code.
 using LinearAlgebra, SparseArrays
 using TestImages, Colors, Plots, FileIO, JLD, BenchmarkTools
-include("PyAMG.jl")
+#include("PyAMG.jl")
 
 function spdiagm_nonsquare(m, n, args...)
     I, J, V = SparseArrays.spdiagm_internal(args...)
@@ -224,9 +224,9 @@ function Matern2D(xpoints, ypoints, imgg, epsilon, centers, radius, args...)
 
     rhs_a = Float64.(rhs_a);
 
-    #u =((C-(Id -C)*A2DMatern)) \ rhs_a;
-    Amat = ((C-(Id -C)*A2DMatern));
-    u = PyAMG.solve(Amat, rhs_a);
+    u =((C-(Id -C)*A2DMatern)) \ rhs_a;
+    #Amat = ((C-(Id -C)*A2DMatern));
+    #u = PyAMG.solve(Amat, rhs_a);
 
     restored_img = reshape(u, xpoints, ypoints);
     restored_img = Gray.(restored_img);
