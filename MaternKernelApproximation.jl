@@ -281,7 +281,6 @@ function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, args
     xlen = length(xpoints);
     ylen = length(ypoints);
     zlen = length(zpoints);
-    print(xlen)
     A3D = ∇²3d_Grid(xlen, ylen, zlen, h);
 
     BoundaryNodes = return_boundary_nodes(xlen, ylen, zlen);
@@ -332,7 +331,6 @@ function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, arg
     xlen = length(xpoints);
     ylen = length(ypoints);
     zlen = length(zpoints);
-    print(xlen)
     A3D = ∇²3d_Grid(xlen, ylen, zlen, h);
 
     BoundaryNodes = return_boundary_nodes(xlen, ylen, zlen);
