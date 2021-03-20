@@ -37,3 +37,13 @@ Threads.@threads for i = zmin:zmax-1
         end
     end
 end
+
+
+# no_of_threads = [1, 2, 4, 10, 20, 40]
+# times= [55, 29.61,20.0, 12.60, 12.623, 13.651]
+# perfect_scaling = [55, 27.5, 13.75, 5.5, 2.75, 1.375]
+# plt.loglog(no_of_threads, times, '--o')
+# plt.loglog(no_of_threads, perfect_scaling, '-.v')
+# plt.xlabel('No of Threads')
+# plt.ylabel('Times')
+# plt.legend(['Laplace timings', 'Perfect Scaling'])
