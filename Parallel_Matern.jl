@@ -1,9 +1,9 @@
-#using NPZ
-#include("MaternKernelApproximation.jl")
-#z3d = npzread("Notebooks/volume_data_movo.npy");
-#x = npzread("Notebooks/xaxis.npy");
-#x2 = npzread("Notebooks/yaxis.npy");
-#x3 = npzread("Notebooks/zaxis.npy");
+# using NPZ
+# include("MaternKernelApproximation.jl")
+# z3d = npzread("Notebooks/volume_data_movo.npy");
+# x = npzread("Notebooks/xaxis.npy");
+# x2 = npzread("Notebooks/yaxis.npy");
+# x3 = npzread("Notebooks/zaxis.npy");
 xmin = 1;
 xmax = 6;
 ymin = 1;
