@@ -332,6 +332,7 @@ function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, arg
     ylen = length(ypoints);
     zlen = length(zpoints);
     A3D = ∇²3d_Grid(xlen, ylen, zlen, h);
+    
 
     BoundaryNodes = return_boundary_nodes(xlen, ylen, zlen);
     for i in BoundaryNodes
@@ -365,6 +366,7 @@ function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, arg
     # u = PyAMG.solve(Amat, -rhs_a);
     u =((C-(Id -C)*A3D)) \ rhs_a;
 
+    #return u, punched_image[:], A3D;
     return u, punched_image[:];
 end
 
