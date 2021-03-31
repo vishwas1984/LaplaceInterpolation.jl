@@ -1,9 +1,9 @@
-using NPZ
-include("MaternKernelApproximation.jl")
-z3d = npzread("Notebooks/volume_data_movo.npy");
-x = npzread("Notebooks/xaxis.npy");
-x2 = npzread("Notebooks/yaxis.npy");
-x3 = npzread("Notebooks/zaxis.npy");
+# using NPZ
+# include("MaternKernelApproximation.jl")
+# z3d = npzread("Notebooks/volume_data_movo.npy");
+# x = npzread("Notebooks/xaxis.npy");
+# x2 = npzread("Notebooks/yaxis.npy");
+# x3 = npzread("Notebooks/zaxis.npy");
 xmin = 1;
 xmax = 6;
 ymin = 1;
@@ -42,7 +42,7 @@ Threads.@threads for i = 1:length(cartesian_product_boxes)
     k1 = cartesian_product_boxes[i][5]
     k2 = cartesian_product_boxes[i][6]
     z3temp = z3d_copy[k1+1:k2,j1+1:j2,i1+1:i2];
-    restored_img, punched_image = Matern3D_Grid(x[k1+1:k2], x2[j1+1:j2], x3[i1+1:i2], z3temp, epsilon, radius, h);
+    restored_img, punched_image = Laplace3D_Grid(x[k1+1:k2], x2[j1+1:j2], x3[i1+1:i2], z3temp, epsilon, radius, h);
     restored_img_reshape = reshape(restored_img, (2*stride,2*stride,2*stride));
     z3d_restored[k1+1:k2, j1+1:j2, i1+1:i2] = restored_img_reshape;
 end
