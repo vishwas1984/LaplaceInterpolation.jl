@@ -83,6 +83,11 @@ function return_boundary_nodes2D(xpoints, ypoints)
     return BoundaryNodes2D
 end
 
+# NB: Have to make sure the punch is not punching on the boundary 
+# Make sure not to pass in data such that there will be missing data on the boundary
+# This is a todo still.
+# THis note refers to the next two funcitons punch_holes
+
 function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
     xlen = length(xpoints);
     ylen = length(ypoints);
