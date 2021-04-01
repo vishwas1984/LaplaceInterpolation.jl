@@ -1,9 +1,11 @@
 using NPZ
+
 include("MaternKernelApproximation.jl")
-z3d = npzread("Notebooks/volume_data_movo.npy");
-x = npzread("Notebooks/xaxis.npy");
-x2 = npzread("Notebooks/yaxis.npy");
-x3 = npzread("Notebooks/zaxis.npy");
+z3d = npzread("Notebooks/volume_data_movo.npy")
+x = npzread("Notebooks/xaxis.npy")
+x2 = npzread("Notebooks/yaxis.npy")
+x3 = npzread("Notebooks/zaxis.npy")
+
 xmin = 1;
 xmax = 6;
 ymin = 1;
@@ -33,7 +35,6 @@ for i = zmin:zmax-1
     end
 end
 
-
 Threads.@threads for i = 1:length(cartesian_product_boxes)
     i1 = cartesian_product_boxes[i][1]
     i2 = cartesian_product_boxes[i][2]
@@ -46,11 +47,3 @@ Threads.@threads for i = 1:length(cartesian_product_boxes)
     restored_img_reshape = reshape(restored_img, (2*stride,2*stride,2*stride));
     z3d_restored[k1+1:k2, j1+1:j2, i1+1:i2] = restored_img_reshape;
 end
-# no_of_threads = [1, 2, 4, 10, 20, 40]
-# times= [55, 29.61,20.0, 12.60, 12.623, 13.651]
-# perfect_scaling = [55, 27.5, 13.75, 5.5, 2.75, 1.375]
-# plt.loglog(no_of_threads, times, '--o')
-# plt.loglog(no_of_threads, perfect_scaling, '-.v')
-# plt.xlabel('No of Threads')
-# plt.ylabel('Times')
-# plt.legend(['Laplace timings', 'Perfect Scaling'])
