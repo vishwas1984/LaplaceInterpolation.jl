@@ -1,0 +1,50 @@
+1. Xray
+  A. Run Vishwas's notebook
+  Call to vishwas, clean up the notebook. 
+  Back and forth with the repo. 
+
+Meeting notes April 1, 2021:
+
+Vishwas: The rods in the movo dataset are creating depressions in the interpolation at
+the Bragg peaks. 
+  Is there a way to keep the rods?
+  The smoothest possible interpolant is not desirable in this case - is there a way
+to preserve the derivative information? epsilon helps regularize...
+  anisotropic interpolation is probably necessary for this system - we will read up
+and report back.
+  The link to the interpolated data is on the slack channel 
+
+Charlotte: Some updates on Erbium Telluride
+   To properly symmetrize:
+   assuming the weights are one (averaging) is slightly but not horribly incorrect.
+TO do this right, you need to get the f1 f2 f3 transforms, symmetrize both the data
+and the weights and then divide the data by the weights. Accessing this is as simple
+as:
+   data.f1.transform[1.0,:,:].data.plot(log=True,cmap=plt.cm.gray)
+   or masked_transform - normally we use this for pdfs
+
+   There is a new erbium telluride dataset, Matt knows where it is 
+
+Puspa: trying to model SRN0 system
+  Rotating the icosahedron
+  (I didn't fully understand the discussion, but it was interesting) i
+From the delta-pdf we counter-rote the bottom left icosahedrion around the z axis.
+This produces three peaks red-blue-red (pos-neg-pos triplet), in the average
+structure the tin2 (Sn2) bonds are the same, but in the rotated structure tere are
+two bond lengths. (from Ray's one note)
+  You can get a three-peak fit. The minimum rotation to produce this can be
+determined. If we double the 0.19 -> 0.38 (low temperature doubled unit cell) These
+ions are all at 0.38 and 0.42... trigonometric calculation. The angle is whatever it
+takes to produce these distances. 
+  Is the data consistent with a bigger distortion?
+
+Additional discussion:
+Ray: Can we generate a pdf out of the discus output from this simulation?
+Matt: Yes. Another question (for the developer) - can you generate the pdf directly
+from the structure?  
+   I've done this on 2D data and you end up seeing (lots- you get an average out of
+many small calculations) the result will be more robust. There are some limitations
+to that. Artifacts from calculating from lots. 
+
+There is a meeting tomorrow with the Cornell folks. 
+
