@@ -93,6 +93,9 @@ Construct the 3D Laplace matrix
   - `n₁::Int64`: The number of nodes in the first dimension
   - `n₂::Int64`: The number of nodes in the second dimension
   - `n3::Int64`: The number of nodes in the third dimension
+  - `h::Float64`: Grid spacing in the first dimension
+  - `k::Float64`: Grid spacing in the second dimension
+  - `l::Float64`: Grid spacing in the third dimension
 
 # Outputs 
 
