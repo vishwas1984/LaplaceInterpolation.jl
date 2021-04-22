@@ -95,6 +95,15 @@ function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
     masking_data_points = [];
     absolute_indices = Int64[];
 
+    #Making sure that boundary is not punched
+    xmax = maximum(xpoints);
+    ymax = maximum(ypoints);
+    zmax = maximum(zpoints);
+    xmin = minimum(xpoints);
+    ymin = minimum(ypoints);
+    zmin = minimum(zpoints);
+
+
     count = 1;
     for i = 1:zlen
         ir = round(zpoints[i]);
@@ -102,7 +111,7 @@ function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
             jr = round(ypoints[j]);
             for h = 1:xlen
                 hr = round(xpoints[h]);
-                if(ir>=1 && ir <= 7 && jr >= 1 && jr <= 7 && hr >= 1 && hr <= 5)
+                if(ir>=zmin+1 && ir <= zmax-1 && jr >= ymin+1 && jr <= ymax-1 && hr >= xmin+1 && hr <= xmax+1)
                     if((hr-xpoints[h])^2 + (jr-ypoints[j])^2/(1.5^2) + (ir - zpoints[i])^2/(1.5^2) <= radius^2)
                         #imgg_copy[h,j,i] = 1
                         #append!(masking_data_points,[(h,j,i)]);
