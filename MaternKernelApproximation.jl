@@ -193,12 +193,7 @@ end
 ...
 # Outputs
 
-<<<<<<< HEAD
-    
 
-
-   
-=======
   - `absolute_indices::Vector{Int64}`: vector containing the indices of coordinates 
   inside the punch
 
