@@ -99,12 +99,12 @@ Construct the 3D Laplace matrix
   - `-∇²` (discrete Laplacian, real-symmetric positive-definite) on n₁×n₂ grid
 
 """
-function ∇²3d_Grid(n₁,n₂,n3, h)
+function ∇²3d_Grid(n₁,n₂,n3, h, k, l)
     o₁ = ones(n₁)/h
     ∂₁ = spdiagm_nonsquare(n₁+1,n₁,-1=>-o₁,0=>o₁)
-    o₂ = ones(n₂)/h
+    o₂ = ones(n₂)/k
     ∂₂ = spdiagm_nonsquare(n₂+1,n₂,-1=>-o₂,0=>o₂)
-    O3 = ones(n3)/h
+    O3 = ones(n3)/l
     del3 = spdiagm_nonsquare(n3+1,n3,-1=>-O3,0=>O3)
     return (kron(sparse(I,n3,n3),sparse(I,n₂,n₂), ∂₁'*∂₁) + 
             kron(sparse(I,n3,n3), ∂₂'*∂₂, sparse(I,n₁,n₁)) + 
@@ -220,7 +220,7 @@ function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
             jr = round(ypoints[j])
             for h = 1:xlen
                 hr = round(xpoints[h]);
-                if(ir>=zmin+1 && ir <= zmax-1 && jr >= ymin+1 && jr <= ymax-1 && hr >= xmin+1 && hr <= xmax+1)
+                if(ir>=zmin+1 && ir <= zmax-1 && jr >= ymin+1 && jr <= ymax-1 && hr >= xmin+1 && hr <= xmax-1)
                     if((hr-xpoints[h])^2 + (jr-ypoints[j])^2/(1.5^2) + (ir - zpoints[i])^2/(1.5^2) <= radius^2)
                         #imgg_copy[h,j,i] = 1
                         #append!(masking_data_points,[(h,j,i)]);
@@ -544,7 +544,7 @@ end
 
 """
 
-  Matern3D_grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, args...)
+  Matern3D_grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, args...)
 
 ...
 # Arguments
@@ -554,7 +554,10 @@ end
   - `imgg`: the matrix containing the image
   - `epsilon`: Matern parameter epsilon
   - `radius::Vector`: the tuple containing the punch radii 
-  - `h`: ?
+  - `h::Float`: grid spacing along the x-axis
+  - `k::Float`: grid spacing along the y-axis
+  - `l::Float`: grid spacing along the z-axis
+  - `m::Int` : Matern parameter (use 2 for Matern Kernel)
   - `args`: ?
 
 # Outputs
@@ -562,11 +565,11 @@ end
 ...
 
 """
-function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, args...)
+function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, m, args...)
     xlen = length(xpoints)
     ylen = length(ypoints)
     zlen = length(zpoints)
-    A3D = ∇²3d_Grid(xlen, ylen, zlen, h)
+    A3D = ∇²3d_Grid(xlen, ylen, zlen, h, k, l)
     BoundaryNodes = return_boundary_nodes(xlen, ylen, zlen)
     for i in BoundaryNodes
         rowindices = A3D.rowval[nzrange(A3D, i)]
@@ -576,6 +579,10 @@ function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, args
     sizeA = size(A3D,1)
     for i = 1:sizeA
         A3D[i,i] = A3D[i,i] + epsilon^2
+    end
+    A3DMatern = A3D;
+    for i = 1:m-1
+        A3DMatern = A3DMatern*A3D;
     end
     A3DMatern = A3D*A3D
     discard = punch_holes_nexus(xpoints, ypoints, zpoints, radius)
@@ -595,7 +602,7 @@ end
 
 """
 
-  Laplace3D_grid(xpoints, ypoints, zpoints, imgg, radius, h, args...)
+  Laplace3D_grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l, args...)
 
 ...
 # Arguments
@@ -604,7 +611,9 @@ end
   - `zpoints::Vector{T} where T<:Real`: the vector containing the z coordinate
   - `imgg`: the matrix containing the image
   - `radius::Vector`: the tuple containing the punch radii 
-  - `h`: ?
+  - `h::Float`: grid spacing along the x-axis
+  - `k::Float`: grid spacing along the y-axis
+  - `l::Float`: grid spacing along the z-axis
   - `args`: ?
 
 # Outputs
@@ -613,11 +622,11 @@ end
 
 """
 
-function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, args...)
+function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l, args...)
     xlen = length(xpoints)
     ylen = length(ypoints)
     zlen = length(zpoints)
-    A3D = ∇²3d_Grid(xlen, ylen, zlen, h)
+    A3D = ∇²3d_Grid(xlen, ylen, zlen, h, k, l)
     BoundaryNodes = return_boundary_nodes(xlen, ylen, zlen)
     for i in BoundaryNodes
         rowindices = A3D.rowval[nzrange(A3D, i)]
