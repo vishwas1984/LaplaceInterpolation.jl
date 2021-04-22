@@ -22,21 +22,20 @@ from IPython.display import HTML
 import scipy.signal
 from   astropy.convolution import convolve, Kernel, Gaussian1DKernel
 import math
-import   scipy.ndimage 
+import   scipy.ndimage
 
 import math, timeit
 
-# Note: the julia package Laplacians.jl was forked by me and modified. It lives at 
+# Note: the julia package Laplacians.jl was forked by me and modified. It lives at
 # https://bitbucket.org/clhaley/Laplacians.jl
 # If you use the registered package at
 # https://github.com/danspielman/Laplacians.jl
 # you will get a conflict between the matplotlib plotting software and the julia
 # plotting software that is a package dependency, and we don't want that. My package above is identical except that
-# it resolves this problem. 
+# it resolves this problem.
 from julia import Julia
 julia = Julia(compiled_modules=False)
 from julia import Main
-julia.eval("@eval Main import Base.MainInclude: include")
 
 def flipaxis(A,i):
     Aprime=np.swapaxes(np.swapaxes(A,0,i)[::-1],0,i)
@@ -52,7 +51,7 @@ def getstencil(add):
     s = np.array([[[0,0,0],[0,1,0],[0,0,0]],[[0,1,0],[1,1,1],[0,1,0]],[[0,0,0],[0,1,0],[0,0,0]]])
     for i in range(add):
         sten = scipy.ndimage.convolve(sten, s)
-    return np.where(sten > 0.0, 1.0, 0.0) 
+    return np.where(sten > 0.0, 1.0, 0.0)
 
 # Function that wraps the julia code for the laplacian interpolation
 def laplacian_fill(z3d, new_punch_locs):
@@ -79,19 +78,19 @@ def standard_punch(x,x2,x3,z3d,rad):
 
 # Define the symmetrizing operation from the first quadrant
 # Inputs: res assumes you are going from -1 l.u. to the max number of l.u.
-#         scl_{k,i,j} 
+#         scl_{k,i,j}
 def symmetrize(res, Nh, Nk, Nl, scl_k, scl_i, scl_j):
     # Convolultion happens over a single octant of the dataset
     vvals=np.zeros((Nh,Nk,Nl))
-    N2h = (Nh-1)/2  
-    N2k = (Nk-1)/2  
-    N2l = (Nl-1)/2  
+    N2h = (Nh-1)/2
+    N2k = (Nk-1)/2
+    N2l = (Nl-1)/2
     vvals[(N2h-scl_j):Nh,(N2k-scl_k):Nk,(N2l-scl_i):Nl]=res
     # res = data.entry.transform[-1.:10.,-1.:50.,-1.:10.].data.nxdata
     vvals[N2h:Nh,N2k:Nk,0:(N2l+1)]=flipaxis(vvals[N2h:Nh,N2k:Nk,N2l:Nl],2)
     vvals[N2h:Nh,0:(N2k+1),0:Nl]=flipaxis(vvals[N2h:Nh,N2k:Nk,0:Nl],1)
     vvals[0:(N2h+1),0:Nk,0:Nl]=flipaxis(vvals[N2h:Nh,0:Nk,0:Nl],0)
-    # no background subtraction 
+    # no background subtraction
     return vvals[0:(Nh-1),0:(Nk-1),0:(Nl-1)]
 
 def _round_up_to_odd_integer(value):
