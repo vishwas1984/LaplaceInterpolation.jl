@@ -584,7 +584,6 @@ function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l
     for i = 1:m-1
         A3DMatern = A3DMatern*A3D;
     end
-    A3DMatern = A3D*A3D
     discard = punch_holes_nexus(xpoints, ypoints, zpoints, radius)
     punched_image = copy(imgg)
     punched_image[discard] .= 1
