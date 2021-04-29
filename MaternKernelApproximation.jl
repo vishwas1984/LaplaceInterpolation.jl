@@ -112,7 +112,7 @@ function ∇²3d_Grid(n₁,n₂,n3, h, k, l)
     A3D = (kron(sparse(I,n3,n3),sparse(I,n₂,n₂), ∂₁'*∂₁) + 
             kron(sparse(I,n3,n3), ∂₂'*∂₂, sparse(I,n₁,n₁)) + 
             kron(del3'*del3, sparse(I,n₂,n₂), sparse(I,n₁,n₁)))
-    BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(xlen, ylen, zlen)
+    BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(n₁, n₂, n3)
     count = 1;
     for i in BoundaryNodes
         A3D[i,i] = 0.0;
