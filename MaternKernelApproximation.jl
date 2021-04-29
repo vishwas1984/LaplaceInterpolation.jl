@@ -261,23 +261,16 @@ function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
     zlen = length(zpoints)
     masking_data_points = []
     absolute_indices = Int64[]
-    #Making sure that boundary is not punched
-    
     count = 1;
-
     for i = 1:zlen
         ir = round(zpoints[i])
         for j = 1:ylen
             jr = round(ypoints[j])
             for h = 1:xlen
-                hr = round(xpoints[h]);
-                
+                hr = round(xpoints[h])
                 if((hr-xpoints[h])^2 + (jr-ypoints[j])^2/(1.5^2) + (ir - zpoints[i])^2/(1.5^2) <= radius^2)
-                        #imgg_copy[h,j,i] = 1
-                        #append!(masking_data_points,[(h,j,i)]);
                     append!(absolute_indices, count);   
                 end
-                
                 count = count + 1
             end
         end
@@ -392,23 +385,19 @@ end
 
 """
 function punch_holes_2D(centers, radius, xpoints, ypoints)
-    clen = length(centers);
-    masking_data_points = [];
-    absolute_indices = Int64[];
+    clen = length(centers)
+    masking_data_points = []
+    absolute_indices = Int64[]
     for a = 1:clen
-        c=centers[a];
-       
-        count = 1;
-        
+        c = centers[a]
+        count = 1
         for j = 1:ypoints
             for h = 1:xpoints
                 if((h-c[1])^2 + (j-c[2])^2  <= radius^2)
-                    #imgg_copy[h,j,i] = 1
-                    append!(masking_data_points,[(h,j)]);
-                    append!(absolute_indices, count);
-                        
+                    append!(masking_data_points,[(h,j)])
+                    append!(absolute_indices, count)
                 end
-                count = count +1;
+                count = count + 1
             end
         end
         
@@ -595,7 +584,7 @@ end
 
 """
 
-  Matern3D_grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, args...)
+  Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, args...)
 
 ...
 # Arguments
@@ -608,7 +597,7 @@ end
   - `h::Float`: grid spacing along the x-axis
   - `k::Float`: grid spacing along the y-axis
   - `l::Float`: grid spacing along the z-axis
-  - `m::Int` : Matern parameter (use 2 for Matern Kernel)
+  - `m::Int` : Matern parameter 
   - `args`: ?
 
 # Outputs
@@ -622,11 +611,6 @@ function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l
     zlen = length(zpoints)
     A3D = ∇²3d_Grid(xlen, ylen, zlen, h, k, l)
     BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(xlen, ylen, zlen)
-    # for i in BoundaryNodes
-    #     rowindices = A3D.rowval[nzrange(A3D, i)]
-    #     A3D[rowindices,i].=0
-    #     A3D[i,i] = 1.0
-    # end
     count = 1;
     for i in BoundaryNodes
         A3D[i,i] = 0.0;
@@ -659,7 +643,7 @@ end
 
 """
 
-  Laplace3D_grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l, args...)
+  Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l, args...)
 
 ...
 # Arguments
@@ -678,13 +662,11 @@ end
 ...
 
 """
-
 function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l, args...)
     xlen = length(xpoints)
     ylen = length(ypoints)
     zlen = length(zpoints)
     A3D = ∇²3d_Grid(xlen, ylen, zlen, h, k, l)
-    #BoundaryNodes = return_boundary_nodes(xlen, ylen, zlen)
     BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(xlen, ylen, zlen)
     count = 1;
     for i in BoundaryNodes
@@ -692,12 +674,6 @@ function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l, args..
         A3D[i,i] = A3D[i,i] + xneighbors[count]/h^2 + yneighbors[count]/k^2 + zneighbors[count]/l^2;
         count = count + 1;
     end
-
-    # for i in BoundaryNodes
-    #     rowindices = A3D.rowval[nzrange(A3D, i)]
-    #     A3D[rowindices,i] .= 0
-    #     A3D[i,i] = 1.0
-    # end
     discard = punch_holes_nexus(xpoints, ypoints, zpoints, radius)
     punched_image = copy(imgg)
     punched_image[discard] .= 1
