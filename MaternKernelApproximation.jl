@@ -109,9 +109,17 @@ function ∇²3d_Grid(n₁,n₂,n3, h, k, l)
     ∂₂ = spdiagm_nonsquare(n₂+1,n₂,-1=>-o₂,0=>o₂)
     O3 = ones(n3)/l
     del3 = spdiagm_nonsquare(n3+1,n3,-1=>-O3,0=>O3)
-    return (kron(sparse(I,n3,n3),sparse(I,n₂,n₂), ∂₁'*∂₁) + 
+    A3D = (kron(sparse(I,n3,n3),sparse(I,n₂,n₂), ∂₁'*∂₁) + 
             kron(sparse(I,n3,n3), ∂₂'*∂₂, sparse(I,n₁,n₁)) + 
             kron(del3'*del3, sparse(I,n₂,n₂), sparse(I,n₁,n₁)))
+    BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(xlen, ylen, zlen)
+    count = 1;
+    for i in BoundaryNodes
+        A3D[i,i] = 0.0;
+        A3D[i,i] = A3D[i,i] + xneighbors[count]/h^2 + yneighbors[count]/k^2 + zneighbors[count]/l^2;
+        count = count + 1;
+    end
+    return A3D
 end
 
 """
@@ -605,18 +613,19 @@ end
 ...
 
 """
-function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, m, args...)
+function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, m)
     xlen = length(xpoints)
     ylen = length(ypoints)
     zlen = length(zpoints)
     A3D = ∇²3d_Grid(xlen, ylen, zlen, h, k, l)
-    BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(xlen, ylen, zlen)
-    count = 1;
-    for i in BoundaryNodes
-        A3D[i,i] = 0.0;
-        A3D[i,i] = A3D[i,i] + xneighbors[count]/h^2 + yneighbors[count]/k^2 + zneighbors[count]/l^2;
-        count = count + 1;
-    end
+    # BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(xlen, ylen, zlen)
+    # count = 1;
+    # for i in BoundaryNodes
+    #     A3D[i,i] = 0.0;
+    #     A3D[i,i] = A3D[i,i] + xneighbors[count]/h^2 + yneighbors[count]/k^2 + zneighbors[count]/l^2;
+    #     count = count + 1;
+    # end
+    # A3D_Return = copy(A3D);
 
     sizeA = size(A3D,1)
     for i = 1:sizeA
@@ -667,13 +676,13 @@ function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l, args..
     ylen = length(ypoints)
     zlen = length(zpoints)
     A3D = ∇²3d_Grid(xlen, ylen, zlen, h, k, l)
-    BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(xlen, ylen, zlen)
-    count = 1;
-    for i in BoundaryNodes
-        A3D[i,i] = 0.0;
-        A3D[i,i] = A3D[i,i] + xneighbors[count]/h^2 + yneighbors[count]/k^2 + zneighbors[count]/l^2;
-        count = count + 1;
-    end
+    # BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(xlen, ylen, zlen)
+    # count = 1;
+    # for i in BoundaryNodes
+    #     A3D[i,i] = 0.0;
+    #     A3D[i,i] = A3D[i,i] + xneighbors[count]/h^2 + yneighbors[count]/k^2 + zneighbors[count]/l^2;
+    #     count = count + 1;
+    # end
     discard = punch_holes_nexus(xpoints, ypoints, zpoints, radius)
     punched_image = copy(imgg)
     punched_image[discard] .= 1
