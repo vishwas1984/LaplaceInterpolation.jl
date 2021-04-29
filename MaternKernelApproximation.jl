@@ -171,7 +171,7 @@ function return_boundary_nodes(xpoints, ypoints, zpoints)
             end
         end
     end
-    return BoundaryNodes3D, xneighbors, yneighbors,zneighbors
+    return BoundaryNodes3D, xneighbors, yneighbors, zneighbors
 end
 
 """
@@ -592,7 +592,7 @@ end
 
 """
 
-  Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, args...)
+  Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, m)
 
 ...
 # Arguments
@@ -606,7 +606,6 @@ end
   - `k::Float`: grid spacing along the y-axis
   - `l::Float`: grid spacing along the z-axis
   - `m::Int` : Matern parameter 
-  - `args`: ?
 
 # Outputs
   - tuple containing the restored image and the punched image.
@@ -652,7 +651,7 @@ end
 
 """
 
-  Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l, args...)
+  Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l)
 
 ...
 # Arguments
@@ -664,14 +663,13 @@ end
   - `h::Float`: grid spacing along the x-axis
   - `k::Float`: grid spacing along the y-axis
   - `l::Float`: grid spacing along the z-axis
-  - `args`: ?
 
 # Outputs
   - tuple containing the restored image and the punched image.
 ...
 
 """
-function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l, args...)
+function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l)
     xlen = length(xpoints)
     ylen = length(ypoints)
     zlen = length(zpoints)
