@@ -6,14 +6,10 @@
 # boundaries. Lines 2 to ~ 175 consists of helper functions and 175 onwards
 # corresponds to the driver code.
 
-# To do: - generalize the code so the aspect ratio can be different in h, k, l. 
-#        - generalize the code so that m can be other than 2. 
-#        - must make this code work when there is missing data on the boundary
-
 using LinearAlgebra, SparseArrays, Colors
 
 """
-  spdiagm_nonsquare(m, n, args)
+  spdiagm_nonsquare(m, n, args...)
 
 Construct a sparse diagonal matrix from Pairs of vectors and diagonals. Each vector
 arg.second will be placed on the arg.first diagonal. By default (if size=nothing), the
@@ -113,11 +109,11 @@ function ∇²3d_Grid(n₁,n₂,n3, h, k, l)
             kron(sparse(I,n3,n3), ∂₂'*∂₂, sparse(I,n₁,n₁)) + 
             kron(del3'*del3, sparse(I,n₂,n₂), sparse(I,n₁,n₁)))
     BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(n₁, n₂, n3)
-    count = 1;
+    count = 1
     for i in BoundaryNodes
-        A3D[i,i] = 0.0;
-        A3D[i,i] = A3D[i,i] + xneighbors[count]/h^2 + yneighbors[count]/k^2 + zneighbors[count]/l^2;
-        count = count + 1;
+        A3D[i,i] = 0.0
+        A3D[i,i] = A3D[i,i] + xneighbors[count]/h^2 + yneighbors[count]/k^2 + zneighbors[count]/l^2
+        count = count + 1
     end
     return A3D
 end
@@ -141,15 +137,15 @@ end
 
 """
 function return_boundary_nodes(xpoints, ypoints, zpoints)
-    BoundaryNodes3D =[];
-    xneighbors = [];
-    yneighbors = [];
-    zneighbors = [];
-    counter = 0;
+    BoundaryNodes3D =[]
+    xneighbors = []
+    yneighbors = []
+    zneighbors = []
+    counter = 0
     for k = 1:zpoints
         for j = 1:ypoints
             for i = 1:xpoints
-                counter=counter+1;
+                counter=counter+1
                 if(k == 1 || k == zpoints || j == 1|| j == ypoints || i == 1 || i == xpoints)
                     BoundaryNodes3D = push!(BoundaryNodes3D, counter)
                     if(k == 1 || k == zpoints)
@@ -192,18 +188,16 @@ end
 
 """
 function return_boundary_nodes2D(xpoints, ypoints)
-    BoundaryNodes2D =[];
-    counter = 0;
-    
+    BoundaryNodes2D =[]
+    counter = 0
     for j = 1:ypoints
         for i = 1:xpoints
-            counter=counter+1;
+            counter=counter+1
             if( j == 1|| j == ypoints || i == 1 || i == xpoints)
                 BoundaryNodes2D = push!(BoundaryNodes2D, counter)
             end
         end
     end
-    
     return BoundaryNodes2D
 end
 
@@ -228,48 +222,13 @@ end
 
 ...
 """
-# function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
-#     xlen = length(xpoints)
-#     ylen = length(ypoints)
-#     zlen = length(zpoints)
-#     masking_data_points = []
-#     absolute_indices = Int64[]
-#     #Making sure that boundary is not punched
-#     xmax = maximum(xpoints);
-#     ymax = maximum(ypoints);
-#     zmax = maximum(zpoints);
-#     xmin = minimum(xpoints);
-#     ymin = minimum(ypoints);
-#     zmin = minimum(zpoints);
-#     count = 1;
-
-#     for i = 1:zlen
-#         ir = round(zpoints[i])
-#         for j = 1:ylen
-#             jr = round(ypoints[j])
-#             for h = 1:xlen
-#                 hr = round(xpoints[h]);
-#                 if(ir>=zmin+1 && ir <= zmax-1 && jr >= ymin+1 && jr <= ymax-1 && hr >= xmin+1 && hr <= xmax-1)
-#                     if((hr-xpoints[h])^2 + (jr-ypoints[j])^2/(1.5^2) + (ir - zpoints[i])^2/(1.5^2) <= radius^2)
-#                         #imgg_copy[h,j,i] = 1
-#                         #append!(masking_data_points,[(h,j,i)]);
-#                         append!(absolute_indices, count);   
-#                     end
-#                 end
-#                 count = count + 1
-#             end
-#         end
-#     end
-#     return absolute_indices
-# end
-
 function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
     xlen = length(xpoints)
     ylen = length(ypoints)
     zlen = length(zpoints)
     masking_data_points = []
     absolute_indices = Int64[]
-    count = 1;
+    count = 1
     for i = 1:zlen
         ir = round(zpoints[i])
         for j = 1:ylen
@@ -277,7 +236,7 @@ function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
             for h = 1:xlen
                 hr = round(xpoints[h])
                 if((hr-xpoints[h])^2 + (jr-ypoints[j])^2/(1.5^2) + (ir - zpoints[i])^2/(1.5^2) <= radius^2)
-                    append!(absolute_indices, count);   
+                    append!(absolute_indices, count)
                 end
                 count = count + 1
             end
@@ -617,22 +576,13 @@ function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l
     ylen = length(ypoints)
     zlen = length(zpoints)
     A3D = ∇²3d_Grid(xlen, ylen, zlen, h, k, l)
-    # BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(xlen, ylen, zlen)
-    # count = 1;
-    # for i in BoundaryNodes
-    #     A3D[i,i] = 0.0;
-    #     A3D[i,i] = A3D[i,i] + xneighbors[count]/h^2 + yneighbors[count]/k^2 + zneighbors[count]/l^2;
-    #     count = count + 1;
-    # end
-    # A3D_Return = copy(A3D);
-
     sizeA = size(A3D,1)
     for i = 1:sizeA
         A3D[i,i] = A3D[i,i] + epsilon^2
     end
-    A3DMatern = A3D;
+    A3DMatern = A3D
     for i = 1:m-1
-        A3DMatern = A3DMatern*A3D;
+        A3DMatern = A3DMatern*A3D
     end
     discard = punch_holes_nexus(xpoints, ypoints, zpoints, radius)
     punched_image = copy(imgg)
@@ -674,13 +624,6 @@ function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l)
     ylen = length(ypoints)
     zlen = length(zpoints)
     A3D = ∇²3d_Grid(xlen, ylen, zlen, h, k, l)
-    # BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(xlen, ylen, zlen)
-    # count = 1;
-    # for i in BoundaryNodes
-    #     A3D[i,i] = 0.0;
-    #     A3D[i,i] = A3D[i,i] + xneighbors[count]/h^2 + yneighbors[count]/k^2 + zneighbors[count]/l^2;
-    #     count = count + 1;
-    # end
     discard = punch_holes_nexus(xpoints, ypoints, zpoints, radius)
     punched_image = copy(imgg)
     punched_image[discard] .= 1
