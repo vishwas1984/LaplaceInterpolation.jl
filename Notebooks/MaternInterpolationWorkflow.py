@@ -19,47 +19,45 @@
 
 # LOAD LIBRARIES #######################################################
 
-import sys
-from pathlib import path
-import socket
+from pathlib import Path
+# import socket
 
 import numpy as np
 from nexusformat.nexus import *
 import timeit
 
 # this may work differently for you on the server, note that julia v 1.5.4
-# should be used (v 1.6.0 is incompatible)
-from julia import julia
-julia = julia(compiled_modules=false)
+# should be used (v 1.6.0 is incompatible), to specify uncomment this last
+# line.
+from julia.api import Julia
+julia = Julia(compiled_modules=False)
+from julia import Main
+# julia = Julia(runtime="/home/chaley/julia-1.5.4/bin/julia")
 
 # DIRECTORIES ###########################################################
-home = str(path.home())
-hostname = str(socket.gethostname())
+home = str(Path.home())
+# hostname = str(socket.gethostname())
 
 # if not charlotte's home, vishwas's home
-if home == '/users/charlottehaley':
+if home == '/Users/charlottehaley':
     base_dir = home + '/documents/data/xray/md_54_4b/'
     repo_dir = home + '/documents/repos/laplaceinterpolation/'
-    sys.path.insert(1, repo_dir)
-elif home == '/users/vishwasrao':
+    save_data_dir = base_dir
+elif home == '/Users/vishwasrao':
     base_dir = home + '/research/bes_project/data/'
     repo_dir = home + '/research/bes_project/repo/laplaceinterpolation/'
-    sys.path.insert(1, repo_dir)
+    save_data_dir = base_dir
 else:
-    base_dir = home
-
-save_data_dir = base_dir
-
-# for other machines, may need some edits.
-if "nxrs" in hostname and "nxrs0" not in hostname:
+    # if "nxrs" in hostname and "nxrs0" not in hostname:
     base_dir = '/data3/GUP-53547/movo2_40/md_54_4b/'
     save_data_dir = home
+
 
 filename = base_dir + 'movo2_40_120k.nxs'
 filename_background = base_dir + 'movo2_40_background.nxs'
 
 # You need to give repo_dir in order for this to work
-julia.include(repo_dir+"/maternkernelapproximation.jl")
+Main.include(repo_dir+"/MaternKernelApproximation.jl")
 
 
 def flipaxis(a, i):
@@ -79,14 +77,14 @@ movo2_40_background.unlock()
 z3d = data.entry.symm_transform[-0.2:6.2, -0.2:8.2, -0.2:8.2].data.nxvalue
 
 # axes
-x = data.entry.symm_transform[-0.2:6.2, -0.2:8.2, -0.2:8.2].ql.nxvalue
-x2 = data.entry.symm_transform[-0.2:6., -0.2:8.2, -0.2:8.2].qk.nxvalue
-x3 = data.entry.symm_transform[-0.2:6., -0.2:8.2, -0.2:8.2].qh.nxvalue
+x = data.entry.symm_transform[-0.2:6.2, -0.2:8.2, -0.2:8.2].Ql.nxvalue
+x2 = data.entry.symm_transform[-0.2:6., -0.2:8.2, -0.2:8.2].Qk.nxvalue
+x3 = data.entry.symm_transform[-0.2:6., -0.2:8.2, -0.2:8.2].Qh.nxvalue
 
 # increment in h, k, l directions
-dx = x[1] - x[0]
-dx2 = x2[1] - x2[0]
-dx3 = x3[1] - x3[0]
+dx = 0.02 # x[1] - x[0]
+dx2 = 0.02 # x2[1] - x2[0]
+dx3 = 0.02 # x3[1] - x3[0]
 
 
 # ## define the symmetrizing operation and the standard punch
@@ -169,9 +167,9 @@ for i in range(zmin, zmax):
             k2 = k1 + 2*stride + 1
             # (k2-k1)*h will be the length of the cube.
             z3temp = z3d_copy[k1:k2, j1:j2, i1:i2]
-            restored, punched = julia.Matern3D_Grid(x[k1:k2], x2[j1:j2],
-                                                    x3[i1:i2], z3temp, epsilon,
-                                                    radius, dx, dx2, dx3, m)
+            restored, punched = Main.Matern3D_Grid(x[k1:k2], x2[j1:j2],
+                                                   x3[i1:i2], z3temp, epsilon,
+                                                   radius, dx, dx2, dx3, m)
             restored_img_reshape = np.reshape(restored, (2*stride + 1, 2*stride + 1, 2*stride + 1))
             # Note the transposition is due to different ordering in Julia
             z3d_restored[k1:k2, j1:j2, i1:i2] = restored_img_reshape.T
@@ -204,9 +202,9 @@ for i in range(zmin, zmax):
             k1 = int((k - ybegin)/dx3) - stride
             k2 = k1 + 2*stride + 1
             z3temp = z3d_copy[k1:k2, j1:j2, i1:i2]
-            restored, punched = julia.Laplace3D_Grid(x[k1:k2], x2[j1:j2],
-                                                     x3[i1:i2], z3temp, radius,
-                                                     dx, dx2, dx3)
+            restored, punched = Main.Laplace3D_Grid(x[k1:k2], x2[j1:j2],
+                                                    x3[i1:i2], z3temp, radius,
+                                                    dx, dx2, dx3)
             restored_img_reshape = np.reshape(restored, (2*stride + 1, 2*stride + 1, 2*stride + 1))
             z3d_restored_laplace[k1:k2, j1:j2, i1:i2] = restored_img_reshape.T
 
@@ -259,5 +257,7 @@ stdinterp = NXfield(symmetrize(z3d_restored_laplace[0:311, 0:411, 0:411]), name=
 root.entry.sphere_laplace_data = NXdata(stdinterp, expt_data.symm_transform[-6.:5.98, -8.:7.98, -8.:7.98].nxaxes)
 
 root.save(save_data_dir + 'movo2_40_sphere_laplace_data.nxs')
+
+print("Files saved in: ", save_data_dir)
 
 # EOF ########################################################################
