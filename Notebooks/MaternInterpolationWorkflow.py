@@ -20,7 +20,7 @@
 # LOAD LIBRARIES #######################################################
 
 from pathlib import Path
-# import socket
+import socket
 
 import numpy as np
 from nexusformat.nexus import *
@@ -30,29 +30,32 @@ import timeit
 # should be used (v 1.6.0 is incompatible), to specify uncomment this last
 # line.
 from julia.api import Julia
-julia = Julia(compiled_modules=False)
-from julia import Main
-# julia = Julia(runtime="/home/chaley/julia-1.5.4/bin/julia")
 
 # DIRECTORIES ###########################################################
 home = str(Path.home())
-# hostname = str(socket.gethostname())
 
 # if not charlotte's home, vishwas's home
 if home == '/Users/charlottehaley':
     base_dir = home + '/documents/data/xray/md_54_4b/'
     repo_dir = home + '/documents/repos/laplaceinterpolation/'
     save_data_dir = base_dir
+    julia = Julia(compiled_modules=False)
 elif home == '/Users/vishwasrao':
     base_dir = home + '/research/bes_project/data/'
     repo_dir = home + '/research/bes_project/repo/laplaceinterpolation/'
     save_data_dir = base_dir
+    julia = Julia(compiled_modules=False)
 else:
-    # if "nxrs" in hostname and "nxrs0" not in hostname:
-    base_dir = '/data3/GUP-53547/movo2_40/md_54_4b/'
-    save_data_dir = home
+    hostname = str(socket.gethostname())
+    if "nxrs" in hostname and "nxrs0" not in hostname:
+        base_dir = '/data3/GUP-53547/movo2_40/md_54_4b/'
+        save_data_dir = home
+        repo_dir = home + '/Repos/laplaceinterpolation/'
+        # julia = Julia(runtime=home+"/julia-1.5.4/bin/julia")
+        julia = Julia(compiled_modules=False)
 
 
+from julia import Main
 filename = base_dir + 'movo2_40_120k.nxs'
 filename_background = base_dir + 'movo2_40_background.nxs'
 

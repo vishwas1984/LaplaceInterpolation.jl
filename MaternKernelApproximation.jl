@@ -6,7 +6,7 @@
 # boundaries. Lines 2 to ~ 175 consists of helper functions and 175 onwards
 # corresponds to the driver code.
 
-using LinearAlgebra, SparseArrays, Colors
+using LinearAlgebra, SparseArrays
 
 """
   spdiagm_nonsquare(m, n, args...)
