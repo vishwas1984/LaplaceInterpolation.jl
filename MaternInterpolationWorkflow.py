@@ -36,8 +36,8 @@ home = str(Path.home())
 
 # if not charlotte's home, vishwas's home
 if home == '/Users/charlottehaley':
-    base_dir = home + '/documents/data/xray/md_54_4b/'
-    repo_dir = home + '/documents/repos/laplaceinterpolation/'
+    base_dir = home + '/Documents/Data/xray/md_54_4b/'
+    repo_dir = home + '/Documents/Repos/laplaceinterpolation/'
     save_data_dir = base_dir
     julia = Julia(compiled_modules=False)
 elif home == '/Users/vishwasrao':
@@ -248,19 +248,19 @@ print("Time taken for Laplace interpolation with punch radius 0.02:", timeit.def
 # ## Save the Matern and Laplace Interpolated data to an .nxs file in the save
 # directory
 
-expt_data = nxload(save_data_dir + 'movo2_40_120K.nxs')['entry']
+expt_data = nxload(filename)['entry']
 
 root = NXroot(NXentry())
 stdinterp = NXfield(symmetrize(z3d_restored[0:311, 0:411, 0:411]), name='sphere_punch_matern_interp_data')
 root.entry.sphere_matern_data = NXdata(stdinterp, expt_data.symm_transform[-6.:5.98, -8.:7.98, -8.:7.98].nxaxes)
 
-root.save(save_data_dir + 'movo2_40_sphere_matern_data.nxs')
+root.save(save_data_dir + '/movo2_40_sphere_matern_data.nxs')
 
 root = NXroot(NXentry())
 stdinterp = NXfield(symmetrize(z3d_restored_laplace[0:311, 0:411, 0:411]), name='sphere_punch_laplace_interp_data')
 root.entry.sphere_laplace_data = NXdata(stdinterp, expt_data.symm_transform[-6.:5.98, -8.:7.98, -8.:7.98].nxaxes)
 
-root.save(save_data_dir + 'movo2_40_sphere_laplace_data.nxs')
+root.save(save_data_dir + '/movo2_40_sphere_laplace_data.nxs')
 
 print("Files saved in: ", save_data_dir)
 
