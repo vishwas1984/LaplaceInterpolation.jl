@@ -51,12 +51,13 @@ else:
         base_dir = '/data3/GUP-53547/movo2_40/md_54_4b/'
         save_data_dir = home
         repo_dir = home + '/Repos/laplaceinterpolation/'
+        # On nxrs, we actually use julia v 1.0 because this next line didn't work.
         # julia = Julia(runtime=home+"/julia-1.5.4/bin/julia")
         julia = Julia(compiled_modules=False)
 
 
 from julia import Main
-filename = base_dir + 'movo2_40_120k.nxs'
+filename = base_dir + 'movo2_40_120K.nxs'
 filename_background = base_dir + 'movo2_40_background.nxs'
 
 # You need to give repo_dir in order for this to work
