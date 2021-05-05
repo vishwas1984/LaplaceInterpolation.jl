@@ -25,6 +25,7 @@ import socket
 import numpy as np
 from nexusformat.nexus import *
 import timeit
+import os.path
 
 # this may work differently for you on the server, note that julia v 1.5.4
 # should be used (v 1.6.0 is incompatible), to specify uncomment this last
@@ -254,13 +255,25 @@ root = NXroot(NXentry())
 stdinterp = NXfield(symmetrize(z3d_restored[0:311, 0:411, 0:411]), name='sphere_punch_matern_interp_data')
 root.entry.sphere_matern_data = NXdata(stdinterp, expt_data.symm_transform[-6.:5.98, -8.:7.98, -8.:7.98].nxaxes)
 
-root.save(save_data_dir + '/movo2_40_sphere_matern_data.nxs')
+sphmat = save_data_dir + '/movo2_40_sphere_matern_data.nxs'
+
+if os.path.exists(sphmat):
+    os.remove(sphmat)
+
+
+root.save(sphmat)
 
 root = NXroot(NXentry())
 stdinterp = NXfield(symmetrize(z3d_restored_laplace[0:311, 0:411, 0:411]), name='sphere_punch_laplace_interp_data')
 root.entry.sphere_laplace_data = NXdata(stdinterp, expt_data.symm_transform[-6.:5.98, -8.:7.98, -8.:7.98].nxaxes)
 
-root.save(save_data_dir + '/movo2_40_sphere_laplace_data.nxs')
+sphlap = save_data_dir + '/movo2_40_sphere_laplace_data.nxs'
+
+if os.path.exists(sphlap):
+    os.remove(sphlap)
+
+
+root.save(sphlap)
 
 print("Files saved in: ", save_data_dir)
 
