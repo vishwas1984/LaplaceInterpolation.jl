@@ -99,23 +99,23 @@ Construct the 3D Laplace matrix
 
 """
 function ∇²3d_Grid(n₁,n₂,n3, h, k, l)
-    o₁ = ones(n₁)/h
-    ∂₁ = spdiagm_nonsquare(n₁+1,n₁,-1=>-o₁,0=>o₁)
-    o₂ = ones(n₂)/k
-    ∂₂ = spdiagm_nonsquare(n₂+1,n₂,-1=>-o₂,0=>o₂)
-    O3 = ones(n3)/l
+    o₁ = ones(n₁)/h;
+    ∂₁ = spdiagm_nonsquare(n₁+1,n₁,-1=>-o₁,0=>o₁);
+    o₂ = ones(n₂)/k;
+    ∂₂ = spdiagm_nonsquare(n₂+1,n₂,-1=>-o₂,0=>o₂);
+    O3 = ones(n3)/l;
     del3 = spdiagm_nonsquare(n3+1,n3,-1=>-O3,0=>O3)
     A3D = (kron(sparse(I,n3,n3),sparse(I,n₂,n₂), ∂₁'*∂₁) + 
             kron(sparse(I,n3,n3), ∂₂'*∂₂, sparse(I,n₁,n₁)) + 
             kron(del3'*del3, sparse(I,n₂,n₂), sparse(I,n₁,n₁)))
-    BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(n₁, n₂, n3)
-    count = 1
+    BoundaryNodes, xneighbors, yneighbors, zneighbors = return_boundary_nodes(n₁, n₂, n3);
+    count = 1;
     for i in BoundaryNodes
-        A3D[i,i] = 0.0
-        A3D[i,i] = A3D[i,i] + xneighbors[count]/h^2 + yneighbors[count]/k^2 + zneighbors[count]/l^2
-        count = count + 1
+        A3D[i,i] = 0.0;
+        A3D[i,i] = A3D[i,i] + xneighbors[count]/h^2 + yneighbors[count]/k^2 + zneighbors[count]/l^2;
+        count = count + 1;
     end
-    return A3D
+    return A3D;
 end
 
 """
@@ -572,31 +572,31 @@ end
 
 """
 function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, m)
-    xlen = length(xpoints)
-    ylen = length(ypoints)
-    zlen = length(zpoints)
-    A3D = ∇²3d_Grid(xlen, ylen, zlen, h, k, l)
-    sizeA = size(A3D,1)
+    xlen = length(xpoints);
+    ylen = length(ypoints);
+    zlen = length(zpoints);
+    A3D = ∇²3d_Grid(xlen, ylen, zlen, h, k, l);
+    sizeA = size(A3D,1);
     for i = 1:sizeA
-        A3D[i,i] = A3D[i,i] + epsilon^2
+        A3D[i,i] = A3D[i,i] + epsilon^2;
     end
-    A3DMatern = A3D
+    A3DMatern = A3D;
     for i = 1:m-1
-        A3DMatern = A3DMatern*A3D
+        A3DMatern = A3DMatern*A3D;
     end
-    discard = punch_holes_nexus(xpoints, ypoints, zpoints, radius)
-    punched_image = copy(imgg)
-    punched_image[discard] .= 1
+    discard = punch_holes_nexus(xpoints, ypoints, zpoints, radius);
+    punched_image = copy(imgg);
+    punched_image[discard] .= 1;
     totalsize = prod(size(imgg))
-    C = sparse(I, totalsize, totalsize)
-    rhs_a = punched_image[:]
+    C = sparse(I, totalsize, totalsize);
+    rhs_a = punched_image[:];
     for i in discard
-        C[i,i] = 0
-        rhs_a[i] = 0
+        C[i,i] = 0;
+        rhs_a[i] = 0;
     end
-    Id = sparse(I, totalsize, totalsize)    
-    u = ((C-(Id -C)*A3DMatern)) \ rhs_a
-    return (u, punched_image[:])
+    Id = sparse(I, totalsize, totalsize);    
+    u = ((C-(Id -C)*A3DMatern)) \ rhs_a;
+    return (u, punched_image[:]);
 end
 
 """
@@ -639,7 +639,7 @@ function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l)
     return u, punched_image[:]
 end
 
-function Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, xmin, ymin, zmin, m)
+function Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, xmin, xmax, ymin, ymax, zmin, zmax, m)
     xbegin = xpoints[1];
     ybegin = ypoints[1];
     zbegin = zpoints[1];
@@ -647,13 +647,13 @@ function Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius
     stride = Int(round(radius/h));
     z3d_restored = copy(imgg);
     for i = xmin:xmax+1
-        i1 = Int((i-xbegin) /h)-stride;
+        i1 = Int(round((i-xbegin) /h))-stride;
         i2 = i1+2*stride+1;
         for j = ymin:ymax+1
-            j1 = Int((j-ybegin)/h)-stride;
+            j1 = Int(round((j-ybegin)/h))-stride;
             j2 = j1+2*stride+1;
-            for k = xmin:xmax-1
-                k1 = Int((k-ybegin)/h) - stride;
+            for k = zmin:zmax+1
+                k1 = Int(round((k-ybegin)/h)) - stride;
                 k2 = k1+2*stride+1;
                 append!(cartesian_product_boxes,[(i1,i2,j1,j2,k1,k2)]);
             end
@@ -661,17 +661,17 @@ function Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius
     end
 
     Threads.@threads for i = 1:length(cartesian_product_boxes)
-      i1 = cartesian_product_boxes[i][1]
-      i2 = cartesian_product_boxes[i][2]
-      j1 = cartesian_product_boxes[i][3]
-      j2 = cartesian_product_boxes[i][4]
-      k1 = cartesian_product_boxes[i][5]
-      k2 = cartesian_product_boxes[i][6]
+      i1 = cartesian_product_boxes[i][1];
+      i2 = cartesian_product_boxes[i][2];
+      j1 = cartesian_product_boxes[i][3];
+      j2 = cartesian_product_boxes[i][4];
+      k1 = cartesian_product_boxes[i][5];
+      k2 = cartesian_product_boxes[i][6];
       z3temp = imgg[i1+1:i2,j1+1:j2,k1+1:k2];
-      restored_img, punched_image = Matern3D_Grid(x[i1+1:i2], x2[j1+1:j2], x3[k1+1:k2], z3temp, epsilon, radius, h);
+      restored_img, punched_image = Matern3D_Grid(xpoints[i1+1:i2], ypoints[j1+1:j2], zpoints[k1+1:k2], z3temp, epsilon, radius, h, k, l, m);
       restored_img_reshape = reshape(restored_img, (2*stride+1,2*stride+1,2*stride+1));
       z3d_restored[i1+1:i2, j1+1:j2, k1+1:k2] = restored_img_reshape;
     end
-    return z3d_restored[:]
+    return z3d_restored[:];
 end
 
