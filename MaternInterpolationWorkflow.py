@@ -51,7 +51,7 @@ else:
     if "nxrs" in hostname and "nxrs0" not in hostname:
         base_dir = '/data3/GUP-53547/movo2_40/md_54_4b/'
         save_data_dir = '/data3/vrao_MoVO2/'
-        repo_dir = home + '/Repo/laplaceinterpolation/'
+        repo_dir = home + '/Repos/laplaceinterpolation/'
         # On nxrs, we actually use julia v 1.0 because this next line didn't work.
         # julia = Julia(runtime=home+"/julia-1.5.4/bin/julia")
         julia = Julia(compiled_modules=False)
