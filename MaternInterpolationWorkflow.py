@@ -51,7 +51,7 @@ else:
     if "nxrs" in hostname and "nxrs0" not in hostname:
         base_dir = '/data3/GUP-53547/movo2_40/md_54_4b/'
         save_data_dir = home
-        repo_dir = home + '/Repos/laplaceinterpolation/'
+        repo_dir = home + '/Repo/laplaceinterpolation/'
         # On nxrs, we actually use julia v 1.0 because this next line didn't work.
         # julia = Julia(runtime=home+"/julia-1.5.4/bin/julia")
         julia = Julia(compiled_modules=False)
@@ -124,7 +124,7 @@ def symmetrize(res):
 
 # we will use a punch radius of 0.2
 
-epsilon = 0.
+epsilon = 0.0
 m = 2
 radius = 0.200
 
@@ -157,30 +157,36 @@ stride = 10
 
 starttime = timeit.default_timer()
 
-for i in range(zmin, zmax):
+for i in range(xmin, xmax):
     # (i2-i1)*h will be the length of the cube
     i1 = int((i - zbegin) / dx) - stride
     # Here we are sending only the cube surrounding the punch for interpolation
-    i2 = i1 + 2*stride + 1
+    #i2 = i1 + 2*stride + 1
     for j in range(ymin, ymax):
         j1 = int((j - ybegin)/dx2) - stride
-        j2 = j1 + 2*stride + 1
+        #j2 = j1 + 2*stride + 1
         # (j2-j1)*h will be the length of the cube. For some crystals
         # (j2-j1)*h != (i2-i1)*h because of different aspect ratios.
-        for k in range(xmin, xmax):
+        for k in range(zmin, zmax):
+            if(i==xmin or i==xmax-1 or j==ymin or j==ymax-1 or k==zmin or k==zmax-1):
+                stride = 10
+            else:
+                stride = 20
+            i2 = i1 + 2*stride + 1
+            j2 = j1 + 2*stride + 1
             k1 = int((k - ybegin)/dx3) - stride
             k2 = k1 + 2*stride + 1
             # (k2-k1)*h will be the length of the cube.
-            z3temp = z3d_copy[k1:k2, j1:j2, i1:i2]
-            restored, punched = Main.Matern3D_Grid(x[k1:k2], x2[j1:j2],
-                                                   x3[i1:i2], z3temp, epsilon,
+            z3temp = z3d_copy[i1:i2, j1:j2, k1:k2]
+            restored, punched = Main.Matern3D_Grid(x[i1:i2], x2[j1:j2],
+                                                   x3[k1:k2], z3temp, epsilon,
                                                    radius, dx, dx2, dx3, m)
             restored_img_reshape = np.reshape(restored, (2*stride + 1, 2*stride + 1, 2*stride + 1))
             # Note the transposition is due to different ordering in Julia
-            z3d_restored[k1:k2, j1:j2, i1:i2] = restored_img_reshape.T
+            z3d_restored[i1:i2, j1:j2, k1:k2] = np.transpose(restored_img_reshape, (2, 1, 0))
 
 
-print("Time taken for Matern interpolation with m = 2 and epsilon = 0, punch radius 0.02:", timeit.default_timer() - starttime)
+print("Time taken for Matern interpolation with m = 2 and epsilon = 0, punch radius 0.2:", timeit.default_timer() - starttime)
 
 # The result of the Matern interpolation is in z3d_restored
 
@@ -197,21 +203,29 @@ z3d_restored_laplace = np.copy(z3d)
 # Start timer
 starttime = timeit.default_timer()
 
-for i in range(zmin, zmax):
+for i in range(xmin, xmax):
     i1 = int((i - zbegin)/dx) - stride
     i2 = i1 + 2*stride + 1
     for j in range(ymin, ymax):
         j1 = int((j - ybegin)/dx2) - stride
         j2 = j1 + 2*stride + 1
-        for k in range(xmin, xmax):
+        for k in range(zmin, zmax):
+            if(i==xmin or i==xmax-1 or j==ymin or j==ymax-1 or k==zmin or k==zmax-1):
+                stride = 10
+            else:
+                stride = 20
+            i2 = i1 + 2*stride + 1
+            j2 = j1 + 2*stride + 1
+
             k1 = int((k - ybegin)/dx3) - stride
             k2 = k1 + 2*stride + 1
-            z3temp = z3d_copy[k1:k2, j1:j2, i1:i2]
-            restored, punched = Main.Laplace3D_Grid(x[k1:k2], x2[j1:j2],
-                                                    x3[i1:i2], z3temp, radius,
+            z3temp = z3d_copy[i1:i2, j1:j2, k1:k2]
+            restored, punched = Main.Laplace3D_Grid(x[i1:i2], x2[j1:j2],
+                                                    x3[k1:k2], z3temp, radius,
                                                     dx, dx2, dx3)
             restored_img_reshape = np.reshape(restored, (2*stride + 1, 2*stride + 1, 2*stride + 1))
-            z3d_restored_laplace[k1:k2, j1:j2, i1:i2] = restored_img_reshape.T
+            # Note the transposition is due to different ordering in Julia
+            z3d_restored_laplace[i1:i2, j1:j2, k1:k2] = np.transpose(restored_img_reshape, (2, 1, 0))
 
 # Print time
 print("Time taken for Laplace interpolation with punch radius 0.02:", timeit.default_timer() - starttime)
@@ -255,7 +269,7 @@ root = NXroot(NXentry())
 stdinterp = NXfield(symmetrize(z3d_restored[0:311, 0:411, 0:411]), name='sphere_punch_matern_interp_data')
 root.entry.sphere_matern_data = NXdata(stdinterp, expt_data.symm_transform[-6.:5.98, -8.:7.98, -8.:7.98].nxaxes)
 
-sphmat = save_data_dir + '/movo2_40_sphere_matern_data.nxs'
+sphmat = save_data_dir + '/movo2_40_sphere_matern_data_different_stride_boundary.nxs'
 
 if os.path.exists(sphmat):
     os.remove(sphmat)
@@ -267,7 +281,7 @@ root = NXroot(NXentry())
 stdinterp = NXfield(symmetrize(z3d_restored_laplace[0:311, 0:411, 0:411]), name='sphere_punch_laplace_interp_data')
 root.entry.sphere_laplace_data = NXdata(stdinterp, expt_data.symm_transform[-6.:5.98, -8.:7.98, -8.:7.98].nxaxes)
 
-sphlap = save_data_dir + '/movo2_40_sphere_laplace_data.nxs'
+sphlap = save_data_dir + '/movo2_40_sphere_laplace_data_different_stride_boundary.nxs'
 
 if os.path.exists(sphlap):
     os.remove(sphlap)

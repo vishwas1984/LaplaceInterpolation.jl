@@ -235,7 +235,7 @@ function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
             jr = round(ypoints[j])
             for h = 1:xlen
                 hr = round(xpoints[h])
-                if((hr-xpoints[h])^2 + (jr-ypoints[j])^2/(1.5^2) + (ir - zpoints[i])^2/(1.5^2) <= radius^2)
+                if((hr-xpoints[h])^2 + (jr-ypoints[j])^2/(1.0^2) + (ir - zpoints[i])^2/(1.0^2) <= radius^2)
                     append!(absolute_indices, count)
                 end
                 count = count + 1
