@@ -639,3 +639,39 @@ function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l)
     return u, punched_image[:]
 end
 
+function Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, xmin, ymin, zmin, m)
+    xbegin = xpoints[1];
+    ybegin = ypoints[1];
+    zbegin = zpoints[1];
+    cartesian_product_boxes = [];
+    stride = Int(round(radius/h));
+    z3d_restored = copy(imgg);
+    for i = xmin:xmax+1
+        i1 = Int((i-xbegin) /h)-stride;
+        i2 = i1+2*stride+1;
+        for j = ymin:ymax+1
+            j1 = Int((j-ybegin)/h)-stride;
+            j2 = j1+2*stride+1;
+            for k = xmin:xmax-1
+                k1 = Int((k-ybegin)/h) - stride;
+                k2 = k1+2*stride+1;
+                append!(cartesian_product_boxes,[(i1,i2,j1,j2,k1,k2)]);
+            end
+        end
+    end
+
+    Threads.@threads for i = 1:length(cartesian_product_boxes)
+      i1 = cartesian_product_boxes[i][1]
+      i2 = cartesian_product_boxes[i][2]
+      j1 = cartesian_product_boxes[i][3]
+      j2 = cartesian_product_boxes[i][4]
+      k1 = cartesian_product_boxes[i][5]
+      k2 = cartesian_product_boxes[i][6]
+      z3temp = imgg[i1+1:i2,j1+1:j2,k1+1:k2];
+      restored_img, punched_image = Matern3D_Grid(x[i1+1:i2], x2[j1+1:j2], x3[k1+1:k2], z3temp, epsilon, radius, h);
+      restored_img_reshape = reshape(restored_img, (2*stride+1,2*stride+1,2*stride+1));
+      z3d_restored[i1+1:i2, j1+1:j2, k1+1:k2] = restored_img_reshape;
+    end
+    return z3d_restored[:]
+end
+
