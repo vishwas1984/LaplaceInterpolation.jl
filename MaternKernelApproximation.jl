@@ -697,7 +697,6 @@ function Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius
       j2 = cartesian_product_boxes[i][4]
       k1 = cartesian_product_boxes[i][5]
       k2 = cartesian_product_boxes[i][6]
-      println("I,J,K: ", i1," ", i2, " ", j1, " ", j2, " ", k1, " ", k2)
       z3temp = imgg[i1 + 1:i2, j1 + 1:j2, k1 + 1:k2]
       restored_img, punched_image = Matern3D_Grid(xpoints[i1 + 1:i2], 
                                   ypoints[j1 + 1:j2], zpoints[k1+1:k2], z3temp, 
