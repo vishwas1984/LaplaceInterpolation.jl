@@ -50,8 +50,8 @@ else:
     hostname = str(socket.gethostname())
     if "nxrs" in hostname and "nxrs0" not in hostname:
         base_dir = '/data3/GUP-53547/movo2_40/md_54_4b/'
-        save_data_dir = home
-        repo_dir = home + '/Repo/laplaceinterpolation/'
+        save_data_dir = '/data3/vrao_MoVO2/'
+        repo_dir = home + '/Repos/laplaceinterpolation/'
         # On nxrs, we actually use julia v 1.0 because this next line didn't work.
         # julia = Julia(runtime=home+"/julia-1.5.4/bin/julia")
         julia = Julia(compiled_modules=False)
@@ -154,7 +154,11 @@ stride = 10
 # length of the cube of the data that is sent is slightly larger than the
 # diameter of the punch. In summary, value of "stride" depends somewhat on the
 # problem.
-
+starttime = timeit.default_timer()
+restored = Main.Parallel_Matern3D_Grid(x, x2, x3, z3d_copy, epsilon, radius, dx, dx2, dx3, xmin, xmax, ymin, ymax, zmin, zmax, m)
+restored_parallel = np.reshape(restored, (len(x3), len(x2), len(x)))
+restored_parallel_transpose = np.transpose(restored_parallel,(2,1,0)) 
+print("Time taken for Parallel Matern interpolation with m = 2 and epsilon = 0, punch radius 0.2:", timeit.default_timer() - starttime)
 starttime = timeit.default_timer()
 
 for i in range(xmin, xmax):
@@ -288,6 +292,18 @@ if os.path.exists(sphlap):
 
 
 root.save(sphlap)
+
+
+stdinterp = NXfield(symmetrize(restored_parallel_transpose[0:311, 0:411, 0:411]), name='sphere_punch_parallelmatern_interp_data')
+root.entry.sphere_parallelmatern_data = NXdata(stdinterp, expt_data.symm_transform[-6.:5.98, -8.:7.98, -8.:7.98].nxaxes)
+
+sphparmat = save_data_dir + '/movo2_40_sphere_parallelmatern_interp.nxs'
+
+if os.path.exists(sphparmat):
+    os.remove(sphparmat)
+
+
+root.save(sphparmat)
 
 print("Files saved in: ", save_data_dir)
 
