@@ -644,6 +644,8 @@ end
   Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l,
           xmin, xmax, ymin, ymax, zmin, zmax, m)
 
+Compute the spherically-punched, Matern-interpolated 3D data
+
 ...
 # Arguments
   - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
@@ -655,7 +657,7 @@ end
   - `h::Float`: grid spacing along the x-axis
   - `k::Float`: grid spacing along the y-axis
   - `l::Float`: grid spacing along the z-axis
-  - `xmin::Int64`:
+  - `xmin::Int64`: Vishwas should fill in the next six fields. 
   - `xmax::Int64`:
   - `ymin::Int64`:
   - `ymax::Int64`:
@@ -665,6 +667,27 @@ end
 
 # Outputs
   - tuple containing the restored image and the punched image.
+
+# Example 
+
+```julia-repl
+xmin = 0
+xmax = 1
+ymin = 0
+ymax = 1
+zmin = 0
+zmax = 1
+x = -0.2:0.2:1.2
+x2 = -0.2:0.2:1.2
+x3 = -0.2:0.2:1.2
+dx = 0.2
+dx2 = 0.2
+dx3 = 0.2
+imgg = randn(8,8,8)
+restored = Parallel_Matern3D_Grid(x, x2, x3, imgg, 0, 0.2, dx, dx2, dx3, xmin, xmax, 
+                                  ymin, ymax, zmin, zmax, 2)
+```
+
 ...
 
 """
