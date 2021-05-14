@@ -634,6 +634,86 @@ end
 
 """
 
+  Parallel_Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l,
+          xmin, xmax, ymin, ymax, zmin, zmax)
+
+Compute the spherically-punched, Laplace-interpolated 3D data
+
+...
+# Arguments
+  - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
+  - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
+  - `zpoints::Vector{T} where T<:Real`: the vector containing the z coordinate
+  - `imgg`: the matrix containing the image
+  - `radius::Vector`: the tuple containing the punch radii 
+  - `h::Float`: grid spacing along the x-axis
+  - `k::Float`: grid spacing along the y-axis
+  - `l::Float`: grid spacing along the z-axis
+  - `xmin::Int64`: Vishwas should fill in the next six fields. 
+  - `xmax::Int64`:
+  - `ymin::Int64`:
+  - `ymax::Int64`:
+  - `zmin::Int64`:
+  - `zmax::Int64`:
+
+# Outputs
+  - array containing the restored image 
+
+# Example 
+
+```julia-repl
+(xmin, xmax) = (ymin, ymax) = (zmin,zmax) = (0.0, 1.0)
+xpoints = ypoints = zpoints = -0.2:0.2:1.2
+h = k = l = 0.2
+imgg = randn(8,8,8)
+radius = 0.2
+restored = Parallel_Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, 
+                                 h, k, l, xmin, xmax, ymin, ymax, zmin, zmax)
+```
+
+...
+
+"""
+function Parallel_Laplace3D_Grid(xpoints::Union{StepRangeLen{T},Vector{T}}, 
+                                ypoints::Union{StepRangeLen{T},Vector{T}}, 
+                                zpoints::Union{StepRangeLen{T},Vector{T}}, 
+                                imgg::Array{P,3}, 
+                                radius::Union{Q,Tuple{Q,Q,Q}}, 
+                                h::Float64, k::Float64, l::Float64, 
+                                xmin::R, xmax::R, ymin::R, ymax::R, zmin::R, zmax::R 
+                                ) where{T<:Number,P<:Number,Q<:Number,R<:Number}
+  # 
+  fun(x,y,z,w) = Int(round((x -y)/z) - w ) 
+  ran(x,y,z,w) = fun(x, y, z, w) .+ (0, 2*w + 1)
+  #
+  rad = (typeof(radius) <: Tuple) ? radius : (radius, radius, radius)
+  radius_x, radius_y, radius_z = rad 
+  stride_h = Int64(round(radius_x / h))
+  stride_k = Int64(round(radius_y / k))
+  stride_l = Int64(round(radius_z / l))
+  cartesian_product_boxes = [(ran(i, xpoints[1], h, stride_h)..., 
+                              ran(j, ypoints[1], k, stride_k)...,
+                              ran(kk, zpoints[1], l, stride_l)...)  
+                         for i in xmin:xmax for j in ymin:ymax for kk in zmin:zmax]
+  #
+  z3d_restored = copy(imgg)
+  #
+  Threads.@threads for i = 1:length(cartesian_product_boxes)
+    i1, i2, j1, j2, k1, k2 = cartesian_product_boxes[i]
+    restored_img = Laplace3D_Grid(xpoints[i1 + 1:i2], ypoints[j1 + 1:j2], 
+                           zpoints[k1 + 1:k2], 
+                           imgg[i1 + 1:i2, j1 + 1:j2, k1 + 1:k2], 
+                           radius, h, k, l)[1]
+    z3d_restored[i1 + 1:i2, j1 + 1:j2, k1 + 1:k2] = reshape(restored_img, 
+                           (2 * stride_h + 1, 2 * stride_k + 1, 2 * stride_l + 1))
+  end
+  #
+  return z3d_restored[:]
+  #
+end
+
+"""
+
   Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l,
           xmin, xmax, ymin, ymax, zmin, zmax, m)
 

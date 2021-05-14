@@ -9,3 +9,5 @@ epsilon = 0.0
 radius = (0.2, 0.3, 0.2)
 restored = Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, 
                                   h, k, l, xmin, xmax, ymin, ymax, zmin, zmax, m)
+restored = Parallel_Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, 
+                                  h, k, l, xmin, xmax, ymin, ymax, zmin, zmax)
