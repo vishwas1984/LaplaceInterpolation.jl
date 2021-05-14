@@ -6,6 +6,6 @@ h = k = l = 0.2
 imgg = randn(8,8,8)
 m = 2
 epsilon = 0.0
-radius = 0.2
+radius = (0.2, 0.3, 0.2)
 restored = Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, 
                                   h, k, l, xmin, xmax, ymin, ymax, zmin, zmax, m)
