@@ -17,5 +17,14 @@ radius = (0.2, 0.3, 0.2)
 
 centers = [(0.3, 0.3, 0.3), (0.8, 0.8, 0.8)]
 
+#=
+mask = ones(size(imgg))
+mask = broadcast(+, (xpoints .- c[1]).^2, (ypoints .- c[2])'.^2) .> rad^2
+
+fun(c, k, img) = filter(x -> (floor(x / size(img,1) .- c[1]).^2 +  (x%size(img,1) .- c[2])'.^2 > rad^2, k)
+
 indices = punch_holes_3D(centers, radius, xpoints, ypoints, zpoints)
+=# 
+
+mask = [(x - centers[1][1])^2 + (y - centers[1][2])^2 + (z - centers[1][3])^2 < 0.2^2 for x in xpoints for y in ypoints for z in zpoints]
 
