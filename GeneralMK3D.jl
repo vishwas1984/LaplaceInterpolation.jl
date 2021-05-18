@@ -207,6 +207,8 @@ end
 
   interp(x, y, z, imgg, discard, epsilon, m)
 
+Interpolates a single punch
+
 ...
 # Arguments
   - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
@@ -218,7 +220,7 @@ end
   - `m::Int64 = 1` : Matern parameter 
 
 # Outputs
-  - tuple containing the restored image and the punched image.
+  - array containing the restored image
 ...
 
 """
@@ -242,5 +244,44 @@ function interp(x, y, z, imgg, discard::Vector{CartesianIndex{3}},
     Id = sparse(I, totalsize, totalsize)    
     u = ((C - (Id - C) * A3D)) \ rhs_a
     return u
+end
+
+
+"""
+
+  interp(x, y, z, imgg, discard, epsilon, m)
+
+Interpolate, in parallel, multiple punches
+
+...
+# Arguments
+  - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
+  - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
+  - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
+  - `imgg`: the matrix containing the image
+  - `discard::Vector{Int64}`: the linear indices of the values to be filled 
+  - `epsilon::Float64 = 0.0`: Matern parameter epsilon
+  - `m::Int64 = 1` : Matern parameter 
+
+# Outputs
+  - array containing the interpolated image 
+...
+"""
+function parallel_interp(x, y, z, imgg,
+                        discard::Vector{Vector{CartesianIndex{3}}},
+                        epsilon = 0.0, m = 1)
+  res = copy(imgg)
+  # This line switches from parallel to serial and vice versa
+  Threads.@threads for d in discard
+  # for d in discard
+      fi, li = (first(d), last(d) + CartesianIndex(1, 1, 1))
+      selection = map(i -> i - fi + CartesianIndex(1, 1, 1), d)
+      # Interpolate
+      res[fi:li] = interp(xpoints[fi[1]:li[1]], ypoints[fi[2]:li[2]], 
+              zpoints[fi[3]:li[3]], 
+              imgg[fi:li], 
+              selection, epsilon, m)
+  end
+    return res
 end
 
