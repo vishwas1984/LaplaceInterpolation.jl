@@ -69,8 +69,8 @@ function ∇²3d_Grid(n₁, n₂, n3, h, k, l)
     count = 1
     for i in BoundaryNodes
         A3D[i, i] = 0.0
-        A3D[i, i] = A3D[i, i] + xneighbors[count] / h ^ 2 
-                    + yneighbors[count] / k ^ 2 + zneighbors[count] / l ^ 2
+        A3D[i, i] = A3D[i, i] + xneighbors[count] / h ^ 2 + 
+                     yneighbors[count] / k ^ 2 + zneighbors[count] / l ^ 2
         count = count + 1
     end
     return A3D
