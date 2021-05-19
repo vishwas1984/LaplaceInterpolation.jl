@@ -54,27 +54,84 @@ Construct the 3D Laplace matrix
   - `-∇²` (discrete Laplacian, real-symmetric positive-definite) on n₁×n₂ grid
 
 """
-function ∇²3d_Grid(n₁, n₂, n3, h, k, l)
-    o₁ = ones(n₁) / h
-    ∂₁ = spdiagm_nonsquare(n₁ + 1, n₁, -1 => -o₁, 0 => o₁)
-    o₂ = ones(n₂) / k
-    ∂₂ = spdiagm_nonsquare(n₂ + 1, n₂, -1 => -o₂,0 => o₂)
+function Laplace_3d_Grid(n1, n2, n3, h = 1, k = 1, l = 1)
+    o1 = ones(n1) / h
+    d1 = spdiagm_nonsquare(n2 + 1, n1, -1 => -o1, 0 => o1)
+    o2 = ones(n2) / k
+    d2 = spdiagm_nonsquare(n2 + 1, n1, -1 => -o2,0 => o2)
     O3 = ones(n3) / l
     del3 = spdiagm_nonsquare(n3 + 1, n3, -1 => -O3, 0 => O3)
-    A3D = (kron(sparse(I, n3, n3), sparse(I, n₂, n₂), ∂₁'*∂₁) + 
-            kron(sparse(I, n3, n3), ∂₂' * ∂₂, sparse(I, n₁, n₁)) + 
-            kron(del3' * del3, sparse(I, n₂, n₂), sparse(I, n₁, n₁)))
-    BoundaryNodes, xneighbors, yneighbors, zneighbors = 
-            return_boundary_nodes(n₁, n₂, n3)
-    count = 1
-    for i in BoundaryNodes
-        A3D[i, i] = 0.0
-        A3D[i, i] = A3D[i, i] + xneighbors[count] / h ^ 2 
-                    + yneighbors[count] / k ^ 2 + zneighbors[count] / l ^ 2
-        count = count + 1
-    end
+    A3D = (kron(sparse(I, n3, n3), sparse(I, n2, n2), d1'*d1) + 
+            kron(sparse(I, n3, n3), d2' * d2, sparse(I, n1, n1)) + 
+            kron(del3' * del3, sparse(I, n2, n2), sparse(I, n1, n1)))
+    corners, xedge, yedge, zedge, xyedge, yzedge, xzedge = return_boundary_nodes(n1, 
+                                                                            n2, n3)
+    # count = 1
+    # for i in BoundaryNodes
+    #    A3D[i, i] = A3D[i, i] + xneighbors[count] / h ^ 2 
+    #                + yneighbors[count] / k ^ 2 + zneighbors[count] / l ^ 2
+    #    count = count + 1
+    # end
+    
+    # The corners have three neighbors
+    lincorners = LinearIndices(zeros(n1, n2, n3))[corners]
+    A3D[lincorners, lincorners] .= 3
+    linedges = LinearIndices(zeros(n1,n2,n3))[vcat(xyedge,yzedge,xzedge)]
+    A3D[linedges, linedges] .= 4
     return A3D
 end
+
+# """
+#   return_boundary_nodes(x, y, z)
+# 
+# ...
+# # Arguments
+# 
+#   - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
+#   - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
+#   - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
+# ...
+# 
+# ...
+# # Outputs
+#   - `BoundaryNodes3D::Vector{Int64}`: vector containing the indices of coordinates 
+#   on the boundary of the rectangular 3D volume
+# ...
+# 
+# """
+# function return_boundary_nodes(x, y, z)
+#     BoundaryNodes3D =[]
+#     xneighbors = []
+#     yneighbors = []
+#     zneighbors = []
+#     counter = 0
+#     for k = 1:z
+#         for j = 1:y
+#             for i = 1:x
+#                 counter=counter+1
+#                 if(k == 1 || k == z || j == 1|| j == y || i == 1 || i == x)
+#                     BoundaryNodes3D = push!(BoundaryNodes3D, counter)
+#                     if(k == 1 || k == z)
+#                         push!(zneighbors, 1)
+#                     else
+#                         push!(zneighbors, 2)
+#                     end
+#                     if(j == 1 || j == y)
+#                         push!(yneighbors, 1)
+#                     else
+#                         push!(yneighbors, 2)
+#                     end
+#                     if(i == 1 || i == x)
+#                         push!(xneighbors, 1)
+#                     else
+#                         push!(xneighbors, 2)
+#                     end
+#                 end
+#             end
+#         end
+#     end
+#     return BoundaryNodes3D, xneighbors, yneighbors, zneighbors
+# end
 
 """
   return_boundary_nodes(x, y, z)
@@ -82,50 +139,27 @@ end
 ...
 # Arguments
 
-  - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
+  - `x::Int64`: the number of pixels along the x coordinate
+  - `y::Int64`: the number of pixels along the y coordinate
+  - `z::Int64`: the number of pixels along the z coordinate
 ...
 
 ...
 # Outputs
-  - `BoundaryNodes3D::Vector{Int64}`: vector containing the indices of coordinates 
+  - `BoundaryNodes3D`: vector containing the CartesianIndices of coordinates 
   on the boundary of the rectangular 3D volume
 ...
 
 """
-function return_boundary_nodes(x, y, z)
-    BoundaryNodes3D =[]
-    xneighbors = []
-    yneighbors = []
-    zneighbors = []
-    counter = 0
-    for k = 1:z
-        for j = 1:y
-            for i = 1:x
-                counter=counter+1
-                if(k == 1 || k == z || j == 1|| j == y || i == 1 || i == x)
-                    BoundaryNodes3D = push!(BoundaryNodes3D, counter)
-                    if(k == 1 || k == z)
-                        push!(zneighbors, 1)
-                    else
-                        push!(zneighbors, 2)
-                    end
-                    if(j == 1 || j == y)
-                        push!(yneighbors, 1)
-                    else
-                        push!(yneighbors, 2)
-                    end
-                    if(i == 1 || i == x)
-                        push!(xneighbors, 1)
-                    else
-                        push!(xneighbors, 2)
-                    end
-                end
-            end
-        end
-    end
-    return BoundaryNodes3D, xneighbors, yneighbors, zneighbors
+function return_boundary_nodes(Nx, Ny, Nz)
+    cor = [CartesianIndex(i, j, k) for i in [1, Nx] for j in [1, Ny] for k in [1, Nz]]
+    x   = [CartesianIndex(i, j, k) for i in [1, Nx] for j in 2:Ny-1 for k in 2:Nz-1]
+    y   = [CartesianIndex(i, j, k) for i in 2:Nx-1 for j in [1, Ny] for k in 2:Nz-1]
+    z   = [CartesianIndex(i, j, k) for i in 2:Nx-1 for j in 2:Ny-1 for k in [1,Nz]]
+    xy  = [CartesianIndex(i, j, k) for i in [1, Nx] for j in [1, Ny] for k in 2:Nz-1]
+    yz  = [CartesianIndex(i, j, k) for i in 2:Nx-1 for j in [1, Ny] for k in [1, Nz]]
+    xz  = [CartesianIndex(i, j, k) for i in [1, Nx] for j in 2:Ny-1 for k in [1, Nz]]
+    return cor, x, y, z, xy, yz, xz
 end
 
 """
@@ -190,7 +224,7 @@ function punch_holes_nexus(x, y, z, radius)
 end
 
 function _Matern_matrix(Nx, Ny, Nz, dx, dy, dz)
-    A3D = ∇²3d_Grid(Nx, Ny, Nz, dx, dy, dz) 
+    A3D = Laplace_3d_Grid(Nx, Ny, Nz, dx, dy, dz) 
     sizeA = size(A3D, 1)
     for i = 1:sizeA
         A3D[i, i] = A3D[i, i] + epsilon^2
@@ -228,7 +262,7 @@ function interp(x, y, z, imgg, discard::Vector{CartesianIndex{3}},
     ((length(x) !== size(imgg, 1)) || (length(y) !== size(imgg, 2)) || 
         (length(z) !== size(imgg,3))) && error("Axes lengths must match image dims")
     A3D = (epsilon == 0.0)&&(m == 1) ? 
-                ∇²3d_Grid(length(x), length(y), length(z), x[2] - x[1],
+                Laplace_3d_Grid(length(x), length(y), length(z), x[2] - x[1],
                                y[2] - y[1], z[2] - z[1]) :
                 _Matern_matrix(length(x), length(y), length(z), x[2] - x[1], 
                                y[2] - y[1], z[2] - z[1]) 

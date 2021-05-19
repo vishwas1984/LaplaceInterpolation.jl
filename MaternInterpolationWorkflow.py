@@ -77,13 +77,17 @@ data.unlock()
 movo2_40_background = nxload(filename_background)
 movo2_40_background.unlock()
 
+hstart, hend = (-0.2, 6,2)
+kstart, kend = (-0.2, 8.2)
+lstart, lend = (-0.2, 8.2)
+
 # ## get the symmetric transform data
-z3d = data.entry.symm_transform[-0.2:6.2, -0.2:8.2, -0.2:8.2].data.nxvalue
+z3d = data.entry.symm_transform[hstart:hend, kstart:kend, lstart:lend].data.nxvalue
 
 # axes
-x = data.entry.symm_transform[-0.2:6.2, -0.2:8.2, -0.2:8.2].Ql.nxvalue
-x2 = data.entry.symm_transform[-0.2:6., -0.2:8.2, -0.2:8.2].Qk.nxvalue
-x3 = data.entry.symm_transform[-0.2:6., -0.2:8.2, -0.2:8.2].Qh.nxvalue
+x = data.entry.symm_transform[hstart:hend, kstart:kend, lstart:lend].Ql.nxvalue
+x2 = data.entry.symm_transform[hstart:hend, kstart:kend, lstart:lend].Qk.nxvalue
+x3 = data.entry.symm_transform[hstart:hend, kstart:kend, lstart:lend].Qh.nxvalue
 
 # increment in h, k, l directions
 dx = 0.02 # x[1] - x[0]
@@ -95,6 +99,11 @@ dx3 = 0.02 # x3[1] - x3[0]
 qh_lim = 8
 qk_lim = 8
 ql_lim = 6
+
+# Number of pixels per unit cell
+Qh = 50
+Qk = 50
+Ql = 50
 
 kmin = 50*(6-ql_lim)
 kmax = 50*(6+ql_lim)
@@ -118,6 +127,32 @@ def symmetrize(res):
 # punching is done in Julia
 
 radius = 0.200
+
+
+
+def standard_punch_loop(x, x2, x3, rad):
+    inds = []
+    Nx = len(x)
+    Ny = len(x2)
+    Nz = len(x3)
+    if type(rad) == float:
+        rad_l = rad
+        rad_k = rad
+        rad_h = rad
+    elif type(rad) == tuple:
+        rad_l = rad[1]
+        rad_k = rad[2]
+        rad_h = rad[3]
+    L, K, H = np.meshgrid(x, x2, x3, indexing='ij')
+    for l in range(-Nx, Nx + 1):
+        for k in range(-Ny, Ny + 1):
+            for h in range(-Nz, Nz + 1):
+                inds.append(np.argwhere((((l-L)/rad_l)**2 + ((k-K)/rad_k)**2 +
+                                         ((h-H)/rad_h)**2) < 1.0))
+
+                    
+
+# punched = standard_punch_loop(x, x2, x3, radius)
 
 # punched = Main.punch_holes_nexus(x, x2, x3, radius)
 
