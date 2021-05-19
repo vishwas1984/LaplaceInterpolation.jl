@@ -169,12 +169,11 @@ end
   - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
   - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
   - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
-  - `radius::Union{Float64,Vector{Float64}}`: the radius, or radii of the punch, if vector.
+  - `radius::Union{Float64,Tuple{Float64}}`: the radius, or radii of the punch, if vector.
 ...
 
 ...
 # Outputs
-
 
   - `inds::Vector{Int64}`: vector containing the indices of coordinates 
   inside the punch
