@@ -267,21 +267,17 @@ Interpolate, in parallel, multiple punches
   - array containing the interpolated image 
 ...
 """
-function parallel_interp(x, y, z, imgg,
+function parallel_interp!(x, y, z, imgg,
                         discard::Vector{Vector{CartesianIndex{3}}},
                         epsilon = 0.0, m = 1)
-  res = copy(imgg)
-  # This line switches from parallel to serial and vice versa
-  Threads.@threads for d in discard
-  # for d in discard
-      fi, li = (first(d), last(d) + CartesianIndex(1, 1, 1))
-      selection = map(i -> i - fi + CartesianIndex(1, 1, 1), d)
-      # Interpolate
-      res[fi:li] = interp(xpoints[fi[1]:li[1]], ypoints[fi[2]:li[2]], 
-              zpoints[fi[3]:li[3]], 
-              imgg[fi:li], 
-              selection, epsilon, m)
-  end
-    return res
+    Threads.@threads for d in discard
+        fi, li = (first(d), last(d) + CartesianIndex(1, 1, 1))
+        selection = map(i -> i - fi + CartesianIndex(1, 1, 1), d)
+        # Interpolate
+        imgg[fi:li] = interp(xpoints[fi[1]:li[1]], ypoints[fi[2]:li[2]], 
+                zpoints[fi[3]:li[3]], 
+                imgg[fi:li], 
+                selection, epsilon, m)
+    end
 end
 
