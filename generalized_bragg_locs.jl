@@ -18,16 +18,19 @@ centers = [(0.3, 0.3, 0.3), (0.8, 0.8, 0.8)]
 
 discard = map(c -> punch_hole_3D(c, radius, xpoints, ypoints, zpoints), centers) 
 
-res = copy(imgg)
+lapint = parallel_interp!(xpoints, ypoints, zpoints, imgg, discard, 0.0, 1)
+matint = parallel_interp!(xpoints, ypoints, zpoints, imgg, discard, epsilon, m)
 
-# Threads.@threads for d in discard
-for d in discard
-    fi, li = (first(d), last(d) + CartesianIndex(1, 1, 1))
-    selection = map(i -> i - fi + CartesianIndex(1, 1, 1), d)
-    # Interpolate
-    res[fi:li] = interp(xpoints[fi[1]:li[1]], ypoints[fi[2]:li[2]], 
-            zpoints[fi[3]:li[3]], 
-            imgg[fi:li], 
-            selection, epsilon, m)
+function serial_interp!(xpoints, ypoints, zpoints, imgg, 
+                       discard::Vector{Vector{CartesianIndex{3}}}, epsilon, m)
+    for d in discard
+        fi, li = (first(d), last(d) + CartesianIndex(1, 1, 1))
+        selection = map(i -> i - fi + CartesianIndex(1, 1, 1), d)
+        # Interpolate
+        imgg[fi:li] = interp(xpoints[fi[1]:li[1]], ypoints[fi[2]:li[2]], zpoints[fi[3]:li[3]], imgg[fi:li], selection, epsilon, m);
+    end
 end
-  
+
+serial_interp!(xpoints, ypoints, zpoints, imgg, discard, 0.0, 1)
+serial_interp!(xpoints, ypoints, zpoints, imgg, discard, epsilon, m)
+
