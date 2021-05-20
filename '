@@ -189,7 +189,7 @@ function punch_holes_nexus(x, y, z, radius)
     return inds
 end
 
-function _Matern_matrix(Nx, Ny, Nz, dx, dy, dz, epsilon, m)
+function _Matern_matrix(Nx, Ny, Nz, dx, dy, dz)
     A3D = ∇²3d_Grid(Nx, Ny, Nz, dx, dy, dz) 
     sizeA = size(A3D, 1)
     for i = 1:sizeA
@@ -231,7 +231,7 @@ function interp(x, y, z, imgg, discard::Vector{CartesianIndex{3}},
                 ∇²3d_Grid(length(x), length(y), length(z), x[2] - x[1],
                                y[2] - y[1], z[2] - z[1]) :
                 _Matern_matrix(length(x), length(y), length(z), x[2] - x[1], 
-                               y[2] - y[1], z[2] - z[1], epsilon, m) 
+                               y[2] - y[1], z[2] - z[1]) 
     totalsize = prod(size(imgg))
     C = sparse(I, totalsize, totalsize)
     rhs_a = copy(imgg)[:]
@@ -325,41 +325,20 @@ Interpolate around the bragg peaks in the image by tiling the punch_template
 # Outputs
   - array containing the interpolated image 
 ...
-
-# Example
-
-```<julia-repl>
-x = y = z = collect(-0.5:0.1:10)
-imgg = randn(length(x), length(y), length(z))
-punch_template = zeros(10, 10, 10); punch_template[5, 5, 5] = 1
-interp_nexus(x, y, z, imgg, punch_template)
-```
 """
-function interp_nexus(x, y, z, imgg, punch_template, epsilon = 0.0, m = 1)
+function interp_nexus(x, y, z, imgg, punch_template, epsilon, m)
   discard = findall(punch_template .> 0)
-  x_unit, y_unit, z_unit = size(punch_template)
-  Nx, Ny, Nz = size(imgg)
   Qx = ceil(x[end]) + 1 
   Qy = ceil(y[end]) + 1
   Qz = ceil(z[end]) + 1
-  corners_x = findall((x .- 0.5) .% 1 .== 0.0)
-  corners_y = findall((y .- 0.5) .% 1 .== 0.0)
-  corners_z = findall((z .- 0.5) .% 1 .== 0.0)
+  corners_x = findall(x .- round.(x) .- 0.5 .== 0.0)
+  corners_y = findall(y .- round.(y) .- 0.5 .== 0.0)
+  corners_z = findall(z .- round.(z) .- 0.5 .== 0.0)
   corners = [CartesianIndex(xind, yind, zind) for xind in corners_x[1:end-1] 
                                               for yind in corners_y[1:end-1]
-                                              for zind in corners_y[1:end-1]]
-  # punched = copy(imgg);
-  # Threads.@threads for (i,c) in enumerate(corners)
-  for (i,c) in enumerate(corners)
-    tcx = minimum([Nx, Tuple(c)[1] + x_unit])
-    tcy = minimum([Ny, Tuple(c)[2] + y_unit])
-    tcz = minimum([Nz, Tuple(c)[3] + z_unit])
-    tc = CartesianIndex(tcx, tcy, tcz)
-    imgg[c:tc] = interp(x[c[1]:tc[1]], y[c[2]:tc[2]], z[c[3]:tc[3]], 
-                       imgg[c:tc], discard, Float64(epsilon), Int64(m))
-    # punched[c:tc] .= 0.0
-  end
-  return imgg
+                                              for zind in corners_y{1:end-1]]
+  res = interp(x, y, z, imgg, discard, epsilon, m)
+  return res
 end
 
 
