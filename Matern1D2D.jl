@@ -8,6 +8,95 @@
 
 using LinearAlgebra, SparseArrays
 
+"""
+  spdiagm_nonsquare(m, n, args...)
+
+Construct a sparse diagonal matrix from Pairs of vectors and diagonals. Each
+vector arg.second will be placed on the arg.first diagonal. By default (if
+size=nothing), the matrix is square and its size is inferred from kv, but a
+non-square size m×n (padded with zeros as needed) can be specified by passing
+m,n as the first arguments.
+
+# Arguments
+  - `m::Int64`: First dimension of the output matrix
+  - `n::Int64`: Second dimension of the output matrix
+  - `args::Tuple{T} where T<:Pair{<:Integer,<:AbstractVector}` 
+
+# Outputs 
+
+  - sparse matrix of size mxn containing the values in args 
+
+"""
+function spdiagm_nonsquare(m, n, args...)
+    I, J, V = SparseArrays.spdiagm_internal(args...)
+    return sparse(I, J, V, m, n)
+end
+
+"""
+  return_boundary_nodes(xpoints, ypoints, zpoints)
+
+...
+# Arguments
+
+  - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
+  - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
+  - `zpoints::Vector{T} where T<:Real`: the vector containing the z coordinate
+...
+
+...
+# Outputs
+  - `BoundaryNodes3D::Vector{Int64}`: vector containing the indices of coordinates 
+  on the boundary of the rectangular 3D volume
+...
+
+"""
+# function return_boundary_nodes2D(xpoints, ypoints)
+#     BoundaryNodes2D =[]
+#     # xneighbors = []
+#     # yneighbors = []
+#     # zneighbors = []
+#     counter = 0
+    
+#         for j = 1:ypoints
+#             for i = 1:xpoints
+#                 counter=counter+1
+#                 if( j == 1|| j == ypoints || i == 1 || i == xpoints)
+#                     BoundaryNodes2D = push!(BoundaryNodes2D, counter)
+#                 end
+#             end
+#         end
+    
+#     return BoundaryNodes2D #xneighbors, yneighbors, zneighbors
+# end
+
+function return_boundary_nodes2D(xpoints, ypoints)
+  BoundaryNodes2D =[]
+  xneighbors = []
+  yneighbors = []
+  counter = 0
+  
+      for j = 1:ypoints
+          for i = 1:xpoints
+              counter=counter+1
+              if(j == 1|| j == ypoints || i == 1 || i == xpoints)
+                  BoundaryNodes2D = push!(BoundaryNodes2D, counter)
+                  if(j == 1 || j == ypoints)
+                      push!(yneighbors, 1)
+                  else
+                      push!(yneighbors, 2)
+                  end
+                  if(i == 1 || i == xpoints)
+                      push!(xneighbors, 1)
+                  else
+                      push!(xneighbors, 2)
+                  end
+              end
+          end
+      end
+  
+  return BoundaryNodes2D, xneighbors, yneighbors
+end
+
 
 """
   ∇²(n₁,n₂)
@@ -29,6 +118,26 @@ function ∇²(n₁,n₂)
     o₂ = ones(n₂)
     ∂₂ = spdiagm_nonsquare(n₂+1,n₂,-1=>-o₂,0=>o₂)
     return kron(sparse(I,n₂,n₂), ∂₁'*∂₁) + kron(∂₂'*∂₂, sparse(I,n₁,n₁))
+end
+
+function ∇²2d_Grid(n₁, n₂, h, k)
+  o₁ = ones(n₁) / h
+  ∂₁ = spdiagm_nonsquare(n₁ + 1, n₁, -1 => -o₁, 0 => o₁)
+  o₂ = ones(n₂) / k
+  ∂₂ = spdiagm_nonsquare(n₂ + 1, n₂, -1 => -o₂,0 => o₂)
+  # O3 = ones(n3) / l
+  # del3 = spdiagm_nonsquare(n3 + 1, n3, -1 => -O3, 0 => O3)
+  A2D = (kron(sparse(I, n₂, n₂), ∂₁'*∂₁) + 
+          kron(∂₂' * ∂₂, sparse(I, n₁, n₁)))
+  BoundaryNodes, xneighbors, yneighbors = 
+          return_boundary_nodes2D(n₁, n₂)
+  count = 1
+  for i in BoundaryNodes
+      A2D[i, i] = 0.0
+      A2D[i, i] = A2D[i, i] + xneighbors[count] / h ^ 2 + yneighbors[count] / k ^ 2 
+      count = count + 1
+  end
+  return A2D
 end
 
 """
@@ -170,6 +279,9 @@ function punch_holes_2D(centers, radius, xpoints, ypoints)
     clen = length(centers)
     masking_data_points = []
     absolute_indices = Int64[]
+    println(xpoints)
+    println(ypoints)
+    println(clen)
     for a = 1:clen
         c = centers[a]
         count = 1
@@ -217,7 +329,7 @@ function punch_holes_2D(centers, radius::Tuple{Float64}, xpoints, ypoints)
         count = 1
         for j = 1:ypoints
             for h = 1:xpoints
-                if (((h-c[1])/radius[1])^2 + ((j-c[2])/radius[2])^2  <= 1.0)
+                if (((h-c[1]))^2 + ((j-c[2]))^2  <= radius[1]^2)
                     append!(masking_data_points,[(h,j)])
                     append!(absolute_indices, count)
                 end
@@ -282,19 +394,20 @@ end
 
 """
 function Matern2D(xpoints, ypoints, imgg, epsilon, centers, radius, args...)
-    A2D = ∇²(xpoints, ypoints)
-    BoundaryNodes = return_boundary_nodes2D(xpoints, ypoints)
-    for i in BoundaryNodes
-        rowindices = A2D.rowval[nzrange(A2D, i)]
-        A2D[rowindices,i].=0
-        A2D[i,i] = 1.0
-    end
-    sizeA = size(A2D,1)
-    for i = 1:sizeA
-        A2D[i,i] = A2D[i,i] + epsilon^2
-    end
+    A2D = ∇²2d_Grid(xpoints, ypoints,1,1)
+    # BoundaryNodes = return_boundary_nodes2D(xpoints, ypoints)
+    # for i in BoundaryNodes
+    #     rowindices = A2D.rowval[nzrange(A2D, i)]
+    #     A2D[rowindices,i].=0
+    #     A2D[i,i] = 1.0
+    # end
+    # sizeA = size(A2D,1)
+    # for i = 1:sizeA
+    #     A2D[i,i] = A2D[i,i] + epsilon^2
+    # end
     A2DMatern = A2D*A2D
     discard = punch_holes_2D(centers, radius, xpoints, ypoints)
+    println(length(discard))
     punched_image = copy(imgg)
     punched_image[discard] .= 1
     totalsize = prod(size(imgg))
