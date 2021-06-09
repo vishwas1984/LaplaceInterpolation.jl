@@ -3,6 +3,8 @@ This code performs Laplace and Matern interpolation for volume datasets. The cod
 
 # Dependencies
 ```MaternKernelApproximation.jl``` itself requires only ```LinearAlgebra``` and ```SparseArrays``` packages. A Jupyter notebook that illustrates the use of ```MaternKernelApproximation.jl``` can be found at ```Notebooks/MaternInterpolationWorkflow.ipynb```. The jupyter notebook illustrates the usage for smoothing out Bragg peaks in Molybdenum Vanadium Dioxide dataset. 
+
+
 Bragg Peaks                | Matern and Laplace Interpolation 
 :-------------------------:|:--------------------------------:
 ![](Slides/BragPeaks.png)  |  ![](Slides/Punch_Fill.png)
