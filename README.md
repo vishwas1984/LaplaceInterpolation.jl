@@ -1,1 +1,2 @@
 # Laplace and Matern Interpolation for Volume Datasets
+This code performs Laplace and Matern interpolation for volume datasets. The code is especially useful for studying crystal structures which contain Bragg peaks.  ```MaternKernelApproximation``` takes in the volume data and uses a punch and fill algorithm to remove the Bragg peaks and interpolates for missing values at punch locations. We provide two options for interpolation: Laplace interpolation and Matern Interpolation. 
