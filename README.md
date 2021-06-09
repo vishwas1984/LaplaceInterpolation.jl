@@ -13,5 +13,8 @@ Bragg Peaks                | Matern and Laplace Interpolation
 :-------------------------:|:--------------------------------:
 ![](Slides/BragPeaks.png)  |  ![](Slides/Punch_Fill.png)
 
+# Similar Packages
+```Laplacians.jl``` authored by Dan Spielman
+
 # Funding
-This project is funded by the US DOE under the BES program.
+This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Basic Energy Sciences.
