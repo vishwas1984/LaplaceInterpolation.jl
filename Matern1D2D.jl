@@ -279,9 +279,9 @@ function punch_holes_2D(centers, radius, xpoints, ypoints)
     clen = length(centers)
     masking_data_points = []
     absolute_indices = Int64[]
-    println(xpoints)
-    println(ypoints)
-    println(clen)
+    # println(xpoints)
+    # println(ypoints)
+    # println(clen)
     for a = 1:clen
         c = centers[a]
         count = 1
@@ -407,7 +407,7 @@ function Matern2D(xpoints, ypoints, imgg, epsilon, centers, radius, args...)
     # end
     A2DMatern = A2D*A2D
     discard = punch_holes_2D(centers, radius, xpoints, ypoints)
-    println(length(discard))
+    #println(length(discard))
     punched_image = copy(imgg)
     punched_image[discard] .= 1
     totalsize = prod(size(imgg))
