@@ -421,7 +421,7 @@ function Matern2D(xpoints, ypoints, imgg, epsilon, centers, radius, args...)
     rhs_a = Float64.(rhs_a)
     u =((C-(Id -C)*A2DMatern)) \ rhs_a
     restored_img = reshape(u, xpoints, ypoints)
-    restored_img = Gray.(restored_img)
+    #restored_img = Gray.(restored_img)
     return (restored_img, punched_image)
 end
 
