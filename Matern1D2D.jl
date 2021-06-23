@@ -97,6 +97,15 @@ function return_boundary_nodes2D(xpoints, ypoints)
   return BoundaryNodes2D, xneighbors, yneighbors
 end
 
+function ∇²1d_Grid(n₁, h)
+  o₁ = ones(n₁)/h
+  ∂₁ = spdiagm_nonsquare(n₁+1,n₁,-1=>-o₁,0=>o₁)
+  A1D = ∂₁'*∂₁
+  A1D[1,1] = 1.0/h^2
+  A1D[n₁, n₁] = 1.0/h^2
+  return A1D
+end
+
 
 """
   ∇²(n₁,n₂)
