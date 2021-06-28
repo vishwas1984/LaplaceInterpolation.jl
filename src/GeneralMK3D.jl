@@ -1,16 +1,7 @@
-# This code interpolates for the missing points in an image. The code is
-# specifically designed for removing Bragg peaks using the punch and fill
-# algorithm. This code needs the image and the coordinates where the Bragg
-# peaks needs to be removed and the radius (which can be the approximate width
-# of the peaks). The code assumes all the "punches" will be of the same size
-# and there are no Bragg peaks on the boundaries. Lines 2 to ~ 175 consists of
-# helper functions and 175 onwards corresponds to the driver code.
 
 # functions: spdiagm_nonsquare, ∇²3d_Grid, return_boundary_nodes, 
 # return_boundary_nodes_3D, punch_holes_nexus, Matern_3d_Grid, Laplace_3D_grid,
 # parallel_Matern_3DGrid, parallel_Laplace_3Dgrid
-
-using LinearAlgebra, SparseArrays
 
 """
   spdiagm_nonsquare(m, n, args...)
