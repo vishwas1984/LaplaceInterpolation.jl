@@ -34,7 +34,7 @@ the interpolation schemes (the right image).
 
 Bragg Peaks                | Matern and Laplace Interpolation 
 :-------------------------:|:--------------------------------:
-![](Slides/BragPeaks.png)  |  ![](Slides/Punch_Fill.png)
+![](docs/BragPeaks.png)  |  ![](docs/Punch_Fill.png)
 
 # Similar Packages
 ```Laplacians.jl``` authored by Dan Spielman
