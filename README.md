@@ -1,12 +1,35 @@
-# Laplace and Matern Interpolation for Volume Datasets
-This code performs Laplace and Matern interpolation for volume datasets. The code is especially useful for studying crystal structures which contain Bragg peaks.  ```MaternKernelApproximation.jl``` takes in the volume data and uses a punch and fill algorithm to remove the Bragg peaks and interpolates for missing values at punch locations. We provide two options for interpolation: Laplace interpolation and Matern Interpolation. 
+# Fast Interpolation for Volume Datasets
+This code performs Laplace and Matern interpolation where missing data are on a one, two, or three
+dimensional grid. Matern
+kernels generalize the radial basis function approach to interpolation, but
+interpolation using these kernels 
+involves systems of equations that are dense. By using the Green's function
+representation, and substituting the finite-difference operator, we replace the dense operator with a sparse one
+and thus obtain an approximation to the kernel.
 
-# Dependencies
-```MaternKernelApproximation.jl``` itself requires only ```LinearAlgebra``` and ```SparseArrays``` packages. A Jupyter notebook that illustrates the use of ```MaternKernelApproximation.jl``` can be found at ```Notebooks/MaternInterpolationWorkflow.ipynb```. The jupyter notebook illustrates the usage for smoothing out Bragg peaks in Molybdenum Vanadium Dioxide dataset. 
+# Installation
+
+This package is unregistered, so please install using
+
+```<julia-repl>
+pkg> add https://bitbucket.org/vishwasrao/LaplaceInterpolation.jl
+```
+
+# Examples
+Jupyter Notebooks which illustrate the speed and accuracy of the approximation
+are located in the `/Examples` directory.
+
+# Documentation and Tests
+Forthcoming.
 
 # Sample results
-Below are plots that demonstrate the efficacy of the interpolation schemes. We use a punch and fill algorithms to smoothen the Bragg peaks.
-We plot a one dimensional slice of the 3D data (for a fixed value of Y and Z axes). The image on the left shows the data with and without interpolation (Red color shows the original data, Green and Orange respectively show Laplace and Matern interpolated data). We zoom in at certain location to examine the accuracy of the interpolation schemes (the right image).
+Below are plots that demonstrate the efficacy of the interpolation schemes. We
+use a punch and fill algorithms to smoothen the Bragg peaks.  We plot a one
+dimensional slice of the 3D data (for a fixed value of Y and Z axes). The image
+on the left shows the data with and without interpolation (Red color shows the
+original data, Green and Orange respectively show Laplace and Matern
+interpolated data). We zoom in at certain location to examine the accuracy of
+the interpolation schemes (the right image).
 
 
 Bragg Peaks                | Matern and Laplace Interpolation 
@@ -17,4 +40,6 @@ Bragg Peaks                | Matern and Laplace Interpolation
 ```Laplacians.jl``` authored by Dan Spielman
 
 # Funding
-This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Basic Energy Sciences.
+This material is based upon work supported by the U.S. Department of Energy,
+Office of Science, Office of Basic Energy Sciences.
+
