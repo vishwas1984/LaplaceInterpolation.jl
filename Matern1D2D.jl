@@ -107,6 +107,30 @@ function ∇²1d_Grid(n₁, h)
 end
 
 
+function Matern_1D_Interpolation(n1, h, missing_data_index, m, epsilon, known_values)
+  A1D = ∇²1d_Grid(n1, h)
+  dimension = 1
+  C = sparse(I, len, len)
+  Id = sparse(I, len, len);
+  for i in missing_data_index
+    C[i,i] = 0;
+  end
+  u =((C-(Id -C)*A1D)) \ (known_values);
+  laplace_interpolated_data = u
+  for i = 1:size(A1D,1)
+    A1D[i,i] = A1D[i,i] + epsilon^2
+  end
+
+  A1DM = A1D^m
+  u =((C-(Id -C)*A1DM)) \ (known_values);
+  matern_interpolated_data = u
+  return laplace_interpolated_data, matern_interpolated_data
+end
+
+
+
+
+
 """
   ∇²(n₁,n₂)
 
