@@ -15,9 +15,16 @@ This package is unregistered, so please install using
 pkg> add https://bitbucket.org/vishwasrao/LaplaceInterpolation.jl
 ```
 
-# Examples
+# Notebooks
 Jupyter Notebooks which illustrate the speed and accuracy of the approximation
-are located in the `/Examples` directory.
+are located in the `/Notebooks` directory.
+
+To run the examples yourself, clone the repo, navigate to the Notebooks
+directory, start julia and use
+```
+julia> include("run_notebooks()") 
+```
+which will start a jupyter notebook for you, with all relevant dependencies.
 
 # Documentation and Tests
 Forthcoming.
