@@ -2,7 +2,7 @@ module LaplaceInterpolation
 
   using LinearAlgebra, SparseArrays
 
-  include("Matern1D2D")
+  include("Matern1D2D.jl")
   export ∇²1d_Grid, ∇²2d_Grid, Matern_1D_Interplation, Matern1D, Matern2D 
 
   include("GeneralMK3D.jl")
