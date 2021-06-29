@@ -1,5 +1,6 @@
 
 #polyharmonic_splines.jl
+# See: https://github.com/lstagner/PolyharmonicSplines.jl
 #=
 The MIT License (MIT)
 Copyright (c) 2015 Luke Stagner
