@@ -1,3 +1,6 @@
+
+# Credit for this code goes to: 
+
 module ThinPlateSplines
 
 using LinearAlgebra
