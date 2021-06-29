@@ -126,3 +126,48 @@ function punch_holes_3D(centers, radius, Nx, Ny, Nz)
     end
     return absolute_indices
 end
+
+
+"""
+  punch_holes_nexus(xpoints, ypoints, zpoints, radius)
+
+...
+# Arguments
+
+  - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
+  - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
+  - `zpoints::Vector{T} where T<:Real`: the vector containing the z coordinate
+  - `radius::Union{Float64,Vector{Float64}}`: the radius, or radii of the punch, if vector.
+...
+
+...
+# Outputs
+
+
+  - `absolute_indices::Vector{Int64}`: vector containing the indices of coordinates 
+  inside the punch
+
+...
+"""
+function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
+    rad = (typeof(radius) <: Tuple) ? radius : (radius, radius, radius)
+    radius_x, radius_y, radius_z = rad 
+    absolute_indices = Int64[]
+    count = 1
+    for i = 1:length(zpoints)
+        ir = round(zpoints[i])
+        for j = 1:length(ypoints)
+            jr = round(ypoints[j])
+            for h = 1:length(xpoints)
+                hr = round(xpoints[h])
+                if (((hr - xpoints[h])/radius_x)^2 + ((jr - ypoints[j])/radius_y^2) 
+                    + ((ir - zpoints[i])/radius_z)^2 <= 1.0)
+                    append!(absolute_indices, count)
+                    count += 1
+                end
+            end
+        end
+    end
+    return absolute_indices
+end
+
