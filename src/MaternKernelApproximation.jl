@@ -1,16 +1,7 @@
-# This code interpolates for the missing points in an image. The code is
-# specifically designed for removing Bragg peaks using the punch and fill
-# algorithm. This code needs the image and the coordinates where the Bragg
-# peaks needs to be removed and the radius (which can be the approximate width
-# of the peaks). The code assumes all the "punches" will be of the same size
-# and there are no Bragg peaks on the boundaries. Lines 2 to ~ 175 consists of
-# helper functions and 175 onwards corresponds to the driver code.
 
 # functions: spdiagm_nonsquare, ∇²3d_Grid, return_boundary_nodes, 
 # return_boundary_nodes_3D, punch_holes_nexus, Matern_3d_Grid, Laplace_3D_grid,
 # parallel_Matern_3DGrid, parallel_Laplace_3Dgrid
-
-using LinearAlgebra, SparseArrays
 
 """
   spdiagm_nonsquare(m, n, args...)
@@ -34,45 +25,6 @@ m,n as the first arguments.
 function spdiagm_nonsquare(m, n, args...)
     I, J, V = SparseArrays.spdiagm_internal(args...)
     return sparse(I, J, V, m, n)
-end
-
-"""
-  ∇²3d_Grid(n₁,n₂)
-
-Construct the 3D Laplace matrix
-
-# Arguments
-  - `n₁::Int64`: The number of nodes in the first dimension
-  - `n₂::Int64`: The number of nodes in the second dimension
-  - `n3::Int64`: The number of nodes in the third dimension
-  - `h::Float64`: Grid spacing in the first dimension
-  - `k::Float64`: Grid spacing in the second dimension
-  - `l::Float64`: Grid spacing in the third dimension
-
-# Outputs 
-
-  - `-∇²` (discrete Laplacian, real-symmetric positive-definite) on n₁×n₂ grid
-
-"""
-function ∇²3d_Grid(n₁, n₂, n3, h, k, l)
-    o₁ = ones(n₁) / h
-    ∂₁ = spdiagm_nonsquare(n₁ + 1, n₁, -1 => -o₁, 0 => o₁)
-    o₂ = ones(n₂) / k
-    ∂₂ = spdiagm_nonsquare(n₂ + 1, n₂, -1 => -o₂,0 => o₂)
-    O3 = ones(n3) / l
-    del3 = spdiagm_nonsquare(n3 + 1, n3, -1 => -O3, 0 => O3)
-    A3D = (kron(sparse(I, n3, n3), sparse(I, n₂, n₂), ∂₁'*∂₁) + 
-            kron(sparse(I, n3, n3), ∂₂' * ∂₂, sparse(I, n₁, n₁)) + 
-            kron(del3' * del3, sparse(I, n₂, n₂), sparse(I, n₁, n₁)))
-    BoundaryNodes, xneighbors, yneighbors, zneighbors = 
-            return_boundary_nodes(n₁, n₂, n3)
-    count = 1
-    for i in BoundaryNodes
-        A3D[i, i] = 0.0
-        A3D[i, i] = A3D[i, i] + xneighbors[count] / h ^ 2 + yneighbors[count] / k ^ 2 + zneighbors[count] / l ^ 2
-        count = count + 1
-    end
-    return A3D
 end
 
 """
@@ -125,49 +77,6 @@ function return_boundary_nodes(xpoints, ypoints, zpoints)
         end
     end
     return BoundaryNodes3D, xneighbors, yneighbors, zneighbors
-end
-
-"""
-  punch_holes_nexus(xpoints, ypoints, zpoints, radius)
-
-...
-# Arguments
-
-  - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `zpoints::Vector{T} where T<:Real`: the vector containing the z coordinate
-  - `radius::Union{Float64,Vector{Float64}}`: the radius, or radii of the punch, if vector.
-...
-
-...
-# Outputs
-
-
-  - `absolute_indices::Vector{Int64}`: vector containing the indices of coordinates 
-  inside the punch
-
-...
-"""
-function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
-    rad = (typeof(radius) <: Tuple) ? radius : (radius, radius, radius)
-    radius_x, radius_y, radius_z = rad 
-    absolute_indices = Int64[]
-    count = 1
-    for i = 1:length(zpoints)
-        ir = round(zpoints[i])
-        for j = 1:length(ypoints)
-            jr = round(ypoints[j])
-            for h = 1:length(xpoints)
-                hr = round(xpoints[h])
-                if (((hr - xpoints[h])/radius_x)^2 + ((jr - ypoints[j])/radius_y^2) 
-                    + ((ir - zpoints[i])/radius_z)^2 <= 1.0)
-                    append!(absolute_indices, count)
-                    count += 1
-                end
-            end
-        end
-    end
-    return absolute_indices
 end
 
 """

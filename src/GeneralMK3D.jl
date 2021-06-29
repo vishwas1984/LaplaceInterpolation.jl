@@ -1,31 +1,8 @@
 
-# functions: spdiagm_nonsquare, ∇²3d_Grid, return_boundary_nodes, 
-# return_boundary_nodes_3D, punch_holes_nexus, Matern_3d_Grid, Laplace_3D_grid,
+# functions: ∇²3d_Grid, return_boundary_nodes, 
+# return_boundary_nodes_3D, punch_holes_nexus_Cartesian, 
+# Matern_3d_Grid, Laplace_3D_grid,
 # parallel_Matern_3DGrid, parallel_Laplace_3Dgrid
-
-"""
-  spdiagm_nonsquare(m, n, args...)
-
-Construct a sparse diagonal matrix from Pairs of vectors and diagonals. Each
-vector arg.second will be placed on the arg.first diagonal. By default (if
-size=nothing), the matrix is square and its size is inferred from kv, but a
-non-square size m×n (padded with zeros as needed) can be specified by passing
-m,n as the first arguments.
-
-# Arguments
-  - `m::Int64`: First dimension of the output matrix
-  - `n::Int64`: Second dimension of the output matrix
-  - `args::Tuple{T} where T<:Pair{<:Integer,<:AbstractVector}` 
-
-# Outputs 
-
-  - sparse matrix of size mxn containing the values in args 
-
-"""
-function spdiagm_nonsquare(m, n, args...)
-    I, J, V = SparseArrays.spdiagm_internal(args...)
-    return sparse(I, J, V, m, n)
-end
 
 """
   ∇²3d_Grid(n₁,n₂)
@@ -68,58 +45,6 @@ function ∇²3d_Grid(n₁, n₂, n3, h, k, l)
 end
 
 """
-  return_boundary_nodes(x, y, z)
-
-...
-# Arguments
-
-  - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
-...
-
-...
-# Outputs
-  - `BoundaryNodes3D::Vector{Int64}`: vector containing the indices of coordinates 
-  on the boundary of the rectangular 3D volume
-...
-
-"""
-function return_boundary_nodes(x, y, z)
-    BoundaryNodes3D =[]
-    xneighbors = []
-    yneighbors = []
-    zneighbors = []
-    counter = 0
-    for k = 1:z
-        for j = 1:y
-            for i = 1:x
-                counter=counter+1
-                if(k == 1 || k == z || j == 1|| j == y || i == 1 || i == x)
-                    BoundaryNodes3D = push!(BoundaryNodes3D, counter)
-                    if(k == 1 || k == z)
-                        push!(zneighbors, 1)
-                    else
-                        push!(zneighbors, 2)
-                    end
-                    if(j == 1 || j == y)
-                        push!(yneighbors, 1)
-                    else
-                        push!(yneighbors, 2)
-                    end
-                    if(i == 1 || i == x)
-                        push!(xneighbors, 1)
-                    else
-                        push!(xneighbors, 2)
-                    end
-                end
-            end
-        end
-    end
-    return BoundaryNodes3D, xneighbors, yneighbors, zneighbors
-end
-
-"""
   punch_hole_3D(center, radius, xpoints, ypoints, zpoints)
 
 ...
@@ -152,7 +77,7 @@ function punch_hole_3D(center, radius, x, y, z)
 end
 
 """
-  punch_holes_nexus(x, y, z, radius)
+  punch_holes_nexus_Cartesian(x, y, z, radius)
 
 ...
 # Arguments
@@ -171,7 +96,7 @@ end
 
 ...
 """
-function punch_holes_nexus(x, y, z, radius)
+function punch_holes_nexus_Cartesian(x, y, z, radius)
     radius_x, radius_y, radius_z = (typeof(radius) <: Tuple) ? radius : (radius, radius, radius)
     inds = filter(i -> (((x[i[1]] - round(x[i[1]])) / radius_x) ^2 
                         + ((y[i[2]] - round(y[i[2]])) / radius_y) ^2 
