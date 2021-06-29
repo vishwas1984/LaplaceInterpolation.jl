@@ -4,6 +4,7 @@ Manifest.toml
 *.jld
 Notebooks/Manifest.toml
 *checkpoint.ipynb
+obselete/
 
 # Node artifact files
 node_modules/
