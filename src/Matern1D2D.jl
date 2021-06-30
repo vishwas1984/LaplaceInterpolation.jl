@@ -220,6 +220,49 @@ function Matern2D(xpoints, ypoints, imgg, epsilon, centers, radius, args...)
     return (restored_img, punched_image)
 end
 
+"""
+
+  Matern2D_Grid(xpoints, ypoints, imgg, epsilon, m)
+
+...
+# Arguments
+  - `mat`: the matrix containing the image
+  - `epsilon`: Matern parameter epsilon
+  - `m`: The Matern exponent (integer)
+  - `discard`: the linear indices of the nodes to be discarded
+
+# Outputs
+  - tuple containing the interpolated image
+...
+
+"""
+function Matern2D_Grid(mat, epsilon, m, discard)
+    rows, columns = size(mat)
+    A2D = ∇²2d_Grid(rows, columns, 1, 1)
+    C = sparse(I, rows * columns, rows * columns)
+    for i in discard
+        C[i,i] = 0
+    end
+    Id = sparse(I, rows * columns, rows * columns)
+    f = mat[:]
+    if (m == 0)||(m == 0.0)
+        # Laplace interpolation
+        u = ((C - (Id - C) * A2D)) \ (C*f)
+        return reshape(u, rows, columns)
+    else
+        sizeA = size(A2D, 1)
+        for i = 1:sizeA
+            A2D[i,i] = A2D[i,i] + epsilon^2
+        end
+        A2D = A2D^m
+        u = ((C - (Id - C) * A2D)) \ (C * f)
+        return reshape(u, rows, columns)   
+    end
+end
+
+#=
+"""
+
 #=
 """
 
