@@ -6,11 +6,10 @@
 ...
 # Arguments
 
-  - `centers::Union{Vector, Matrix}`: the vector containing the punch centers
+  - `centers::Union{Vector}`: the vector containing the punch centers
   - `radius::Vector`: the tuple containing the punch radii 
-  - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `zpoints::Vector{T} where T<:Real`: the vector containing the z coordinate
+  - `Nx::Int64`: the number of points in the x direction
+  - `Ny::Int64`: the number of points in the y direction
 ...
 
 ...
@@ -20,8 +19,10 @@
 ...
 
 """
-function punch_holes_2D(centers, radius::Tuple{Float64}, xpoints, ypoints)
-    clen = length(centers)
+function punch_holes_2D(centers, radius::Union{T, Vector{T}}, 
+                        xpoints, ypoints) where T<:Number
+    clen = (typeof(centers) <: Vector) ? length(centers) : 1
+    rad  = (typeof(radius) <: Vector) ? radius : radius * ones(clen)
     masking_data_points = []
     absolute_indices = Int64[]
     for a = 1:clen
@@ -29,7 +30,7 @@ function punch_holes_2D(centers, radius::Tuple{Float64}, xpoints, ypoints)
         count = 1
         for j = 1:ypoints
             for h = 1:xpoints
-                if (((h-c[1]))^2 + ((j-c[2]))^2  <= radius[1]^2)
+                if (((h-c[1]))^2 + ((j-c[2]))^2  <= radius[a]^2)
                     append!(masking_data_points,[(h,j)])
                     append!(absolute_indices, count)
                 end
@@ -38,51 +39,6 @@ function punch_holes_2D(centers, radius::Tuple{Float64}, xpoints, ypoints)
         end
     end
     return absolute_indices
-end
-
-"""
-  punch_holes_2D(centers, radius, xpoints, ypoints)
-
-...
-# Arguments
-
-  - `centers::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `radius::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `zpoints::Vector{T} where T<:Real`: the vector containing the z coordinate
-...
-
-...
-# Outputs
-  - `absolute_indices::Vector{Int64}`: vector containing the indices of coordinates 
-  inside the punch
-...
-
-"""
-function punch_holes_2D(centers, radius, xpoints, ypoints)
-    clen = length(centers)
-    masking_data_points = []
-    absolute_indices = Int64[]
-    # println(xpoints)
-    # println(ypoints)
-    # println(clen)
-    for a = 1:clen
-        c = centers[a]
-        count = 1
-        for j = 1:ypoints
-            for h = 1:xpoints
-                if((h-c[1])^2 + (j-c[2])^2  <= radius^2)
-                    append!(masking_data_points,[(h,j)])
-                    append!(absolute_indices, count)
-                end
-                count = count + 1
-            end
-        end
-        
-    end
-    return absolute_indices
-
 end
 
 """
