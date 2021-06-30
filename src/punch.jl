@@ -49,9 +49,9 @@ end
 
   - `centers::Vector{T}`: the vector containing the centers of the punches
   - `radius::Float64`: the radius of the punch
-  - `Nx::Int64`: the number of unit cells in the x-direction, this code is hard-coded to start from one. 
-  - `Ny::Int64`: the number of unit cells in the y-direction
-  - `Nz::Int64`: the number of unit cells in the z-direction
+  - `Nx::Int64`: the number of points in the x-direction, this code is hard-coded to start from one. 
+  - `Ny::Int64`: the number of points in the y-direction
+  - `Nz::Int64`: the number of points in the z-direction
 ...
 
 ...
