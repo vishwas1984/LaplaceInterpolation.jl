@@ -74,6 +74,39 @@ function Matern_1D_Interpolation(n1, h, missing_data_index, m, epsilon, known_va
   return laplace_interpolated_data, matern_interpolated_data
 end
 
+""" 
+   Matern_1D_Grid(y, h, missing_data_index, m, epsilon)
+
+Matern Interpolation in one dimension
+
+# Arguments:
+  -`y`:data
+  -`h`:aspect ratio
+  -`missing_data_index` indices of missing values
+  - `m` matern parameter
+  - `epsilon` other matern parameter.
+
+"""
+function Matern_1D_Grid(y, h, missing_data_index, m, epsilon)
+  A1D = ∇²1d_Grid(length(y), h)
+  len = size(A1D, 1)
+  C = sparse(I, len, len)
+  Id = sparse(I, len, len)
+  for i in missing_data_index
+    C[i,i] = 0
+  end
+  known_values = C*y
+  if ((m == 1)||(m == 1.0)) && (epsilon == 0.0)
+    return ((C - (Id - C) * A1D)) \ (known_values)
+  else
+    for i = 1:size(A1D,1)
+      A1D[i,i] = A1D[i,i] + epsilon^2
+    end
+    A1DM = A1D^m
+    return ((C-(Id -C)*A1DM)) \ (known_values)
+  end
+end
+
 
 """
   ∇²(n₁,n₂)
