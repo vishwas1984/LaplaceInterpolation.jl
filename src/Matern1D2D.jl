@@ -260,8 +260,6 @@ function Matern2D_Grid(mat, epsilon, m, discard)
     end
 end
 
-#=
-"""
 
 #=
 """
