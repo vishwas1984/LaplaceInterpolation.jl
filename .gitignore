@@ -5,6 +5,9 @@ Manifest.toml
 Notebooks/Manifest.toml
 *checkpoint.ipynb
 obselete/
+Notebooks/obselete
+
+*.swp
 
 # Node artifact files
 node_modules/
