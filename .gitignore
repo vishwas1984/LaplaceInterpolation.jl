@@ -1,4 +1,6 @@
 
+docs/build/
+
 Manifest.toml
 *.npy
 *.jld
