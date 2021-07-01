@@ -21,8 +21,6 @@
 
 from pathlib import Path
 import socket
-from   astropy.convolution import convolve, Kernel, Gaussian1DKernel
-
 import numpy as np
 from nexusformat.nexus import *
 import timeit
@@ -59,11 +57,13 @@ else:
 
 
 from julia import Main
+from julia import LaplaceInterpolation
+
 filename = base_dir + 'movo2_40_120K.nxs'
 filename_background = base_dir + 'movo2_40_background.nxs'
 
 # You need to give repo_dir in order for this to work
-Main.include(repo_dir+"/GeneralMK3D.jl")
+# Main.include(repo_dir+"/GeneralMK3D.jl")
 
 def flipaxis(a, i):
     aprime = np.swapaxes(np.swapaxes(a, 0, i)[::-1], 0, i)
@@ -158,7 +158,7 @@ m = 2
 
 starttime = timeit.default_timer()
 
-z3d_restored = Main.interp_nexus(x, x2, x3, z3d, punch_template, 
+z3d_restored = LaplaceInterpolation.interp_nexus(x, x2, x3, z3d, punch_template, 
                                           epsilon, m)
 
 print("Time taken for Matern interpolation with punch radius 0.2, epsilon = " +
@@ -169,7 +169,7 @@ print("Time taken for Matern interpolation with punch radius 0.2, epsilon = " +
 
 starttime = timeit.default_timer()
 
-z3d_restored_laplace = Main.interp_nexus(x, x2, x3, z3d, punch_template, epsilon, 1)
+z3d_restored_laplace = LaplaceInterpolation.interp_nexus(x, x2, x3, z3d, punch_template, epsilon, 1)
 
 print("Time taken for Laplace interpolation with punch radius 0.2:", 
       timeit.default_timer() - starttime)

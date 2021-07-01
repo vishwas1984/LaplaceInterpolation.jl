@@ -164,9 +164,9 @@ end
 
 """
 
-  interp(x, y, z, imgg, discard, epsilon, m)
+  parallel_interp!(x, y, z, imgg, discard, epsilon, m)
 
-Interpolate, in parallel, multiple punches
+Interpolate, in parallel and in-place, multiple punches
 
 ...
 # Arguments
