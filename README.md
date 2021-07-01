@@ -12,7 +12,7 @@ and thus obtain an approximation to the kernel.
 This package is unregistered, so please install using
 
 ```
-pkg> add https://bitbucket.org/vishwasrao/LaplaceInterpolation.jl
+pkg> add https://github.com/vishwas1984/LaplaceInterpolation.jl
 ```
 
 # Notebooks
@@ -22,6 +22,8 @@ are located in the `/Notebooks` directory.
 To run the examples yourself, clone the repo, navigate to the Notebooks
 directory, start julia and use
 ```
+pkg> activate .
+pkg> instantiate
 julia> include("run_notebooks.jl") 
 ```
 which will start a jupyter notebook for you, with all relevant dependencies.
