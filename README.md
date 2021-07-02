@@ -1,4 +1,7 @@
 # Fast Interpolation for Volume Datasets
+
+[![Build Status](https://github.com/vishwas1984/LaplaceInterpolation.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/vishwas1984/LaplaceInterpolation.jl/actions)
+
 This code performs Laplace and Matern interpolation where missing data are on a one, two, or three
 dimensional grid. Matern
 kernels generalize the radial basis function approach to interpolation, but
