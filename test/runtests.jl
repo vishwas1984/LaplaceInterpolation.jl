@@ -1,8 +1,8 @@
-using Test, SparseArrays
+using Test, LaplaceInterpolation, SparseArrays, LinearAlgebra
 
 # One-dimensional tests
 N = 4
-A1 = 2*matrix(I, N, N)
+A1 = 2*sparse(I, N, N)
 A1[1, 1] = A1[4, 4] = 1.0 
 A1[2, 1] = A1[1, 2] = A1[3, 2] = A1[2, 3] = A1[4, 3] = A1[3, 4] = -1.0
 
@@ -17,5 +17,7 @@ y_lap = matern_1d_grid(y, discard, 1, 0.0, h)
 # Matern interpolation
 y_mat = matern_1d_grid(y, discard, 2, 0.1, h)
 
+@test y_lap ≈[0.9510565162951535, 0.18163563200134025, -0.587785252292473, -0.587785252292473]
 
+@test y_mat ≈[0.9510565162951535, 0.2503155527973194, -0.587785252292473, -1.0026370054554663]
 
