@@ -19,7 +19,7 @@ end
 
 """ 
 
-   matern_1d_grid(y, idx, m, epsilon, h)
+   matern_1d_grid(y, idx, m, eps, h)
 
 Matern Interpolation in one dimension
 
@@ -52,13 +52,13 @@ function matern_1d_grid(y::Vector{T}, idx::Vector{Int64},
   A1D = nablasq_1d_grid(n, h)
   C = sparse(I, n, n)
   C[idx, idx] .= 0.0
-  if (epsilon == 0) && (m == 1)
+  if ((eps == 0)||(eps == 0.0)) && (m == 1)
     # Laplace Interpolation
     return ((C - (sparse(I, n, n) - C) * A1D)) \ (C * y)
   else
     # Matern Interpolation
     for i = 1:size(A1D,1)
-      A1D[i, i] = A1D[i, i] + epsilon^2
+      A1D[i, i] = A1D[i, i] + eps^2
     end
     A1DM = A1D ^ m
     return ((C - (sparse(I, n, n) - C) * A1DM)) \ (C * y)
