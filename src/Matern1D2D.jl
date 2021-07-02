@@ -43,37 +43,72 @@ function return_boundary_nodes2D(xpoints, ypoints)
   return BoundaryNodes2D, xneighbors, yneighbors
 end
 
-""" laplacian matrix on a 1D grid"""
-function ∇²1d_Grid(n₁, h)
-  o₁ = ones(n₁)/h
-  ∂₁ = spdiagm_nonsquare(n₁+1,n₁,-1=>-o₁,0=>o₁)
-  A1D = ∂₁'*∂₁
-  A1D[1,1] = 1.0/h^2
-  A1D[n₁, n₁] = 1.0/h^2
+""" 
+
+  nablasq_1d_grid(n, h)
+
+Laplacian matrix on a 1D grid
+
+
+"""
+function nablasq_1d_grid(n, h = 1.0)
+  o = ones(n) / h
+  del = spdiagm_nonsquare(n + 1, n, -1 => -o, 0 => o)
+  A1D = del' * del
+  A1D[1, 1] = 1.0 / h ^ 2
+  A1D[n, n] = 1.0 / h ^ 2
   return A1D
 end
 
-""" Matern Interpolation in one dimension"""
-function Matern_1D_Interpolation(n1, h, missing_data_index, m, epsilon, known_values)
-  A1D = ∇²1d_Grid(n1, h)
-  dimension = 1
-  C = sparse(I, len, len)
-  Id = sparse(I, len, len);
-  for i in missing_data_index
-    C[i,i] = 0;
-  end
-  u =((C-(Id -C)*A1D)) \ (known_values);
-  laplace_interpolated_data = u
-  for i = 1:size(A1D,1)
-    A1D[i,i] = A1D[i,i] + epsilon^2
-  end
+""" 
 
-  A1DM = A1D^m
-  u =((C-(Id -C)*A1DM)) \ (known_values);
-  matern_interpolated_data = u
-  return laplace_interpolated_data, matern_interpolated_data
+   matern_1d_grid(y, idx, m, epsilon, h)
+
+Matern Interpolation in one dimension
+
+# Arguments:
+  - `y`: the vector of y's for which the values are known
+  - `idx`: the vector of indices for which values are to be interpolated
+  - `m::Int64 = 1`: Matern parameter m
+  - `eps = 0.0`: Matern parameter epsilon
+  - `h = 1.0`: aspect ratio
+
+# Outputs:
+  - vector of interpolated data
+
+# Example:
+```<julia-repl>
+x = 1:100
+h = x[2] - x[1]
+y = sin.(2 * pi * x * 0.2)
+discard = randperm(100)[1:50]
+# Laplace interpolation
+y_lap = matern_1d_grid(y, discard, 1, 0.0, h)
+# Matern interpolation
+y_mat = matern_1d_grid(y, discard, 2, 0.1, h)
+```
+  
+"""
+function matern_1d_grid(y::Vector{T}, idx::Vector{Int64}, 
+                                 m::Int64 = 1, eps = 0.0, h = 1.0)
+  n = length(y)
+  A1D = nablasq_1d_grid(n, h)
+  C = sparse(I, n, n)
+  C[idx, idx] .= 0.0
+  if (epsilon == 0) && (m == 1)
+    # Laplace Interpolation
+    return ((C - (sparse(I, n, n) - C) * A1D)) \ (C * y)
+  else
+    # Matern Interpolation
+    for i = 1:size(A1D,1)
+      A1D[i, i] = A1D[i, i] + epsilon^2
+    end
+    A1DM = A1D ^ m
+    return ((C - (sparse(I, n, n) - C) * A1DM)) \ (C * y)
+  end
 end
 
+#=
 """ 
    Matern_1D_Grid(y, h, missing_data_index, m, epsilon)
 
@@ -106,7 +141,7 @@ function Matern_1D_Grid(y, h, missing_data_index, m, epsilon)
     return ((C-(Id -C)*A1DM)) \ (known_values)
   end
 end
-
+=#
 
 """
   ∇²(n₁,n₂)
@@ -180,6 +215,7 @@ function ∇²3d(n₁,n₂,n3)
 end
 =#
 
+#=
 """
   Matern1D(h, N, f_array, args)
 
@@ -213,6 +249,7 @@ function Matern1D(h,N,f_array, args...)
     Id = Matrix(1.0I, N, N)
     return (C-(Id -C)*A2)\(C*f_array)
 end
+=#
 
 """
 
