@@ -13,10 +13,8 @@ punch_holes_2D
 ## One dimensional
 
 ```@docs
-∇²1d_Grid
-Matern_1D_Grid
-Matern_1D_Interplation
-Matern1D
+nablasq_1d_grid
+matern_1D_grid
 ```
 
 ## Two dimensional
