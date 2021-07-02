@@ -2,10 +2,16 @@
 
 """ 
 
-  nablasq_1d_grid(n, h)
+    nablasq_1d_grid(n, h)
 
 Laplacian matrix on a 1D grid
 
+# Arguments:
+    - `n`: Number of points
+    - `h`: Aspect ratio
+
+# Outputs:
+    - discrete Laplacian matrix
 
 """
 function nablasq_1d_grid(n, h = 1.0)
