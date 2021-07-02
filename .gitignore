@@ -10,6 +10,8 @@ obselete/
 Notebooks/obselete
 
 *.swp
+*.info
+*.cov
 
 # Node artifact files
 node_modules/
