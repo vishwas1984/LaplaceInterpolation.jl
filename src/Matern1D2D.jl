@@ -47,7 +47,7 @@ y_mat = matern_1d_grid(y, discard, 2, 0.1, h)
   
 """
 function matern_1d_grid(y::Vector{T}, idx::Vector{Int64}, 
-                                 m::Int64 = 1, eps = 0.0, h = 1.0)
+                                 m::Int64 = 1, eps = 0.0, h = 1.0) where{T<:Number}
   n = length(y)
   A1D = nablasq_1d_grid(n, h)
   C = sparse(I, n, n)
