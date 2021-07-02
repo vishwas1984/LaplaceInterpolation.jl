@@ -1,47 +1,4 @@
-
-"""
-  return_boundary_nodes(xpoints, ypoints, zpoints)
-
-...
-# Arguments
-
-  - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `zpoints::Vector{T} where T<:Real`: the vector containing the z coordinate
-...
-
-...
-# Outputs
-  - `BoundaryNodes3D::Vector{Int64}`: vector containing the indices of coordinates 
-  on the boundary of the rectangular 3D volume
-...
-
-"""
-function return_boundary_nodes2D(xpoints, ypoints)
-  BoundaryNodes2D = []
-  xneighbors = []
-  yneighbors = []
-  counter = 0
-      for j = 1:ypoints
-          for i = 1:xpoints
-              counter = counter + 1
-              if(j == 1|| j == ypoints || i == 1 || i == xpoints)
-                  BoundaryNodes2D = push!(BoundaryNodes2D, counter)
-                  if(j == 1 || j == ypoints)
-                      push!(yneighbors, 1)
-                  else
-                      push!(yneighbors, 2)
-                  end
-                  if(i == 1 || i == xpoints)
-                      push!(xneighbors, 1)
-                  else
-                      push!(xneighbors, 2)
-                  end
-              end
-          end
-      end
-  return BoundaryNodes2D, xneighbors, yneighbors
-end
+# One-dimensional codes
 
 """ 
 
@@ -141,7 +98,43 @@ function Matern_1D_Grid(y, h, missing_data_index, m, epsilon)
     return ((C-(Id -C)*A1DM)) \ (known_values)
   end
 end
+
+"""
+  Matern1D(h, N, f_array, args)
+
+...
+# Arguments
+  - `h`: the
+  - `N`: the number of data points
+  - `f_array`: not sure
+  - `args`: unclear
+...
+
+... 
+# Outputs
+  - matrix containing the Matern operator in one dimension.
+...
+
+"""
+function Matern1D(h,N,f_array, args...)
+    A= Tridiagonal([fill(-1.0/h^2, N-2); 0], [1.0; fill(2.0/h^2, N-2); 1.0], [0.0; fill(-1.0/h^2, N-2);])
+    sizeA = size(A,1)
+    epsilon = 2.2
+    for i = 1:sizeA
+        A[i,i] = A[i,i] + epsilon^2
+    end
+    A2 = A*A
+    diag_c = ones(N)
+    for i in discard
+        diag_c[i] = 0
+    end
+    C = diagm(diag_c)
+    Id = Matrix(1.0I, N, N)
+    return (C-(Id -C)*A2)\(C*f_array)
+end
 =#
+
+# Two dimensional codes
 
 """
   ∇²(n₁,n₂)
@@ -165,6 +158,49 @@ function ∇²(n₁,n₂)
     return kron(sparse(I,n₂,n₂), ∂₁'*∂₁) + kron(∂₂'*∂₂, sparse(I,n₁,n₁))
 end
 
+"""
+  return_boundary_nodes(xpoints, ypoints, zpoints)
+
+...
+# Arguments
+
+  - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
+  - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
+  - `zpoints::Vector{T} where T<:Real`: the vector containing the z coordinate
+...
+
+...
+# Outputs
+  - `BoundaryNodes3D::Vector{Int64}`: vector containing the indices of coordinates 
+  on the boundary of the rectangular 3D volume
+...
+
+"""
+function return_boundary_nodes2D(xpoints, ypoints)
+  BoundaryNodes2D = []
+  xneighbors = []
+  yneighbors = []
+  counter = 0
+      for j = 1:ypoints
+          for i = 1:xpoints
+              counter = counter + 1
+              if(j == 1|| j == ypoints || i == 1 || i == xpoints)
+                  BoundaryNodes2D = push!(BoundaryNodes2D, counter)
+                  if(j == 1 || j == ypoints)
+                      push!(yneighbors, 1)
+                  else
+                      push!(yneighbors, 2)
+                  end
+                  if(i == 1 || i == xpoints)
+                      push!(xneighbors, 1)
+                  else
+                      push!(xneighbors, 2)
+                  end
+              end
+          end
+      end
+  return BoundaryNodes2D, xneighbors, yneighbors
+end
 """ 2D laplacian on a grid """
 function ∇²2d_Grid(n₁, n₂, h, k)
   o₁ = ones(n₁) / h
@@ -212,42 +248,6 @@ function ∇²3d(n₁,n₂,n3)
     return kron(sparse(I,n3,n3),sparse(I,n₂,n₂), ∂₁'*∂₁) + 
            kron(sparse(I,n3,n3), ∂₂'*∂₂, sparse(I,n₁,n₁)) + 
            kron(del3'*del3, sparse(I,n₂,n₂), sparse(I,n₁,n₁))
-end
-=#
-
-#=
-"""
-  Matern1D(h, N, f_array, args)
-
-...
-# Arguments
-  - `h`: the
-  - `N`: the number of data points
-  - `f_array`: not sure
-  - `args`: unclear
-...
-
-... 
-# Outputs
-  - matrix containing the Matern operator in one dimension.
-...
-
-"""
-function Matern1D(h,N,f_array, args...)
-    A= Tridiagonal([fill(-1.0/h^2, N-2); 0], [1.0; fill(2.0/h^2, N-2); 1.0], [0.0; fill(-1.0/h^2, N-2);])
-    sizeA = size(A,1)
-    epsilon = 2.2
-    for i = 1:sizeA
-        A[i,i] = A[i,i] + epsilon^2
-    end
-    A2 = A*A
-    diag_c = ones(N)
-    for i in discard
-        diag_c[i] = 0
-    end
-    C = diagm(diag_c)
-    Id = Matrix(1.0I, N, N)
-    return (C-(Id -C)*A2)\(C*f_array)
 end
 =#
 
