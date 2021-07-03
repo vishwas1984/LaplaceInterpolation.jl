@@ -7,10 +7,10 @@
     A1[1, 1] = A1[4, 4] = 1.0 
     A1[2, 1] = A1[1, 2] = A1[3, 2] = A1[2, 3] = A1[4, 3] = A1[3, 4] = -1.0
 
-    @test nablasq_1d_grid(4, 1.0) == A1
+    @test nablasq_grid(4, 1.0) == A1
 
     x = 1:N
-    h = x[2] - x[1]
+    h = Float64(x[2] - x[1])
     y = sin.(2 * pi * x * 0.2)
     discard = [2, 4]
     # Laplace interpolation

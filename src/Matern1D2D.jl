@@ -1,8 +1,7 @@
 # One-dimensional codes
 
 """ 
-
-    nablasq_1d_grid(n, h)
+    nablasq_grid(n, h)
 
 Laplacian matrix on a 1D grid
 
@@ -12,9 +11,8 @@ Laplacian matrix on a 1D grid
 
 # Outputs:
     - discrete Laplacian matrix
-
 """
-function nablasq_1d_grid(n, h = 1.0)
+function nablasq_grid(n::Int64, h::Float64 = 1.0)
   o = ones(n) / h
   del = spdiagm_nonsquare(n + 1, n, -1 => -o, 0 => o)
   A1D = del' * del
@@ -33,7 +31,7 @@ Matern Interpolation in one dimension
   - `y`: the vector of y's for which the values are known
   - `idx`: the vector of indices for which values are to be interpolated
   - `m::Int64 = 1`: Matern parameter m
-  - `eps = 0.0`: Matern parameter epsilon
+  - `eps = 0.0`: Matern parameter eps
   - `h = 1.0`: aspect ratio
 
 # Outputs:
@@ -53,9 +51,9 @@ y_mat = matern_1d_grid(y, discard, 2, 0.1, h)
   
 """
 function matern_1d_grid(y::Vector{T}, idx::Vector{Int64}, 
-                                 m::Int64 = 1, eps = 0.0, h = 1.0) where{T<:Number}
+                        m::Int64 = 1, eps = 0.0, h::Float64 = 1.0) where{T<:Number}
   n = length(y)
-  A1D = nablasq_1d_grid(n, h)
+  A1D = nablasq_grid(n, h)
   C = sparse(I, n, n)
   C[idx, idx] .= 0.0
   if ((eps == 0)||(eps == 0.0)) && (m == 1)
@@ -71,322 +69,132 @@ function matern_1d_grid(y::Vector{T}, idx::Vector{Int64},
   end
 end
 
-#=
-""" 
-   Matern_1D_Grid(y, h, missing_data_index, m, epsilon)
-
-Matern Interpolation in one dimension
-
-# Arguments:
-  -`y`:data
-  -`h`:aspect ratio
-  -`missing_data_index` indices of missing values
-  - `m` matern parameter
-  - `epsilon` other matern parameter.
-
-"""
-function Matern_1D_Grid(y, h, missing_data_index, m, epsilon)
-  A1D = ∇²1d_Grid(length(y), h)
-  len = size(A1D, 1)
-  C = sparse(I, len, len)
-  Id = sparse(I, len, len)
-  for i in missing_data_index
-    C[i,i] = 0
-  end
-  known_values = C*y
-  if ((m == 1)||(m == 1.0)) && (epsilon == 0.0)
-    return ((C - (Id - C) * A1D)) \ (known_values)
-  else
-    for i = 1:size(A1D,1)
-      A1D[i,i] = A1D[i,i] + epsilon^2
-    end
-    A1DM = A1D^m
-    return ((C-(Id -C)*A1DM)) \ (known_values)
-  end
-end
-
-"""
-  Matern1D(h, N, f_array, args)
-
-...
-# Arguments
-  - `h`: the
-  - `N`: the number of data points
-  - `f_array`: not sure
-  - `args`: unclear
-...
-
-... 
-# Outputs
-  - matrix containing the Matern operator in one dimension.
-...
-
-"""
-function Matern1D(h,N,f_array, args...)
-    A= Tridiagonal([fill(-1.0/h^2, N-2); 0], [1.0; fill(2.0/h^2, N-2); 1.0], [0.0; fill(-1.0/h^2, N-2);])
-    sizeA = size(A,1)
-    epsilon = 2.2
-    for i = 1:sizeA
-        A[i,i] = A[i,i] + epsilon^2
-    end
-    A2 = A*A
-    diag_c = ones(N)
-    for i in discard
-        diag_c[i] = 0
-    end
-    C = diagm(diag_c)
-    Id = Matrix(1.0I, N, N)
-    return (C-(Id -C)*A2)\(C*f_array)
-end
-=#
-
 # Two dimensional codes
 
 """
-  ∇²(n₁,n₂)
-
-Construct the 2D Laplace matrix
-
-# Arguments
-  - `n₁::Int64`: The number of nodes in the first dimension
-  - `n₂::Int64`: The number of nodes in the second dimension
-
-# Outputs 
-
-  - `-∇²` (discrete Laplacian, real-symmetric positive-definite) on n₁×n₂ grid
-
-"""
-function ∇²(n₁,n₂)
-    o₁ = ones(n₁)
-    ∂₁ = spdiagm_nonsquare(n₁+1,n₁,-1=>-o₁,0=>o₁)
-    o₂ = ones(n₂)
-    ∂₂ = spdiagm_nonsquare(n₂+1,n₂,-1=>-o₂,0=>o₂)
-    return kron(sparse(I,n₂,n₂), ∂₁'*∂₁) + kron(∂₂'*∂₂, sparse(I,n₁,n₁))
-end
-
-"""
-  return_boundary_nodes(xpoints, ypoints, zpoints)
+  bdy_nodes(Nx, Ny)
 
 ...
 # Arguments
 
-  - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `zpoints::Vector{T} where T<:Real`: the vector containing the z coordinate
+  - `Nx::Int64`: the number of points in the first dimension
+  - `Ny::Int64`: the number of points in the second dimension
 ...
 
 ...
 # Outputs
-  - `BoundaryNodes3D::Vector{Int64}`: vector containing the indices of coordinates 
-  on the boundary of the rectangular 3D volume
+  - vector containing the indices of coordinates on the boundary of the 2D rectangle
 ...
 
 """
-function return_boundary_nodes2D(xpoints, ypoints)
-  BoundaryNodes2D = []
-  xneighbors = []
-  yneighbors = []
+function bdy_nodes(Nx, Ny)
+  bdy = []
+  xnb = []
+  ynb = []
   counter = 0
-      for j = 1:ypoints
-          for i = 1:xpoints
-              counter = counter + 1
-              if(j == 1|| j == ypoints || i == 1 || i == xpoints)
-                  BoundaryNodes2D = push!(BoundaryNodes2D, counter)
-                  if(j == 1 || j == ypoints)
-                      push!(yneighbors, 1)
+      for j = 1:Ny
+          for i = 1:Nx
+              counter += 1
+              if (j == 1 || j == Ny || i == 1 || i == Nx)
+                  bdy = push!(bdy, counter)
+                  if (j == 1 || j == Ny)
+                      push!(ynb, 1)
                   else
-                      push!(yneighbors, 2)
+                      push!(ynb, 2)
                   end
-                  if(i == 1 || i == xpoints)
-                      push!(xneighbors, 1)
+                  if (i == 1 || i == Nx)
+                      push!(xnb, 1)
                   else
-                      push!(xneighbors, 2)
+                      push!(xnb, 2)
                   end
               end
           end
       end
-  return BoundaryNodes2D, xneighbors, yneighbors
+  return bdy, xnb, ynb
 end
-""" 2D laplacian on a grid """
-function ∇²2d_Grid(n₁, n₂, h, k)
-  o₁ = ones(n₁) / h
-  ∂₁ = spdiagm_nonsquare(n₁ + 1, n₁, -1 => -o₁, 0 => o₁)
-  o₂ = ones(n₂) / k
-  ∂₂ = spdiagm_nonsquare(n₂ + 1, n₂, -1 => -o₂,0 => o₂)
-  # O3 = ones(n3) / l
-  # del3 = spdiagm_nonsquare(n3 + 1, n3, -1 => -O3, 0 => O3)
-  A2D = (kron(sparse(I, n₂, n₂), ∂₁'*∂₁) + 
-          kron(∂₂' * ∂₂, sparse(I, n₁, n₁)))
-  BoundaryNodes, xneighbors, yneighbors = 
-          return_boundary_nodes2D(n₁, n₂)
+
+""" 
+    nablasq_grid(Nx, Ny, h, k)
+
+Laplacian matrix on a 2D grid
+
+# Arguments:
+    - `Nx::Int64`: Number of points in first dimension
+    - `Ny::Int64`: Number of points in second dimension
+    - `h::Float64`: Aspect ratio in first dimension
+    - `k::Float64`: Aspect ratio in second dimension
+
+# Outputs:
+    - discrete Laplacian matrix in 2D
+"""
+function nablasq_grid(Nx::Int64, Ny::Int64, h::Float64, k::Float64)
+  o1 = ones(Nx) / h
+  del1 = spdiagm_nonsquare(Nx + 1, Nx, -1 => -o1, 0 => o1)
+  o2 = ones(Ny) / k
+  del2 = spdiagm_nonsquare(Ny + 1, Ny, -1 => -o2,0 => o2)
+  A2D = (kron(sparse(I, Ny, Ny), del1' * del1) + 
+          kron(del2' * del2, sparse(I, Nx, Nx)))
+  bdy, xnb, ynb = bdy_nodes(Nx, Ny)
   count = 1
-  for i in BoundaryNodes
+  for i in bdy
       A2D[i, i] = 0.0
-      A2D[i, i] = A2D[i, i] + xneighbors[count] / h ^ 2 + yneighbors[count] / k ^ 2 
-      count = count + 1
+      A2D[i, i] = A2D[i, i] + xnb[count] / h ^ 2 + ynb[count] / k ^ 2 
+      count += 1
   end
   return A2D
 end
 
-#=
-"""
-  ∇²3d(n₁,n₂)
-
-Construct the 3D Laplace matrix
-
-# Arguments
-  - `n₁::Int64`: The number of nodes in the first dimension
-  - `n₂::Int64`: The number of nodes in the second dimension
-  - `n3::Int64`: The number of nodes in the third dimension
-
-# Outputs 
-
-  - `-∇²` (discrete Laplacian, real-symmetric positive-definite) on n₁×n₂ grid
-
-"""
-function ∇²3d(n₁,n₂,n3)
-    o₁ = ones(n₁)
-    ∂₁ = spdiagm_nonsquare(n₁+1,n₁,-1=>-o₁,0=>o₁)
-    o₂ = ones(n₂)
-    ∂₂ = spdiagm_nonsquare(n₂+1,n₂,-1=>-o₂,0=>o₂)
-    O3 = ones(n3)
-    del3 = spdiagm_nonsquare(n3+1,n3,-1=>-O3,0=>O3)
-    return kron(sparse(I,n3,n3),sparse(I,n₂,n₂), ∂₁'*∂₁) + 
-           kron(sparse(I,n3,n3), ∂₂'*∂₂, sparse(I,n₁,n₁)) + 
-           kron(del3'*del3, sparse(I,n₂,n₂), sparse(I,n₁,n₁))
-end
-=#
-
 """
 
-  Matern2D(xpoints, ypoints, imgg, epsilon, centers, radius, args...)
-
-...
-# Arguments
-  - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `imgg`: the matrix containing the image
-  - `epsilon`: Matern parameter epsilon
-  - `centers::Union{Vector, Matrix}`: the vector containing the punch centers
-  - `radius::Vector`: the tuple containing the punch radii 
-  - `args`: ?
-
-# Outputs
-  - tuple containing the restored image and the punched image, in grayscale.
-...
-
-"""
-function Matern2D(xpoints, ypoints, imgg, epsilon, centers, radius, args...)
-    A2D = ∇²2d_Grid(xpoints, ypoints,1,1)
-    A2DMatern = A2D*A2D
-    discard = punch_holes_2D(centers, radius, xpoints, ypoints)
-    punched_image = copy(imgg)
-    punched_image[discard] .= 1
-    totalsize = prod(size(imgg))
-    C = sparse(I, totalsize, totalsize)
-    for i in discard
-        C[i,i] = 0
-    end
-    Id = sparse(I, totalsize, totalsize)
-    f = punched_image[:]
-    rhs_a = C*f
-    rhs_a = Float64.(rhs_a)
-    u =((C-(Id -C)*A2DMatern)) \ rhs_a
-    restored_img = reshape(u, xpoints, ypoints)
-    return (restored_img, punched_image)
-end
-
-"""
-
-  Matern2D_Grid(xpoints, ypoints, imgg, epsilon, m)
+  matern_2d_grid(mat, discard, m, eps, h, k)
 
 ...
 # Arguments
   - `mat`: the matrix containing the image
-  - `epsilon`: Matern parameter epsilon
+  - `idx`: the linear indices of the nodes to be discarded
+  - `eps`: Matern parameter eps
   - `m`: The Matern exponent (integer)
-  - `discard`: the linear indices of the nodes to be discarded
+  - `h`: The aspect ratio in the first dimension
+  - `k`: The aspect ratio in the second dimension
 
 # Outputs
-  - tuple containing the interpolated image
+  - matrix containing the interpolated image
+
+# Example:
+
+```<julia-repl>
+x = y = 1:30
+h = k = x[2] - x[1]
+y = sin.(2 * pi * x * 0.2) * cos.(2 * pi * y * 0.3)
+discard = randperm(900)[1:450]
+# Laplace interpolation
+y_lap = matern_2d_grid(y, discard, 1, 0.0, h, k)
+# Matern interpolation
+y_mat = matern_2d_grid(y, discard, 2, 0.1, h, k)
 ...
 
 """
-function Matern2D_Grid(mat, epsilon, m, discard)
+function matern_2d_grid(mat::Matrix, discard::Vector, m::Int64 = 1, eps = 0.0, 
+                        h::Float64 = 1.0, k::Float64 = 1.0)
     rows, columns = size(mat)
-    A2D = ∇²2d_Grid(rows, columns, 1, 1)
-    C = sparse(I, rows * columns, rows * columns)
+    A2D = nablasq_grid(rows, columns, h, k)
+    sizeA = size(A2D, 1)
+    C = sparse(I, sizeA, sizeA)
     for i in discard
-        C[i,i] = 0
+        C[i, i] = 0.0
     end
-    Id = sparse(I, rows * columns, rows * columns)
-    f = mat[:]
-    if (m == 0)||(m == 0.0)
+    if ((m == 1)||(m == 1.0)) && (eps == 0.0)
         # Laplace interpolation
-        u = ((C - (Id - C) * A2D)) \ (C*f)
+        u = ((C - (sparse(I, sizeA, sizeA) - C) * A2D)) \ (C * mat[:])
         return reshape(u, rows, columns)
     else
-        sizeA = size(A2D, 1)
+        # Matern interpolation
         for i = 1:sizeA
-            A2D[i,i] = A2D[i,i] + epsilon^2
+            A2D[i,i] = A2D[i,i] + eps^2
         end
         A2D = A2D^m
-        u = ((C - (Id - C) * A2D)) \ (C * f)
+        u = ((C - (sparse(I, sizeA, sizeA) - C) * A2D)) \ (C * mat[:])
         return reshape(u, rows, columns)   
     end
 end
 
-
-#=
-"""
-
-  Matern3D(xpoints, ypoints, zpoints, imgg, epsilon, centers, radius, args...)
-
-...
-# Arguments
-  - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `zpoints::Vector{T} where T<:Real`: the vector containing the z coordinate
-  - `imgg`: the matrix containing the image
-  - `epsilon`: Matern parameter epsilon
-  - `centers::Union{Vector, Matrix}`: the vector containing the punch centers
-  - `radius::Vector`: the tuple containing the punch radii 
-  - `args`: ?
-
-# Outputs
-  - tuple containing the restored image and the punched image, in grayscale.
-...
-
-"""
-function Matern3D(xpoints, ypoints, zpoints, imgg, epsilon, centers, radius, args...)
-    A3D = ∇²3d(xpoints, ypoints, zpoints)
-    BoundaryNodes = return_boundary_nodes(xpoints, ypoints, zpoints)
-    for i in BoundaryNodes
-        rowindices = A3D.rowval[nzrange(A3D, i)]
-        A3D[rowindices,i] .= 0
-        A3D[i,i] = 1.0
-    end
-    sizeA = size(A3D,1)
-    for i = 1:sizeA
-        A3D[i,i] = A3D[i,i] + epsilon^2
-    end
-    A3DMatern = A3D*A3D
-    discard = punch_holes_3D(centers, radius, xpoints, ypoints, zpoints)
-    punched_image = copy(imgg)
-    punched_image[discard] .= 1
-    totalsize = prod(size(imgg))
-    C = sparse(I, totalsize, totalsize)
-    for i in discard
-        C[i,i] = 0
-    end
-    Id = sparse(I, totalsize, totalsize)
-    f = punched_image[:]
-    rhs_a = C*f
-    rhs_a = Float64.(rhs_a)
-    u = ((C-(Id -C)*A3DMatern)) \ rhs_a
-
-    restored_img = reshape(u, xpoints, ypoints, zpoints)
-    restored_img = Gray.(restored_img)
-    return (restored_img, punched_image)
-end
-=#
