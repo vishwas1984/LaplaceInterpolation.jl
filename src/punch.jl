@@ -20,7 +20,7 @@
 
 """
 function punch_holes_2D(centers, radius::Union{T, Vector{T}}, 
-                        xpoints, ypoints) where T<:Number
+                        Nx, Ny) where T<:Number
     clen = (typeof(centers) <: Vector) ? length(centers) : 1
     rad  = (typeof(radius) <: Vector) ? radius : radius * ones(clen)
     masking_data_points = []
@@ -28,8 +28,8 @@ function punch_holes_2D(centers, radius::Union{T, Vector{T}},
     for a = 1:clen
         c = centers[a]
         count = 1
-        for j = 1:ypoints
-            for h = 1:xpoints
+        for j = 1:Ny
+            for h = 1:Nx
                 if (((h-c[1]))^2 + ((j-c[2]))^2  <= radius[a]^2)
                     append!(masking_data_points,[(h,j)])
                     append!(absolute_indices, count)
