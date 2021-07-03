@@ -5,24 +5,23 @@ function signatures.
 
 ## Punching
 ```@docs
-punch_holes_nexus
 punch_holes_3D
 punch_holes_2D
+punch_holes_nexus
 ```
 
 ## One dimensional
 
 ```@docs
-nablasq_1d_grid
+nablasq_grid
 matern_1D_grid
 ```
 
 ## Two dimensional
 
 ```@docs
-∇²2d_Grid
-Matern2D
-Matern2D_Grid 
+bdy_nodes
+matern_2d_grid
 ```
 
 ## Three diimensional
