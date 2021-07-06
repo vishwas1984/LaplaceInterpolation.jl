@@ -56,7 +56,7 @@ function matern_1d_grid(y::Vector{T}, idx::Vector{Int64},
   A1D = nablasq_grid(n, h)
   C = sparse(I, n, n)
   for i in idx
-    C[i, i] .= 0.0
+    C[i, i] = 0.0
   end
   if ((eps == 0)||(eps == 0.0)) && (m == 1)
     # Laplace Interpolation
