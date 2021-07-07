@@ -116,11 +116,10 @@ function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
             jr = round(ypoints[j])
             for h = 1:length(xpoints)
                 hr = round(xpoints[h])
-                if (((hr - xpoints[h])/radius_x)^2 + ((jr - ypoints[j])/radius_y^2) 
-                    + ((ir - zpoints[i])/radius_z)^2 <= 1.0)
+                if (((hr - xpoints[h])/radius_x)^2 + ((jr - ypoints[j])/radius_y)^2 + ((ir - zpoints[i])/radius_z)^2 <= 1.0)
                     append!(absolute_indices, count)
-                    count += 1
                 end
+                count=count+1
             end
         end
     end
