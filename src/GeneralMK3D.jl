@@ -96,7 +96,7 @@ function matern_3d_grid(imgg, discard::Union{Vector{CartesianIndex{3}}, Vector{I
     end
     Id = sparse(I, totalsize, totalsize)    
     u = ((C - (Id - C) * A3D)) \ rhs_a
-    return u
+    return reshape(u, Nx, Ny, Nz)
 end
 
 
