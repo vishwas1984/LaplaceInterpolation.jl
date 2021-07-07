@@ -83,51 +83,8 @@ function punch_holes_3D(centers, radius, Nx, Ny, Nz)
     return absolute_indices
 end
 
-
 """
-  punch_holes_nexus(xpoints, ypoints, zpoints, radius)
-
-...
-# Arguments
-
-  - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `zpoints::Vector{T} where T<:Real`: the vector containing the z coordinate
-  - `radius::Union{Float64,Vector{Float64}}`: the radius, or radii of the punch, if vector.
-...
-
-...
-# Outputs
-
-
-  - `absolute_indices::Vector{Int64}`: vector containing the indices of coordinates 
-  inside the punch
-
-...
-"""
-function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
-    rad = (typeof(radius) <: Tuple) ? radius : (radius, radius, radius)
-    radius_x, radius_y, radius_z = rad 
-    absolute_indices = Int64[]
-    count = 1
-    for i = 1:length(zpoints)
-        ir = round(zpoints[i])
-        for j = 1:length(ypoints)
-            jr = round(ypoints[j])
-            for h = 1:length(xpoints)
-                hr = round(xpoints[h])
-                if (((hr - xpoints[h])/radius_x)^2 + ((jr - ypoints[j])/radius_y)^2 + ((ir - zpoints[i])/radius_z)^2 <= 1.0)
-                    append!(absolute_indices, count)
-                end
-                count=count+1
-            end
-        end
-    end
-    return absolute_indices
-end
-
-"""
-  punch_hole_3D(center, radius, xpoints, ypoints, zpoints)
+  punch_3D_cart(center, radius, xpoints, ypoints, zpoints)
 
 ...
 # Arguments
@@ -147,7 +104,7 @@ end
 ...
 
 """
-function punch_hole_3D(center, radius, x, y, z)
+function punch_3D_cart(center, radius, x, y, z)
     radius_x, radius_y, radius_z = (typeof(radius) <: Tuple) ? radius : 
                                                 (radius, radius, radius)
     inds = filter(i -> (((x[i[1]]-center[1])/radius_x)^2 
@@ -158,31 +115,3 @@ function punch_hole_3D(center, radius, x, y, z)
     return inds
 end
 
-"""
-  punch_holes_nexus_Cartesian(x, y, z, radius)
-
-...
-# Arguments
-
-  - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
-  - `radius::Union{Float64,Tuple{Float64}}`: the radius, or radii of the punch, if vector.
-...
-
-...
-# Outputs
-
-  - `inds::Vector{Int64}`: vector containing the indices of coordinates 
-  inside the punch
-
-...
-"""
-function punch_holes_nexus_Cartesian(x, y, z, radius)
-    radius_x, radius_y, radius_z = (typeof(radius) <: Tuple) ? radius : (radius, radius, radius)
-    inds = filter(i -> (((x[i[1]] - round(x[i[1]])) / radius_x) ^2 
-                        + ((y[i[2]] - round(y[i[2]])) / radius_y) ^2 
-                        + ((z[i[3]] - round(z[i[3]])) / radius_z) ^2 <= 1.0),
-                  CartesianIndices((1:length(x), 1:length(y), 1:length(z))))
-    return inds
-end

@@ -1,3 +1,30 @@
+
+# Helper code
+
+"""
+  spdiagm_nonsquare(m, n, args...)
+
+Construct a sparse diagonal matrix from Pairs of vectors and diagonals. Each
+vector arg.second will be placed on the arg.first diagonal. By default (if
+size=nothing), the matrix is square and its size is inferred from kv, but a
+non-square size m×n (padded with zeros as needed) can be specified by passing
+m,n as the first arguments.
+
+# Arguments
+  - `m::Int64`: First dimension of the output matrix
+  - `n::Int64`: Second dimension of the output matrix
+  - `args::Tuple{T} where T<:Pair{<:Integer,<:AbstractVector}` 
+
+# Outputs 
+
+  - sparse matrix of size mxn containing the values in args 
+
+"""
+function spdiagm_nonsquare(m, n, args...)
+    I, J, V = SparseArrays.spdiagm_internal(args...)
+    return sparse(I, J, V, m, n)
+end
+
 # One-dimensional codes
 
 """ 

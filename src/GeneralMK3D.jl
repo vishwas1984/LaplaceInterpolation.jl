@@ -45,11 +45,11 @@ function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
 end
 
 """ Helper function to give the matern matrix """
-function _Matern_matrix(Nx, Ny, Nz, m, epsilon, h, k, l)
+function _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l)
     A3D = nablasq_3d_grid(Nx, Ny, Nz, h, k, l) 
     sizeA = size(A3D, 1)
     for i = 1:sizeA
-        A3D[i, i] = A3D[i, i] + epsilon^2
+        A3D[i, i] = A3D[i, i] + eps^2
     end
     A3DMatern = A3D
     for i = 1:m - 1
@@ -60,7 +60,7 @@ end
 
 """
 
-  matern_3d_grid(imgg, discard, m, epsilon, h, k, l)
+  matern_3d_grid(imgg, discard, m, eps, h, k, l)
 
 Interpolates a single punch
 
@@ -69,7 +69,7 @@ Interpolates a single punch
   - `imgg`: the matrix containing the image
   - `discard::Vector{Int64}`: the linear indices of the values to be filled 
   - `m::Int64 = 1` : Matern parameter 
-  - `epsilon::Float64 = 0.0`: Matern parameter epsilon
+  - `eps::Float64 = 0.0`: Matern parameter eps
   - `h = 1.0`: Aspect ratio in the first dimension
   - `k = 1.0`: Aspect ratio in the second dimension
   - `l = 1.0`: Aspect ratio in the third dimension 
@@ -80,12 +80,12 @@ Interpolates a single punch
 
 """
 function matern_3d_grid(imgg, discard::Union{Vector{CartesianIndex{3}}, Vector{Int64}},
-                m::Int64 = 1,  epsilon::Float64 = 0.0, 
+                m::Int64 = 1,  eps::Float64 = 0.0, 
                 h = 1.0, k = 1.0, l = 1.0) 
     Nx, Ny, Nz = size(imgg)
-    A3D = (epsilon == 0.0)&&(m == 1) ? 
+    A3D = (eps == 0.0)&&(m == 1) ? 
                 nablasq_3d_grid(Nx, Ny, Nz, h, k, l) :
-                _Matern_matrix(Nx, Ny, Nz, m, epsilon, h, k, l) 
+                _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l) 
     totalsize = Nx * Ny * Nz
     C = sparse(I, totalsize, totalsize)
     rhs_a = copy(imgg)[:]
@@ -102,27 +102,27 @@ end
 
 """
 
-  parallel_interp!(x, y, z, imgg, discard, epsilon, m)
+  parallel_mat!(imgg, discard, m, eps, h, k, l)
 
 Interpolate, in parallel and in-place, multiple punches
 
 ...
 # Arguments
-  - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
   - `imgg`: the matrix containing the image
   - `discard::Vector{Int64}`: the linear indices of the values to be filled 
-  - `epsilon::Float64 = 0.0`: Matern parameter epsilon
   - `m::Int64 = 1` : Matern parameter 
+  - `eps::Float64 = 0.0`: Matern parameter eps
+  - `h = 1.0`: Aspect ratio in the first dimension
+  - `k = 1.0`: Aspect ratio in the second dimension
+  - `l = 1.0`: Aspect ratio in the third dimension 
 
 # Outputs
   - array containing the interpolated image 
 ...
 """
-function parallel_interp!(x, y, z, imgg,
+function parallel_mat!(imgg,
                         discard::Vector{Vector{CartesianIndex{3}}},
-                        epsilon = 0.0, m = 1)
+                        m = 1, eps = 0.0, h = 1.0, k = 1.0, l = 1.0)
     Threads.@threads for d in discard
         fi, li = (first(d), last(d) + CartesianIndex(1, 1, 1))
         selection = map(i -> i - fi + CartesianIndex(1, 1, 1), d)
@@ -130,90 +130,7 @@ function parallel_interp!(x, y, z, imgg,
         imgg[fi:li] = interp(xpoints[fi[1]:li[1]], ypoints[fi[2]:li[2]], 
                 zpoints[fi[3]:li[3]], 
                 imgg[fi:li], 
-                selection, epsilon, m)
+                selection, eps, m)
     end
 end
-
-"""
-
-  interp_1lu(x, y, z, imgg, punch_template, epsilon, m)
-
-Interpolate around the bragg peaks in the image by tiling the punch_template
-
-...
-# Arguments
-  - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
-  - `imgg::Array{Float64,3]`: the matrix containing the image
-  - `punch_template::Array{Float64,3}`: one lattice unit template of the values to be filled 
-  - `epsilon::Float64 = 0.0`: Matern parameter epsilon
-  - `m::Int64 = 1` : Matern parameter 
-
-# Outputs
-  - array containing the interpolated image 
-...
-"""
-function interp_1lu(x, y, z, imgg, punch_template, epsilon, m)
-  discard = findall(punch_template .> 0)
-  res = interp(x, y, z, imgg, discard, epsilon, m)
-  return res
-end
-
-"""
-
-  interp_nexus(x, y, z, imgg, punch_template, epsilon, m)
-
-Interpolate around the bragg peaks in the image by tiling the punch_template
-
-...
-# Arguments
-  - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
-  - `imgg::Array{Float64,3]`: the matrix containing the image
-  - `punch_template::Array{Float64,3}`: one lattice unit template of the values to be filled 
-  - `epsilon::Float64 = 0.0`: Matern parameter epsilon
-  - `m::Int64 = 1` : Matern parameter 
-
-# Outputs
-  - array containing the interpolated image 
-...
-
-# Example
-
-```<julia-repl>
-x = y = z = collect(-0.5:0.1:10)
-imgg = randn(length(x), length(y), length(z))
-punch_template = zeros(10, 10, 10); punch_template[5, 5, 5] = 1
-interp_nexus(x, y, z, imgg, punch_template)
-```
-"""
-function interp_nexus(x, y, z, imgg, punch_template, epsilon = 0.0, m = 1)
-  discard = findall(punch_template .> 0)
-  x_unit, y_unit, z_unit = size(punch_template)
-  Nx, Ny, Nz = size(imgg)
-  Qx = ceil(x[end]) + 1 
-  Qy = ceil(y[end]) + 1
-  Qz = ceil(z[end]) + 1
-  corners_x = findall((x .- 0.5) .% 1 .== 0.0)
-  corners_y = findall((y .- 0.5) .% 1 .== 0.0)
-  corners_z = findall((z .- 0.5) .% 1 .== 0.0)
-  corners = [CartesianIndex(xind, yind, zind) for xind in corners_x[1:end-1] 
-                                              for yind in corners_y[1:end-1]
-                                              for zind in corners_y[1:end-1]]
-  # punched = copy(imgg);
-  # Threads.@threads for (i,c) in enumerate(corners)
-  for (i,c) in enumerate(corners)
-    tcx = minimum([Nx, Tuple(c)[1] + x_unit])
-    tcy = minimum([Ny, Tuple(c)[2] + y_unit])
-    tcz = minimum([Nz, Tuple(c)[3] + z_unit])
-    tc = CartesianIndex(tcx, tcy, tcz)
-    imgg[c:tc] = interp(x[c[1]:tc[1]], y[c[2]:tc[2]], z[c[3]:tc[3]], 
-                       imgg[c:tc], discard, Float64(epsilon), Int64(m))
-    # punched[c:tc] .= 0.0
-  end
-  return imgg
-end
-
 
