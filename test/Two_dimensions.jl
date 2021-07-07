@@ -1,8 +1,8 @@
 
 
-# One-dimensional tests
+# Two-dimensional tests
 
-@testset "One dimensional interpolation" begin
+@testset "Two dimensional interpolation" begin
 
     N = 4
     h = k = 1.0

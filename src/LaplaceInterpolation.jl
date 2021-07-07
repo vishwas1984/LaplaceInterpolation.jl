@@ -6,7 +6,7 @@ module LaplaceInterpolation
   export nablasq_grid, bdy_nodes, matern_1d_grid, matern_2d_grid 
 
   include("GeneralMK3D.jl")
-  export ∇²3d_Grid, Matern_3D_Grid, Laplace_3D_Grid, parallel_Matern_3DGrid
+  export nablasq_3d_grid, matern_3d_grid, Laplace_3D_Grid, parallel_Matern_3DGrid
   export parallel_Laplace_3Dgrid, interp_nexus 
 
   include("MaternKernelApproximation.jl")

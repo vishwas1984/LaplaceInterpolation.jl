@@ -1,39 +1,39 @@
 
-# functions: ∇²3d_Grid, return_boundary_nodes, 
+# functions: nablasq_3d_grid, return_boundary_nodes, 
 # return_boundary_nodes_3D, punch_holes_nexus_Cartesian, 
 # Matern_3d_Grid, Laplace_3D_grid,
 # parallel_Matern_3DGrid, parallel_Laplace_3Dgrid
 
 """
-  ∇²3d_Grid(n₁,n₂)
+  nablasq_3d_grid(Nx,Ny)
 
 Construct the 3D Laplace matrix
 
 # Arguments
-  - `n₁::Int64`: The number of nodes in the first dimension
-  - `n₂::Int64`: The number of nodes in the second dimension
-  - `n3::Int64`: The number of nodes in the third dimension
+  - `Nx::Int64`: The number of nodes in the first dimension
+  - `Ny::Int64`: The number of nodes in the second dimension
+  - `Nz::Int64`: The number of nodes in the third dimension
   - `h::Float64`: Grid spacing in the first dimension
   - `k::Float64`: Grid spacing in the second dimension
   - `l::Float64`: Grid spacing in the third dimension
 
 # Outputs 
 
-  - `-∇²` (discrete Laplacian, real-symmetric positive-definite) on n₁×n₂ grid
+  - `-nablasq` (discrete Laplacian, real-symmetric positive-definite) on Nx×Ny grid
 
 """
-function ∇²3d_Grid(n₁, n₂, n3, h, k, l)
-    o₁ = ones(n₁) / h
-    ∂₁ = spdiagm_nonsquare(n₁ + 1, n₁, -1 => -o₁, 0 => o₁)
-    o₂ = ones(n₂) / k
-    ∂₂ = spdiagm_nonsquare(n₂ + 1, n₂, -1 => -o₂,0 => o₂)
-    O3 = ones(n3) / l
-    del3 = spdiagm_nonsquare(n3 + 1, n3, -1 => -O3, 0 => O3)
-    A3D = (kron(sparse(I, n3, n3), sparse(I, n₂, n₂), ∂₁'*∂₁) + 
-            kron(sparse(I, n3, n3), ∂₂' * ∂₂, sparse(I, n₁, n₁)) + 
-            kron(del3' * del3, sparse(I, n₂, n₂), sparse(I, n₁, n₁)))
+function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
+    o₁ = ones(Nx) / h
+    del1 = spdiagm_nonsquare(Nx + 1, Nx, -1 => -o₁, 0 => o₁)
+    o₂ = ones(Ny) / k
+    del2 = spdiagm_nonsquare(Ny + 1, Ny, -1 => -o₂,0 => o₂)
+    O3 = ones(Nz) / l
+    del3 = spdiagm_nonsquare(Nz + 1, Nz, -1 => -O3, 0 => O3)
+    A3D = (kron(sparse(I, Nz, Nz), sparse(I, Ny, Ny), del1'*del1) + 
+            kron(sparse(I, Nz, Nz), del2' * del2, sparse(I, Nx, Nx)) + 
+            kron(del3' * del3, sparse(I, Ny, Ny), sparse(I, Nx, Nx)))
     BoundaryNodes, xneighbors, yneighbors, zneighbors = 
-            return_boundary_nodes(n₁, n₂, n3)
+            return_boundary_nodes(Nx, Ny, Nz)
     count = 1
     for i in BoundaryNodes
         A3D[i, i] = 0.0
@@ -44,69 +44,9 @@ function ∇²3d_Grid(n₁, n₂, n3, h, k, l)
     return A3D
 end
 
-"""
-  punch_hole_3D(center, radius, xpoints, ypoints, zpoints)
-
-...
-# Arguments
-
-  - `center::Tuple{T}`: the tuple containing the center of a round punch
-  - `radius::Union{Tuple{Float64},Float64}`: the radii/radius of the punch
-  - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
-...
-
-...
-# Outputs
-  - `inds::Vector{Int64}`: vector containing the indices of coordinates 
-  inside the punch
-  - `bbox::Tuple{Int64}`: the bounding box coordinates of the smallest box to fit around the punch
-...
-
-"""
-function punch_hole_3D(center, radius, x, y, z)
-    radius_x, radius_y, radius_z = (typeof(radius) <: Tuple) ? radius : 
-                                                (radius, radius, radius)
-    inds = filter(i -> (((x[i[1]]-center[1])/radius_x)^2 
-                        + ((y[i[2]]-center[2])/radius_y)^2 
-                        + ((z[i[3]] - center[3])/radius_z)^2 <= 1.0),
-                  CartesianIndices((1:length(x), 1:length(y), 1:length(z))))
-    (length(inds) == 0) && error("Empty punch.")
-    return inds
-end
-
-"""
-  punch_holes_nexus_Cartesian(x, y, z, radius)
-
-...
-# Arguments
-
-  - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
-  - `radius::Union{Float64,Tuple{Float64}}`: the radius, or radii of the punch, if vector.
-...
-
-...
-# Outputs
-
-  - `inds::Vector{Int64}`: vector containing the indices of coordinates 
-  inside the punch
-
-...
-"""
-function punch_holes_nexus_Cartesian(x, y, z, radius)
-    radius_x, radius_y, radius_z = (typeof(radius) <: Tuple) ? radius : (radius, radius, radius)
-    inds = filter(i -> (((x[i[1]] - round(x[i[1]])) / radius_x) ^2 
-                        + ((y[i[2]] - round(y[i[2]])) / radius_y) ^2 
-                        + ((z[i[3]] - round(z[i[3]])) / radius_z) ^2 <= 1.0),
-                  CartesianIndices((1:length(x), 1:length(y), 1:length(z))))
-    return inds
-end
-
-function _Matern_matrix(Nx, Ny, Nz, dx, dy, dz, epsilon, m)
-    A3D = ∇²3d_Grid(Nx, Ny, Nz, dx, dy, dz) 
+""" Helper function to give the matern matrix """
+function _Matern_matrix(Nx, Ny, Nz, m, epsilon, h, k, l)
+    A3D = nablasq_3d_grid(Nx, Ny, Nz, h, k, l) 
     sizeA = size(A3D, 1)
     for i = 1:sizeA
         A3D[i, i] = A3D[i, i] + epsilon^2
@@ -120,45 +60,43 @@ end
 
 """
 
-  interp(x, y, z, imgg, discard, epsilon, m)
+  matern_3d_grid(imgg, discard, m, epsilon, h, k, l)
 
 Interpolates a single punch
 
 ...
 # Arguments
-  - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
-  - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
-  - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
   - `imgg`: the matrix containing the image
   - `discard::Vector{Int64}`: the linear indices of the values to be filled 
-  - `epsilon::Float64 = 0.0`: Matern parameter epsilon
   - `m::Int64 = 1` : Matern parameter 
+  - `epsilon::Float64 = 0.0`: Matern parameter epsilon
+  - `h = 1.0`: Aspect ratio in the first dimension
+  - `k = 1.0`: Aspect ratio in the second dimension
+  - `l = 1.0`: Aspect ratio in the third dimension 
 
 # Outputs
   - array containing the restored image
 ...
 
 """
-function interp(x, y, z, imgg, discard::Vector{CartesianIndex{3}},
-                epsilon::Float64 = 0.0, m::Int64 = 1)
-    ((length(x) !== size(imgg, 1)) || (length(y) !== size(imgg, 2)) || 
-        (length(z) !== size(imgg,3))) && error("Axes lengths must match image dims")
+function matern_3d_grid(imgg, discard::Union{Vector{CartesianIndex{3}}, Vector{Int64}},
+                m::Int64 = 1,  epsilon::Float64 = 0.0, 
+                h = 1.0, k = 1.0, l = 1.0) 
+    Nx, Ny, Nz = size(imgg)
     A3D = (epsilon == 0.0)&&(m == 1) ? 
-                ∇²3d_Grid(length(x), length(y), length(z), x[2] - x[1],
-                               y[2] - y[1], z[2] - z[1]) :
-                _Matern_matrix(length(x), length(y), length(z), x[2] - x[1], 
-                               y[2] - y[1], z[2] - z[1], epsilon, m) 
-    totalsize = prod(size(imgg))
+                nablasq_3d_grid(Nx, Ny, Nz, h, k, l) :
+                _Matern_matrix(Nx, Ny, Nz, m, epsilon, h, k, l) 
+    totalsize = Nx * Ny * Nz
     C = sparse(I, totalsize, totalsize)
     rhs_a = copy(imgg)[:]
     for i in discard
-        j = LinearIndices(imgg)[i]
+        j = (typeof(i) <: CartesianIndex) ? LinearIndices(imgg)[i] : i
         C[j, j] = 0.0
         rhs_a[j] = 0.0
     end
     Id = sparse(I, totalsize, totalsize)    
     u = ((C - (Id - C) * A3D)) \ rhs_a
-    return u
+    return reshape(u, Nx, Ny, Nz)
 end
 
 

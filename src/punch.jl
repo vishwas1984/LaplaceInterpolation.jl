@@ -126,3 +126,63 @@ function punch_holes_nexus(xpoints, ypoints, zpoints, radius)
     return absolute_indices
 end
 
+"""
+  punch_hole_3D(center, radius, xpoints, ypoints, zpoints)
+
+...
+# Arguments
+
+  - `center::Tuple{T}`: the tuple containing the center of a round punch
+  - `radius::Union{Tuple{Float64},Float64}`: the radii/radius of the punch
+  - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
+  - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
+  - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
+...
+
+...
+# Outputs
+  - `inds::Vector{Int64}`: vector containing the indices of coordinates 
+  inside the punch
+  - `bbox::Tuple{Int64}`: the bounding box coordinates of the smallest box to fit around the punch
+...
+
+"""
+function punch_hole_3D(center, radius, x, y, z)
+    radius_x, radius_y, radius_z = (typeof(radius) <: Tuple) ? radius : 
+                                                (radius, radius, radius)
+    inds = filter(i -> (((x[i[1]]-center[1])/radius_x)^2 
+                        + ((y[i[2]]-center[2])/radius_y)^2 
+                        + ((z[i[3]] - center[3])/radius_z)^2 <= 1.0),
+                  CartesianIndices((1:length(x), 1:length(y), 1:length(z))))
+    (length(inds) == 0) && error("Empty punch.")
+    return inds
+end
+
+"""
+  punch_holes_nexus_Cartesian(x, y, z, radius)
+
+...
+# Arguments
+
+  - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
+  - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
+  - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
+  - `radius::Union{Float64,Tuple{Float64}}`: the radius, or radii of the punch, if vector.
+...
+
+...
+# Outputs
+
+  - `inds::Vector{Int64}`: vector containing the indices of coordinates 
+  inside the punch
+
+...
+"""
+function punch_holes_nexus_Cartesian(x, y, z, radius)
+    radius_x, radius_y, radius_z = (typeof(radius) <: Tuple) ? radius : (radius, radius, radius)
+    inds = filter(i -> (((x[i[1]] - round(x[i[1]])) / radius_x) ^2 
+                        + ((y[i[2]] - round(y[i[2]])) / radius_y) ^2 
+                        + ((z[i[3]] - round(z[i[3]])) / radius_z) ^2 <= 1.0),
+                  CartesianIndices((1:length(x), 1:length(y), 1:length(z))))
+    return inds
+end
