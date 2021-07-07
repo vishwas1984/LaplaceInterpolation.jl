@@ -27,8 +27,8 @@ matern_2d_grid
 ## Three diimensional
 
 ```@docs
-∇²3d_Grid
-Matern_3D_Grid
+nablasq_3d_grid
+matern_3d_grid
 Laplace_3D_Grid
 parallel_Matern_3DGrid
 parallel_Laplace_3Dgrid
