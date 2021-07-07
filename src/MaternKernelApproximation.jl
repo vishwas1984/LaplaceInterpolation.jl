@@ -289,41 +289,78 @@ restored = Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radi
 ...
 
 """
-function Parallel_Matern3D_Grid(xpoints::Union{StepRangeLen{T},Vector{T}}, 
-                                ypoints::Union{StepRangeLen{T},Vector{T}}, 
-                                zpoints::Union{StepRangeLen{T},Vector{T}}, 
-                                imgg::Array{P,3}, epsilon::Q, 
-                                radius::Union{Q,Tuple{Q,Q,Q}}, 
-                                h::Float64, k::Float64, l::Float64, 
-                                xmin::R, xmax::R, ymin::R, ymax::R, zmin::R, zmax::R, 
-                                m::Int) where{T<:Number,P<:Number,Q<:Number,R<:Number}
-  # 
-  fun(x,y,z,w) = Int(round((x -y)/z) - w ) 
-  ran(x,y,z,w) = fun(x, y, z, w) .+ (0, 2*w + 1)
-  #
-  rad = (typeof(radius) <: Tuple) ? radius : (radius, radius, radius)
-  radius_x, radius_y, radius_z = rad 
-  stride_h = Int64(round(radius_x / h))
-  stride_k = Int64(round(radius_y / k))
-  stride_l = Int64(round(radius_z / l))
-  cartesian_product_boxes = [(ran(i, xpoints[1], h, stride_h)..., 
-                              ran(j, ypoints[1], k, stride_k)...,
-                              ran(kk, zpoints[1], l, stride_l)...)  
-                         for i in xmin:xmax for j in ymin:ymax for kk in zmin:zmax]
-  #
-  z3d_restored = copy(imgg)
-  #
-  Threads.@threads for i = 1:length(cartesian_product_boxes)
-    i1, i2, j1, j2, k1, k2 = cartesian_product_boxes[i]
-    restored_img = Matern3D_Grid(xpoints[i1 + 1:i2], ypoints[j1 + 1:j2], 
-                           zpoints[k1 + 1:k2], 
-                           imgg[i1 + 1:i2, j1 + 1:j2, k1 + 1:k2], 
-                           epsilon, radius, h, k, l, m)[1]
-    z3d_restored[i1 + 1:i2, j1 + 1:j2, k1 + 1:k2] = reshape(restored_img, 
-                           (2 * stride_h + 1, 2 * stride_k + 1, 2 * stride_l + 1))
+# function Parallel_Matern3D_Grid(xpoints::Union{StepRangeLen{T},Vector{T}}, 
+#                                 ypoints::Union{StepRangeLen{T},Vector{T}}, 
+#                                 zpoints::Union{StepRangeLen{T},Vector{T}}, 
+#                                 imgg::Array{P,3}, epsilon::Q, 
+#                                 radius::Union{Q,Tuple{Q,Q,Q}}, 
+#                                 h::Float64, k::Float64, l::Float64, 
+#                                 xmin::R, xmax::R, ymin::R, ymax::R, zmin::R, zmax::R, 
+#                                 m::Int) where{T<:Number,P<:Number,Q<:Number,R<:Number}
+#   # 
+#   fun(x,y,z,w) = Int(round((x -y)/z) - w ) 
+#   ran(x,y,z,w) = fun(x, y, z, w) .+ (0, 2*w + 1)
+#   #
+#   rad = (typeof(radius) <: Tuple) ? radius : (radius, radius, radius)
+#   radius_x, radius_y, radius_z = rad 
+#   stride_h = Int64(round(radius_x / h))
+#   stride_k = Int64(round(radius_y / k))
+#   stride_l = Int64(round(radius_z / l))
+#   cartesian_product_boxes = [(ran(i, xpoints[1], h, stride_h)..., 
+#                               ran(j, ypoints[1], k, stride_k)...,
+#                               ran(kk, zpoints[1], l, stride_l)...)  
+#                          for i in xmin:xmax for j in ymin:ymax for kk in zmin:zmax]
+#   #
+#   z3d_restored = copy(imgg)
+#   #
+#   Threads.@threads for i = 1:length(cartesian_product_boxes)
+#     i1, i2, j1, j2, k1, k2 = cartesian_product_boxes[i]
+#     restored_img = Matern3D_Grid(xpoints[i1 + 1:i2], ypoints[j1 + 1:j2], 
+#                            zpoints[k1 + 1:k2], 
+#                            imgg[i1 + 1:i2, j1 + 1:j2, k1 + 1:k2], 
+#                            epsilon, radius, h, k, l, m)[1]
+#     z3d_restored[i1 + 1:i2, j1 + 1:j2, k1 + 1:k2] = reshape(restored_img, 
+#                            (2 * stride_h + 1, 2 * stride_k + 1, 2 * stride_l + 1))
+#   end
+#   #
+#   return z3d_restored[:]
+#   #
+# end
+
+function Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, xmin, xmax, ymin, ymax, zmin, zmax, m)
+  xbegin = xpoints[1];
+  ybegin = ypoints[1];
+  zbegin = zpoints[1];
+  cartesian_product_boxes = [];
+  stride = Int(round(radius/h));
+  z3d_restored = copy(imgg);
+  for i = xmin:xmax+1
+      i1 = Int(round((i-xbegin) /h))-stride;
+      i2 = i1+2*stride+1;
+      for j = ymin:ymax+1
+          j1 = Int(round((j-ybegin)/h))-stride;
+          j2 = j1+2*stride+1;
+          for k = zmin:zmax+1
+              k1 = Int(round((k-ybegin)/h)) - stride;
+              k2 = k1+2*stride+1;
+              append!(cartesian_product_boxes,[(i1,i2,j1,j2,k1,k2)]);
+          end
+      end
   end
-  #
-  return z3d_restored[:]
-  #
+
+  Threads.@threads for i = 1:length(cartesian_product_boxes)
+    i1 = cartesian_product_boxes[i][1];
+    i2 = cartesian_product_boxes[i][2];
+    j1 = cartesian_product_boxes[i][3];
+    j2 = cartesian_product_boxes[i][4];
+    k1 = cartesian_product_boxes[i][5];
+    k2 = cartesian_product_boxes[i][6];
+    z3temp = imgg[i1+1:i2,j1+1:j2,k1+1:k2];
+    restored_img, punched_image = Matern3D_Grid(xpoints[i1+1:i2], ypoints[j1+1:j2], zpoints[k1+1:k2], z3temp, epsilon, radius, h, k, l, m);
+    restored_img_reshape = reshape(restored_img, (2*stride+1,2*stride+1,2*stride+1));
+    z3d_restored[i1+1:i2, j1+1:j2, k1+1:k2] = restored_img_reshape;
+  end
+  return z3d_restored[:];
 end
+
 
