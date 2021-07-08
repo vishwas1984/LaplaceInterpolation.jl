@@ -1,8 +1,9 @@
 
-
+#=
 """ Give the boundary nodes """
 function bdy_nodes(dims::Tuple)
     D = length(dims)
+    nbdy = prod(dims) - prod(dims .- 2)
     bdy = CartesianIndex{D}[]
     for (i, d) in enumerate(dims)
         # This only works with julia v 1.6
@@ -10,6 +11,42 @@ function bdy_nodes(dims::Tuple)
     end
     bdy = unique(bdy)
     neighbors = zeros(length(bdy), D)
+    for (j, b) in enumerate(bdy)
+        for i in 1:D
+          neighbors[j, i] = ((Tuple(b)[i] == 1)||(Tuple(b)[i] == dims[i])) ? 1 : 2
+        end
+    end
+    return bdy, neighbors
+end
+=#
+
+"""
+  bdy_nodes(dims)
+
+Boundary node computation, for arbitrary dimension
+
+...
+# Arguments
+
+  - `dims::Tuple` number of points in each direction
+...
+
+...
+# Outputs
+  - `Vector{Int64}`: vector containing the indices of coordinates 
+  on the boundary of the hyperrectangle volume
+...
+
+"""
+function bdy_nodes(dims::Tuple)
+    D = length(dims)
+    bdy = CartesianIndex[]
+    for d in CartesianIndices(dims)
+        if (sum(Tuple(d) .== 1) > 0) || (sum(Tuple(d) .== dims) > 0) 
+            push!(bdy, d)
+        end
+    end
+    neighbors = zeros(Int64, length(bdy), D)
     for (j, b) in enumerate(bdy)
         for i in 1:D
           neighbors[j, i] = ((Tuple(b)[i] == 1)||(Tuple(b)[i] == dims[i])) ? 1 : 2
