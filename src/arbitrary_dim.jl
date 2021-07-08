@@ -57,7 +57,7 @@ function interp(data, ind, m, eps, aspect_ratios)
     dims = size(data)
     A = (eps == 0.0)&&(m == 1) ? 
                 nablasq_arb(dims, aspect_ratios) :
-                _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l) 
+                _Matern_matrix(dims, m, eps, aspect_ratios) 
     totalsize = prod(dims)
     C = sparse(I, totalsize, totalsize)
     rhs_a = data[:]
