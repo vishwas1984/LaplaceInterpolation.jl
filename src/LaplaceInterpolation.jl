@@ -18,4 +18,8 @@ module LaplaceInterpolation
   include("nexus.jl")
   # These functions are unexported
 
+  # Only works with juliia v 1.6 and higher
+  include("arbitrary_dim.jl")
+  export nablasq_arb, interp
+
 end
