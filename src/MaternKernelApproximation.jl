@@ -78,7 +78,7 @@ end
 
 """
 function Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, m)
-    A3D = nablasq3d_Grid(length(xpoints), length(ypoints), length(zpoints), h, k, l)
+    A3D = nablasq_3d_grid(length(xpoints), length(ypoints), length(zpoints), h, k, l)
     sizeA = size(A3D, 1)
     for i = 1:sizeA
         A3D[i, i] = A3D[i, i] + epsilon^2
@@ -123,7 +123,7 @@ end
 
 """
 function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l)
-    A3D = nablasq3d_Grid(length(xpoints), length(ypoints), length(zpoints), h, k, l)
+    A3D = nablasq_3d_grid(length(xpoints), length(ypoints), length(zpoints), h, k, l)
     discard = punch_holes_nexus(xpoints, ypoints, zpoints, radius)
     punched_image = copy(imgg)
     punched_image[discard] .= 1
