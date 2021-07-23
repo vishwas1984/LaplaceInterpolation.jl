@@ -139,7 +139,7 @@ function center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
     elseif symm == 'C'
         centers = filter(i -> C(i...), hkl)
     elseif symm == 'I'
-        centers = filter(i -> I(i...), hkl)
+        centers = filter(i -> Ii(i...), hkl)
     elseif symm == 'F'
         centers = filter(i -> F(i...), hkl)
     elseif symm == 'R'
@@ -168,7 +168,7 @@ function C(h,k,l)
     return (h+k)%2 != 0
 end
 
-function I(h,k,l)
+function Ii(h,k,l)
     return (h+k+l)%2 != 0
 end
 
