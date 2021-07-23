@@ -53,9 +53,9 @@ function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
         count = count + 1
     end
     length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)] = A3D)
-    if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
-      @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
-    end
+    #if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
+    #  @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
+    #end
     return A3D
 end
 
@@ -69,9 +69,9 @@ function _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l)
     end
     A3DMatern = A3D^m
     length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, m, eps, h, k, l)] = A3DMatern)
-    if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
-      @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
-    end
+    #if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
+    #  @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
+    #end
     A3DMatern
 end
 
@@ -148,16 +148,18 @@ Interpolate, in parallel and in-place, multiple punches
 
 ```<julia-repl>
 h = k = l = 1.0
-Nx = Ny = Nz = 60
+symm = 'A'
+Nx = Ny = Nz = 61
 radius = (0.5, 0.5, 0.5 )
 Qh_min = Qk_min = Ql_min = -3.0
 Qh_max = Qk_max = Ql_max = 3.0
-xpoints = ypoints = zpoints = LinRange(Qh_min, Qh_max, Nx + 1)[1:Nx]
+xpoints = ypoints = zpoints = LinRange(Qh_min, Qh_max, Nx)
 imgg = rand(Nx, Ny, Nz)
 m = 1
 eps = 0.0
-interp = parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, m, eps, 
-                      h, k, l, 'P')
+interp = parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radius,
+                      xpoints, ypoints, zpoints, m, eps, 
+                      h, k, l, symm)
 ```
 
 ...
@@ -166,16 +168,16 @@ function parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radi
                       xpoints, ypoints, zpoints,
                         m = 1, eps = 0.0, h = 1.0, k = 1.0, l = 1.0, symm = 'G')
     centers = center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
+    new_imgg = copy(imgg)
     # Threads.@threads for c in centers
     for c in centers
-        println(c)
         discard = LaplaceInterpolation.punch_3D_cart(c, radius, xpoints, ypoints, zpoints)
         selection = LaplaceInterpolation.pad_intersect(discard, m, size(imgg)...)
         fi = first(selection)
         d_shift = map(d -> d - fi + CartesianIndex(1,1,1), discard)
         # Interpolate
-        imgg[selection] = matern_3d_grid(imgg[selection], d_shift, m, eps, h, k, l)
+        new_imgg[selection] = matern_3d_grid(imgg[selection], d_shift, m, eps, h, k, l)
     end
-    return imgg
+    return new_imgg
 end
 
