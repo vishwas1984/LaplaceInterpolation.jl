@@ -53,7 +53,7 @@ function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
         count = count + 1
     end
     length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)] = A3D)
-    if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX && SETTINGS.VERBOSE
+    if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
       @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
     end
     return A3D
@@ -69,7 +69,7 @@ function _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l)
     end
     A3DMatern = A3D^m
     length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, m, eps, h, k, l)] = A3DMatern)
-    if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX && SETTINGS.VERBOSE
+    if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
       @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
     end
     A3DMatern
