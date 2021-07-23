@@ -166,8 +166,8 @@ function parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radi
                       xpoints, ypoints, zpoints,
                         m = 1, eps = 0.0, h = 1.0, k = 1.0, l = 1.0, symm = 'G')
     centers = center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
-    # Threads.@threads for c in centers
-    for c in centers
+    Threads.@threads for c in centers
+    # for c in centers
         discard = punch_3D_cart(c, radius, xpoints, ypoints, zpoints)
         # fi, li = (first(d) - CartesianIndex(1, 1, 1), last(d) + CartesianIndex(1, 1, 1))
         # selection = map(i -> i - fi + CartesianIndex(1, 1, 1), d)
@@ -175,7 +175,7 @@ function parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radi
         fi = first(selection)
         d_shift = map(d -> d - fi + CartesianIndex(1,1,1), discard)
         # Interpolate
-        imgg[fi:li] = matern_3d_grid(imgg[selection], d_shift, m, eps, h, k, l)
+        imgg[selection] = matern_3d_grid(imgg[selection], d_shift, m, eps, h, k, l)
     end
     return imgg
 end
