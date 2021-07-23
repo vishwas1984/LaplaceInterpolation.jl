@@ -117,6 +117,13 @@ function matern_3d_grid(imgg, discard::Union{Vector{CartesianIndex{3}}, Vector{I
     return reshape(u, Nx, Ny, Nz)
 end
 
+# Add m pixels around the punch and then intersect with the size of the full
+# image (3D only)
+function pad_intersect(discard, m, Nx, Ny, Nz)
+    B = bounding_box(discard)
+    fi, li = (first(B) - CartesianIndex(m, m, m), last(B) + CartesianIndex(m, m, m))
+    return intersect_box(fi:li, CartesianIndices((Nx,Ny,Nz)))
+end
 
 """
 
@@ -135,7 +142,24 @@ Interpolate, in parallel and in-place, multiple punches
   - `l = 1.0`: Aspect ratio in the third dimension 
 
 # Outputs
-  - array containing the interpolated image 
+  - array containing the interpolated image
+
+# Example
+
+```<julia-repl>
+h = k = l = 1.0
+Nx = Ny = Nz = 60
+radius = (0.5, 0.5, 0.5 )
+Qh_min = Qk_min = Ql_min = -3.0
+Qh_max = Qk_max = Ql_max = 3.0
+xpoints = ypoints = zpoints = LinRange(Qh_min, Qh_max, Nx + 1)[1:Nx]
+imgg = rand(Nx, Ny, Nz)
+m = 1
+eps = 0.0
+interp = parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, m, eps, 
+                      h, k, l, 'P')
+```
+
 ...
 """
 function parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radius,
@@ -144,11 +168,14 @@ function parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radi
     centers = center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
     # Threads.@threads for c in centers
     for c in centers
-        d = punch_3D_cart(c, radius, xpoints, ypoints, zpoints)
-        fi, li = (first(d) - CartesianIndex(1, 1, 1), last(d) + CartesianIndex(1, 1, 1))
-        selection = map(i -> i - fi + CartesianIndex(1, 1, 1), d)
+        discard = punch_3D_cart(c, radius, xpoints, ypoints, zpoints)
+        # fi, li = (first(d) - CartesianIndex(1, 1, 1), last(d) + CartesianIndex(1, 1, 1))
+        # selection = map(i -> i - fi + CartesianIndex(1, 1, 1), d)
+        selection = pad_intersect(discard, m, size(imgg)...)
+        fi = first(selection)
+        d_shift = map(d -> d - fi + CartesianIndex(1,1,1), discard)
         # Interpolate
-        imgg[fi:li] = matern_3d_grid(imgg[fi:li], selection, m, eps, h, k, l)
+        imgg[fi:li] = matern_3d_grid(imgg[selection], d_shift, m, eps, h, k, l)
     end
     return imgg
 end

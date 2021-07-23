@@ -122,6 +122,21 @@ function punch_3D_cart(center, radius, x, y, z; linear = false)
     end
 end
 
+function bounding_box(x::Array{CartesianIndex{3},1})
+    tup = Tuple.(x)
+    #p = length(tup[1]
+    #for i in 1:p
+    xa = map(t -> t[1], tup); xa_min, xa_max = (minimum(xa), maximum(xa))
+    xb = map(t -> t[2], tup); xb_min, xb_max = (minimum(xb), maximum(xb))
+    xc = map(t -> t[3], tup); xc_min, xc_max = (minimum(xc), maximum(xc))
+    # This requires julia v 1.6
+    # return CartesianIndices((xa_min:xa_max, xb_min:xb_max, xc_min:xc_max))
+    list = [CartesianIndex(x,y,z) for x in xa_min:xa_max for y in xb_min:xb_max for z in xc_min:xc_max]
+    return list
+end
+
+intersect_box(A, B) = sort([first(A), first(B)])[2]:sort([last(A), last(B)])[1]
+
 my_floor(x) = (x>0) ? floor(x) : -floor(abs(x))
 
 # Generate a list of centers
@@ -131,19 +146,19 @@ function center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
     ls = my_floor(Ql_min):my_floor(Ql_max)
     hkl = [(h,k,l) for h in hs for k in ks for l in ls]
     if symm == 'P'
-        centers = filter(i -> P(i...), hkl)
+        centers = filter(i -> ~P(i...), hkl)
     elseif symm == 'A'
-        centers = filter(i -> A(i...), hkl)
+        centers = filter(i -> ~A(i...), hkl)
     elseif symm == 'B'
-        centers = filter(i -> B(i...), hkl)
+        centers = filter(i -> ~B(i...), hkl)
     elseif symm == 'C'
-        centers = filter(i -> C(i...), hkl)
+        centers = filter(i -> ~C(i...), hkl)
     elseif symm == 'I'
-        centers = filter(i -> Ii(i...), hkl)
+        centers = filter(i -> ~Ii(i...), hkl)
     elseif symm == 'F'
-        centers = filter(i -> F(i...), hkl)
+        centers = filter(i -> ~F(i...), hkl)
     elseif symm == 'R'
-        centers = filter(i -> R(i...), hkl)
+        centers = filter(i -> ~R(i...), hkl)
     else
         centers = hkl 
     end
