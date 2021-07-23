@@ -145,7 +145,7 @@ function center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
     elseif symm == 'R'
         centers = filter(i -> R(i...), hkl)
     else
-      error("symm must be one of P, A, C, I, F, R")
+        centers = hkl 
     end
     return centers
 end 
