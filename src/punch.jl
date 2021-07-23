@@ -122,3 +122,60 @@ function punch_3D_cart(center, radius, x, y, z; linear = false)
     end
 end
 
+my_floor(x) = (x>0) ? floor(x) : -floor(abs(x))
+
+# Generate a list of centers
+function center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
+    hs = my_floor(Qh_min):my_floor(Qh_max)
+    ks = my_floor(Qk_min):my_floor(Qk_max)
+    ls = my_floor(Ql_min):my_floor(Ql_max)
+    hkl = [(h,k,l) for h in hs for k in ks for l in ls]
+    if symm == 'P'
+        centers = filter(i -> P(i...), hkl)
+    elseif symm == 'A'
+        centers = filter(i -> A(i...), hkl)
+    elseif symm == 'B'
+        centers = filter(i -> B(i...), hkl)
+    elseif symm == 'C'
+        centers = filter(i -> C(i...), hkl)
+    elseif symm == 'I'
+        centers = filter(i -> I(i...), hkl)
+    elseif symm == 'F'
+        centers = filter(i -> F(i...), hkl)
+    elseif symm == 'R'
+        centers = filter(i -> R(i...), hkl)
+    else
+      error("symm must be one of P, A, C, I, F, R")
+    end
+    return centers
+end 
+
+# Systematic absences
+
+function P(h,k,l)
+    return false
+end
+
+function A(h,k,l)
+    return (k+l)%2 != 0
+end
+
+function B(h,k,l)
+    return (h+l)%2 != 0
+end
+
+function C(h,k,l)
+    return (h+k)%2 != 0
+end
+
+function I(h,k,l)
+    return (h+k+l)%2 != 0
+end
+
+function F(h,k,l)
+    return ((h+k)%2!=0)||((h+l)%2!=0)||((k+l)%2!=0)
+end
+
+function R(h,k,l)
+    return (-h+k+l)%3 != 0
+end

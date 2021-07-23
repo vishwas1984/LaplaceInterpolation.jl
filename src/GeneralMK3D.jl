@@ -120,14 +120,14 @@ end
 
 """
 
-  parallel_mat!(imgg, discard, m, eps, h, k, l)
+  parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, m, eps, h, k, l, symm)
 
 Interpolate, in parallel and in-place, multiple punches
 
 ...
 # Arguments
   - `imgg`: the matrix containing the image
-  - `discard::Vector{Int64}`: the linear indices of the values to be filled 
+  - ` Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max::Int64`: the extents in h,k,l resp 
   - `m::Int64 = 1` : Matern parameter 
   - `eps::Float64 = 0.0`: Matern parameter eps
   - `h = 1.0`: Aspect ratio in the first dimension
@@ -138,17 +138,21 @@ Interpolate, in parallel and in-place, multiple punches
   - array containing the interpolated image 
 ...
 """
-function parallel_mat!(imgg,
+function parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max,
                         discard::Vector{Vector{CartesianIndex{3}}},
-                        m = 1, eps = 0.0, h = 1.0, k = 1.0, l = 1.0)
-    Threads.@threads for d in discard
-        fi, li = (first(d), last(d) + CartesianIndex(1, 1, 1))
-        selection = map(i -> i - fi + CartesianIndex(1, 1, 1), d)
+                        m = 1, eps = 0.0, h = 1.0, k = 1.0, l = 1.0, symm)
+    centers = center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
+    discard = punch_3Dd_cart.(centers, radius, x, y, z)
+    # Threads.@threads for d in discard
+    for d in discard
+        fi, li = (first(d), last(d) + CartesianIndex(m, m, m))
+        selection = map(i -> i - fi + CartesianIndex(m, m, m), d)
         # Interpolate
         imgg[fi:li] = interp(xpoints[fi[1]:li[1]], ypoints[fi[2]:li[2]], 
                 zpoints[fi[3]:li[3]], 
                 imgg[fi:li], 
                 selection, eps, m)
     end
+    return imgg
 end
 
