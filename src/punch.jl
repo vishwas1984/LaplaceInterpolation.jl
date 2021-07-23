@@ -135,7 +135,7 @@ function bounding_box(x::Array{CartesianIndex{3},1})
     return list
 end
 
-intersect_box(A, B) = sort([first(A), first(B)])[2]:sort([last(A), last(B)])[1]
+intersect_box(A, B) = maximum([minimum(A), minimum(B)]):minimum([maximum(A), maximum(B)])
 
 my_floor(x) = (x>0) ? floor(x) : -floor(abs(x))
 

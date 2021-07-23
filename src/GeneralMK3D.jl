@@ -168,10 +168,9 @@ function parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radi
     centers = center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
     # Threads.@threads for c in centers
     for c in centers
-        discard = punch_3D_cart(c, radius, xpoints, ypoints, zpoints)
-        # fi, li = (first(d) - CartesianIndex(1, 1, 1), last(d) + CartesianIndex(1, 1, 1))
-        # selection = map(i -> i - fi + CartesianIndex(1, 1, 1), d)
-        selection = pad_intersect(discard, m, size(imgg)...)
+        println(c)
+        discard = LaplaceInterpolation.punch_3D_cart(c, radius, xpoints, ypoints, zpoints)
+        selection = LaplaceInterpolation.pad_intersect(discard, m, size(imgg)...)
         fi = first(selection)
         d_shift = map(d -> d - fi + CartesianIndex(1,1,1), discard)
         # Interpolate
