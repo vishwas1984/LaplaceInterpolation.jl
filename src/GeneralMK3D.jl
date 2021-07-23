@@ -148,10 +148,7 @@ function parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radi
         fi, li = (first(d), last(d) + CartesianIndex(m, m, m))
         selection = map(i -> i - fi + CartesianIndex(m, m, m), d)
         # Interpolate
-        imgg[fi:li] = interp(xpoints[fi[1]:li[1]], ypoints[fi[2]:li[2]], 
-                zpoints[fi[3]:li[3]], 
-                imgg[fi:li], 
-                selection, eps, m)
+        imgg[fi:li] = matern_3d_grid(imgg[fi:li], d .- fi, m, eps, h, k, l)
     end
     return imgg
 end
