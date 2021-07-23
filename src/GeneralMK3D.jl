@@ -168,15 +168,27 @@ function matern_w_punch(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, ra
                       xpoints, ypoints, zpoints,
                         m = 1, eps = 0.0, h = 1.0, k = 1.0, l = 1.0, symm = 'G')
     centers = center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
+    radius_x, radius_y, radius_z = (typeof(radius) <: Tuple) ? radius : 
+                                                (radius, radius, radius)
+    px, py, pz = (Int64(round(radius_x/(xpoints[2] - xpoints[1]))), 
+                  Int64(round(radius_y/(ypoints[2] - ypoints[1]))),
+                  Int64(round(radius_z/(zpoints[2] - zpoints[1]))))
     new_imgg = copy(imgg)
     # Threads.@threads for c in centers
     for c in centers
-        discard = LaplaceInterpolation.punch_3D_cart(c, radius, xpoints, ypoints, zpoints)
-        selection = LaplaceInterpolation.pad_intersect(discard, m, size(imgg)...)
-        fi = first(selection)
-        d_shift = map(d -> d - fi + CartesianIndex(1,1,1), discard)
+        pixel_center = CartesianIndex(findmin(abs.(xpoints .- c[1]))[2], 
+                                      findmin(abs.(ypoints .- c[2]))[2],
+                                      findmin(abs.(zpoints .- c[3]))[2])
+        # square selection 
+        selection = pixel_center .+ CartesianIndices((2*px + 2m, 2*py + 2m, 2*pz + 2m)) .-
+                    CartesianIndex(px+1, py+1, pz+1)
+        d = punch_3D_cart(pixel_center, radius, 
+                      xpoints[(pixel_center[1] - px):(pixel_center[1] + px)],
+                      ypoints[(pixel_center[2] - py):(pixel_center[2] + py)],
+                      zpoints[(pixel_center[3] - pz):(pixel_center[3] + pz)]
+                      )
         # Interpolate
-        new_imgg[selection] = matern_3d_grid(imgg[selection], d_shift, m, eps, h, k, l)
+        new_imgg[selection] = matern_3d_grid(imgg[selection], d, m, eps, h, k, l);
     end
     return new_imgg
 end

@@ -123,12 +123,10 @@ function punch_3D_cart(center, radius, x, y, z; linear = false)
 end
 
 function bounding_box(x::Array{CartesianIndex{3},1})
-    tup = Tuple.(x)
-    #p = length(tup[1]
     #for i in 1:p
-    xa = map(t -> t[1], tup); xa_min, xa_max = (minimum(xa), maximum(xa))
-    xb = map(t -> t[2], tup); xb_min, xb_max = (minimum(xb), maximum(xb))
-    xc = map(t -> t[3], tup); xc_min, xc_max = (minimum(xc), maximum(xc))
+    xa = map(t -> t[1], x); xa_min, xa_max = (minimum(xa), maximum(xa))
+    xb = map(t -> t[2], x); xb_min, xb_max = (minimum(xb), maximum(xb))
+    xc = map(t -> t[3], x); xc_min, xc_max = (minimum(xc), maximum(xc))
     # This requires julia v 1.6
     # return CartesianIndices((xa_min:xa_max, xb_min:xb_max, xc_min:xc_max))
     list = [CartesianIndex(x,y,z) for x in xa_min:xa_max for y in xb_min:xb_max for z in xc_min:xc_max]
@@ -139,7 +137,24 @@ intersect_box(A, B) = maximum([minimum(A), minimum(B)]):minimum([maximum(A), max
 
 my_floor(x) = (x>0) ? floor(x) : -floor(abs(x))
 
-# Generate a list of centers
+"""
+ 
+Generate a list of centers
+
+# Example
+
+```<julia-repl>
+xmin = 0
+xmax = 6
+ymin = 0
+ymax = 8
+zmin = 0
+zmax = 8
+
+centers = LaplaceInterpolation.center_list('A', xmin, xmax, ymin, ymax, zmin,
+zmax)
+```
+"""
 function center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
     hs = my_floor(Qh_min):my_floor(Qh_max)
     ks = my_floor(Qk_min):my_floor(Qk_max)
