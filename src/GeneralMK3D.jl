@@ -127,9 +127,9 @@ end
 
 """
 
-  parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, m, eps, h, k, l, symm)
+  matern_w_punch(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, m, eps, h, k, l, symm)
 
-Interpolate, in parallel and in-place, multiple punches
+Interpolate, in serial, multiple punches
 
 ...
 # Arguments
@@ -157,14 +157,14 @@ xpoints = ypoints = zpoints = LinRange(Qh_min, Qh_max, Nx)
 imgg = rand(Nx, Ny, Nz)
 m = 1
 eps = 0.0
-interp = parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radius,
+interp = matern_w_punch(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radius,
                       xpoints, ypoints, zpoints, m, eps, 
-                      h, k, l, symm)
+                      h, k, l, symm);
 ```
 
 ...
 """
-function parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radius,
+function matern_w_punch(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radius,
                       xpoints, ypoints, zpoints,
                         m = 1, eps = 0.0, h = 1.0, k = 1.0, l = 1.0, symm = 'G')
     centers = center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
