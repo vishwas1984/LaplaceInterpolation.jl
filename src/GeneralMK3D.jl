@@ -84,7 +84,8 @@ Interpolates a single punch
 ...
 # Arguments
   - `imgg`: the matrix containing the image
-  - `discard::Vector{Int64}`: the linear indices of the values to be filled 
+  - `discard::Union{Vector{CartesianIndex{3}}}, Vector{Int64}}`: the linear or 
+       Cartesian indices of the values to be filled 
   - `m::Int64 = 1` : Matern parameter 
   - `eps::Float64 = 0.0`: Matern parameter eps
   - `h = 1.0`: Aspect ratio in the first dimension

@@ -84,7 +84,7 @@ function punch_holes_3D(centers, radius, Nx, Ny, Nz)
 end
 
 """
-  punch_3D_cart(center, radius, xpoints, ypoints, zpoints)
+  punch_3D_cart(center, radius, xpoints, ypoints, zpoints; <kwargs>)
 
 ...
 # Arguments
@@ -94,17 +94,20 @@ end
   - `x::Vector{T} where T<:Real`: the vector containing the x coordinate
   - `y::Vector{T} where T<:Real`: the vector containing the y coordinate
   - `z::Vector{T} where T<:Real`: the vector containing the z coordinate
+
+# Optional
+
+  - `linear::Bool = false` can return a linear index
 ...
 
 ...
 # Outputs
   - `inds::Vector{Int64}`: vector containing the indices of coordinates 
   inside the punch
-  - `bbox::Tuple{Int64}`: the bounding box coordinates of the smallest box to fit around the punch
 ...
 
 """
-function punch_3D_cart(center, radius, x, y, z)
+function punch_3D_cart(center, radius, x, y, z; linear = false)
     radius_x, radius_y, radius_z = (typeof(radius) <: Tuple) ? radius : 
                                                 (radius, radius, radius)
     inds = filter(i -> (((x[i[1]]-center[1])/radius_x)^2 
@@ -112,6 +115,10 @@ function punch_3D_cart(center, radius, x, y, z)
                         + ((z[i[3]] - center[3])/radius_z)^2 <= 1.0),
                   CartesianIndices((1:length(x), 1:length(y), 1:length(z))))
     (length(inds) == 0) && error("Empty punch.")
-    return inds
+    if linear == false
+      return inds
+    else
+      return LinearIndices(zeros(length(x), length(y), length(z)))[inds]
+    end
 end
 
