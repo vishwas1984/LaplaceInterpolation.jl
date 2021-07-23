@@ -138,7 +138,7 @@ Interpolate, in parallel and in-place, multiple punches
   - array containing the interpolated image 
 ...
 """
-function parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max,
+function parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radius,
                         m = 1, eps = 0.0, h = 1.0, k = 1.0, l = 1.0, symm = 'G')
     centers = center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
     discard = punch_3D_cart.(centers, radius, x, y, z)
