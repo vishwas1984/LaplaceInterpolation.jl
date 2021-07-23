@@ -142,9 +142,9 @@ function parallel_mat(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radi
                       xpoints, ypoints, zpoints,
                         m = 1, eps = 0.0, h = 1.0, k = 1.0, l = 1.0, symm = 'G')
     centers = center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
-    discard = punch_3D_cart.(centers, radius, xpoints, ypoints, zpoints)
-    # Threads.@threads for d in discard
-    for d in discard
+    # Threads.@threads for c in centers
+    for c in centers
+        d = punch_3D_cart(c, radius, xpoints, ypoints, zpoints)
         fi, li = (first(d), last(d) + CartesianIndex(m, m, m))
         selection = map(i -> i - fi + CartesianIndex(m, m, m), d)
         # Interpolate
