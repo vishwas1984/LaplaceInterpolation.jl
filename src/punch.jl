@@ -196,7 +196,7 @@ function center_check(symm)
     elseif symm == 'R'
         tof = (h, k, l) -> ~R(h, k, l)
     else
-        centers = (h, k, l) -> true 
+        tof = (h, k, l) -> true 
     end
     return tof
 end
