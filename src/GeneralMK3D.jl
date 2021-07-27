@@ -202,7 +202,7 @@ function matern_w_punch(imgg, radius, xpoints, ypoints, zpoints,
             for (il, l) in enumerate(Ql_min:Ql_max)
                 minpz = maximum([1, cpz + (il - 1) * stridez - rpz])
                 maxpz = minimum([cpz + (il - 1) * stridez + rpz, Nz])
-                if ~exclusion_rule(h, k, l)
+                if exclusion_rule(h, k, l)
                     d = punch_3D_cart((h,k,l), radius, xpoints[minpx:maxpx], 
                                       ypoints[minpy:maxpy], 
                                       zpoints[minpz:maxpz])
