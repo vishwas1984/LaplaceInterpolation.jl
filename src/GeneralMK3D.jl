@@ -162,8 +162,8 @@ xpoints = ypoints = zpoints = LinRange(Qh_min, Qh_max, Nx)
 imgg = rand(Nx, Ny, Nz)
 m = 1
 eps = 0.0
-interp = matern_w_punch(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radius,
-                      xpoints, ypoints, zpoints, m, eps, 
+interp = matern_w_punch(imgg, #Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radius,
+                      radius, xpoints, ypoints, zpoints, m, eps, 
                       h, k, l, symm);
 ```
 
