@@ -180,6 +180,27 @@ function center_list(symm, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max)
     return centers
 end 
 
+function center_check(symm)
+    if symm == 'P'
+        tof = (h, k, l) -> ~P(h, k, l)
+    elseif symm == 'A'
+        tof = (h, k, l) -> ~A(h, k, l)
+    elseif symm == 'B'
+        tof = (h, k, l) -> ~B(h, k, l)
+    elseif symm == 'C'
+        tof = (h, k, l)-> ~C(h, k, l)
+    elseif symm == 'I'
+        tof = (h, k, l) -> ~Ii(h, k, l)
+    elseif symm == 'F'
+        tof = (h, k, l) -> ~F(h, k, l)
+    elseif symm == 'R'
+        tof = (h, k, l) -> ~R(h, k, l)
+    else
+        centers = hkl 
+    end
+    return tof
+end
+
 # Systematic absences
 
 function P(h,k,l)
