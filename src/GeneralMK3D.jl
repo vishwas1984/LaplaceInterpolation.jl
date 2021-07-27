@@ -196,10 +196,10 @@ function matern_w_punch(imgg, radius, xpoints, ypoints, zpoints,
     for (ih, h) in enumerate(Qh_min:Qh_max) 
         minpx = maximum([1, cpx + (ih - 1) * stridex - rpx])
         maxpx = minimum([cpx + (ih - 1) * stridex + rpx, Nx])
-        for (ik, k) in Qk_min:Qk_max 
+        for (ik, k) in enumerate(Qk_min:Qk_max) 
             minpy = maximum([1, cpy + (ik - 1) * stridey - rpy])
             maxpy = minimum([cpy + (ik - 1) * stridey + rpy, Ny])
-            for (il, l) in Ql_min:Ql_max
+            for (il, l) in enumerate(Ql_min:Ql_max)
                 minpz = maximum([1, cpz + (il - 1) * stridez - rpz])
                 maxpz = minimum([cpz + (il - 1) * stridez + rpz, Nz])
                 if ~exclusion_rule(h, k, l)
