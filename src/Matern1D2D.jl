@@ -163,13 +163,13 @@ function nablasq_grid(Nx::Int64, Ny::Int64, h::Float64, k::Float64)
   del2 = spdiagm_nonsquare(Ny + 1, Ny, -1 => -o2,0 => o2)
   A2D = (kron(sparse(I, Ny, Ny), del1' * del1) + 
           kron(del2' * del2, sparse(I, Nx, Nx)))
-  bdy, xnb, ynb = bdy_nodes(Nx, Ny)
-  count = 1
-  for i in bdy
-      A2D[i, i] = 0.0
-      A2D[i, i] = A2D[i, i] + xnb[count] / h ^ 2 + ynb[count] / k ^ 2 
-      count += 1
-  end
+  # bdy, xnb, ynb = bdy_nodes(Nx, Ny)
+  # count = 1
+  # for i in bdy
+  #     A2D[i, i] = 0.0
+  #     A2D[i, i] = A2D[i, i] + xnb[count] / h ^ 2 + ynb[count] / k ^ 2 
+  #     count += 1
+  # end
   return A2D
 end
 
