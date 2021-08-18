@@ -43,8 +43,8 @@ function nablasq_grid(n::Int64, h::Float64 = 1.0)
   o = ones(n) / h
   del = spdiagm_nonsquare(n + 1, n, -1 => -o, 0 => o)
   A1D = del' * del
-  A1D[1, 1] = 1.0 / h ^ 2
-  A1D[n, n] = 1.0 / h ^ 2
+  # A1D[1, 1] = 1.0 / h ^ 2
+  # A1D[n, n] = 1.0 / h ^ 2
   return A1D
 end
 
