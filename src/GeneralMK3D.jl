@@ -44,15 +44,15 @@ function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
     A3D = (kron(sparse(I, Nz, Nz), sparse(I, Ny, Ny), del1'*del1) + 
             kron(sparse(I, Nz, Nz), del2' * del2, sparse(I, Nx, Nx)) + 
             kron(del3' * del3, sparse(I, Ny, Ny), sparse(I, Nx, Nx)))
-    BoundaryNodes, xneighbors, yneighbors, zneighbors = 
-            return_boundary_nodes(Nx, Ny, Nz)
-    count = 1
-    for i in BoundaryNodes
-        A3D[i, i] = 0.0
-        A3D[i, i] = A3D[i, i] + xneighbors[count] / h ^ 2 + 
-                     yneighbors[count] / k ^ 2 + zneighbors[count] / l ^ 2
-        count = count + 1
-    end
+    # BoundaryNodes, xneighbors, yneighbors, zneighbors = 
+    #         return_boundary_nodes(Nx, Ny, Nz)
+    # count = 1
+    # for i in BoundaryNodes
+    #     A3D[i, i] = 0.0
+    #     A3D[i, i] = A3D[i, i] + xneighbors[count] / h ^ 2 + 
+    #                  yneighbors[count] / k ^ 2 + zneighbors[count] / l ^ 2
+    #     count = count + 1
+    # end
     length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)] = A3D)
     #if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
     #  @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
