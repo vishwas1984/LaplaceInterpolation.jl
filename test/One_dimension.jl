@@ -4,7 +4,7 @@
 @testset "One dimensional interpolation" begin
     N = 4
     A1 = 2*sparse(I, N, N)
-    A1[1, 1] = A1[4, 4] = 1.0 
+    A1[1, 1] = A1[4, 4] = 2.0 
     A1[2, 1] = A1[1, 2] = A1[3, 2] = A1[2, 3] = A1[4, 3] = A1[3, 4] = -1.0
 
     @test nablasq_grid(4, 1.0) == A1
