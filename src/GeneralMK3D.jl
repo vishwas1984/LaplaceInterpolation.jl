@@ -115,8 +115,9 @@ function matern_3d_grid(imgg, discard::Union{Vector{CartesianIndex{3}}, Vector{I
     end
     Id = sparse(I, totalsize, totalsize)    
     u = ((C - (Id - C) * A3D)) \ rhs_a
-    v = reshape(u, Ny, Nx, Nz)
-    return permutedims(v, (2,1,3)) 
+    return u
+    #v = reshape(u, Ny, Nx, Nz)
+    #return permutedims(v, (2,1,3)) 
 end
 
 # Add m pixels around the punch and then intersect with the size of the full
