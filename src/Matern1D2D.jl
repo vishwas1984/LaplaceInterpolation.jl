@@ -48,7 +48,7 @@ function nablasq_grid(n::Int64, h::Float64 = 1.0)
   # A1D[1, 1] = 1.0 / h ^ 2
   # A1D[n, n] = 1.0 / h ^ 2
   A1D[1,2] = -2.0/(h*h)
-  A1D[n-1,n] = -2.0/(h*h)
+  A1D[n,n-1] = -2.0/(h*h)
   return A1D
 end
 
@@ -166,11 +166,11 @@ function nablasq_grid(Nx::Int64, Ny::Int64, h::Float64, k::Float64)
   o2 = ones(Ny) / k
   Ax = del1'*del1
   Ax[1,2] = -2.0/(h*h)
-  Ax[Nx-1, Nx] = -2.0/(h*h)
+  Ax[Nx, Nx-1] = -2.0/(h*h)
   del2 = spdiagm_nonsquare(Ny + 1, Ny, -1 => -o2,0 => o2)
   Ay = del2'*del2
   Ay[1,2] = -2.0/(k*k)
-  Ay[Ny-1, Ny] = -2.0/(k*k)
+  Ay[Ny, Ny-1] = -2.0/(k*k)
   A2D = (kron(sparse(I, Ny, Ny), Ax) + 
           kron(Ay, sparse(I, Nx, Nx)))
   # bdy, xnb, ynb = bdy_nodes(Nx, Ny)
