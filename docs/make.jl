@@ -1,3 +1,7 @@
 using Documenter, LaplaceInterpolation
 
-makedocs(sitename="Documentation for LaplaceInterpolation.jl")
+makedocs(sitename="LaplaceInterpolation.jl")
+
+deploydocs(
+    repo = "github.com/vishwas1984/LaplaceInterpolation.jl.git",
+)
