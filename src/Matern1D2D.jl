@@ -43,10 +43,12 @@ function nablasq_grid(n::Int64, h::Float64 = 1.0)
   o = ones(n) / h
   del = spdiagm_nonsquare(n + 1, n, -1 => -o, 0 => o)
   A1D = del' * del
-  A1D[1,2] = -2.0/h^2
-  A1D[n-1,n] = -2.0/h^2
+  # A1D[1,2] = -2.0/h^2
+  # A1D[n-1,n] = -2.0/h^2
   # A1D[1, 1] = 1.0 / h ^ 2
   # A1D[n, n] = 1.0 / h ^ 2
+  A1D[1,2] = -2.0/(h*h)
+  A1D[n-1,n] = -2.0/(h*h)
   return A1D
 end
 
@@ -162,9 +164,15 @@ function nablasq_grid(Nx::Int64, Ny::Int64, h::Float64, k::Float64)
   o1 = ones(Nx) / h
   del1 = spdiagm_nonsquare(Nx + 1, Nx, -1 => -o1, 0 => o1)
   o2 = ones(Ny) / k
+  Ax = del1'*del1
+  Ax[1,2] = -2.0/(h*h)
+  Ax[Nx-1, Nx] = -2.0/(h*h)
   del2 = spdiagm_nonsquare(Ny + 1, Ny, -1 => -o2,0 => o2)
-  A2D = (kron(sparse(I, Ny, Ny), del1' * del1) + 
-          kron(del2' * del2, sparse(I, Nx, Nx)))
+  Ay = del2'*del2
+  Ay[1,2] = -2.0/(k*k)
+  Ay[Ny-1, Ny] = -2.0/(k*k)
+  A2D = (kron(sparse(I, Ny, Ny), Ax) + 
+          kron(Ay, sparse(I, Nx, Nx)))
   # bdy, xnb, ynb = bdy_nodes(Nx, Ny)
   # count = 1
   # for i in bdy

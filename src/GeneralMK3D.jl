@@ -37,13 +37,22 @@ function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
     #haskey(A_matrix, (Nx, Ny, Nz, 1, 0.0, h, k, l)) && return A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)]
     o₁ = ones(Nx) / h
     del1 = spdiagm_nonsquare(Nx + 1, Nx, -1 => -o₁, 0 => o₁)
+    Ax = del1'*del1
+    Ax[1,2] = -2.0/(h*h)
+    Ax[Nx-1, Nx] = -2.0/(h*h)
     o₂ = ones(Ny) / k
     del2 = spdiagm_nonsquare(Ny + 1, Ny, -1 => -o₂,0 => o₂)
+    Ay = del2'*del2
+    Ay[1,2] = -2.0/(k*k)
+    Ay[Ny-1, Ny] = -2.0/(k*k)
     O3 = ones(Nz) / l
     del3 = spdiagm_nonsquare(Nz + 1, Nz, -1 => -O3, 0 => O3)
-    A3D = (kron(sparse(I, Nz, Nz), sparse(I, Ny, Ny), del1'*del1) + 
-            kron(sparse(I, Nz, Nz), del2' * del2, sparse(I, Nx, Nx)) + 
-            kron(del3' * del3, sparse(I, Ny, Ny), sparse(I, Nx, Nx)))
+    Az = del3'*del3
+    Az[1,2] = -2.0/(l*l)
+    Az[Nz-1, Nz] = -2.0/(l*l)
+    A3D = (kron(sparse(I, Nz, Nz), sparse(I, Ny, Ny), Ax) + 
+            kron(sparse(I, Nz, Nz), Ay, sparse(I, Nx, Nx)) + 
+            kron(Az, sparse(I, Ny, Ny), sparse(I, Nx, Nx)))
     # BoundaryNodes, xneighbors, yneighbors, zneighbors = 
     #         return_boundary_nodes(Nx, Ny, Nz)
     # count = 1
