@@ -206,14 +206,12 @@ function matern_w_punch(imgg, radius, xpoints, ypoints, zpoints,
                     d = punch_3D_cart((h,k,l), radius, xpoints[minpx:maxpx], 
                                       ypoints[minpy:maxpy], 
                                       zpoints[minpz:maxpz])
-                    if length(d) > 0
                     # Interpolate
                     new_imgg[minpx:maxpx, minpy:maxpy, minpz:maxpz] = matern_3d_grid(
                                 imgg[minpx:maxpx, minpy:maxpy, minpz:maxpz], d, m, 
                                 eps, h, k, l);
                     if return_punch_locs
                       punch_locs[d] .= 0
-                    end
                     end
                 end
             end
