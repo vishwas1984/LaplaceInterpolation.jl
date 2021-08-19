@@ -14,7 +14,7 @@ const SETTINGS = Settings(15)
 
 # Dict for storing A_matrices
 const A_matrix = Dict{Tuple{Int64, Int64, Int64, Int64, Float64, Float64, Float64,
-                            Float64}, SparseMatrixCSC{Float64, Int64}}}()
+                            Float64}, SparseMatrixCSC{Float64, Int64}}()
 """
   nablasq_3d_grid(Nx,Ny)
 
