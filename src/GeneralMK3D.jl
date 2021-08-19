@@ -34,7 +34,7 @@ Construct the 3D Laplace matrix
 
 """
 function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
-    haskey(A_matrix, (Nx, Ny, Nz, 1, 0.0, h, k, l)) && return A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)]
+    #haskey(A_matrix, (Nx, Ny, Nz, 1, 0.0, h, k, l)) && return A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)]
     o₁ = ones(Nx) / h
     del1 = spdiagm_nonsquare(Nx + 1, Nx, -1 => -o₁, 0 => o₁)
     o₂ = ones(Ny) / k
@@ -53,7 +53,7 @@ function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
                      yneighbors[count] / k ^ 2 + zneighbors[count] / l ^ 2
         count = count + 1
     end
-    length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)] = A3D)
+    #length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)] = A3D)
     #if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
     #  @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
     #end
@@ -62,14 +62,14 @@ end
 
 """ Helper function to give the matern matrix """
 function _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l)
-    haskey(A_matrix, (Nx, Ny, Nz, m, eps, h, k, l)) && return A_matrix[(Nx, Ny, Nz, m, eps, h, k, l)]
+    #haskey(A_matrix, (Nx, Ny, Nz, m, eps, h, k, l)) && return A_matrix[(Nx, Ny, Nz, m, eps, h, k, l)]
     A3D = nablasq_3d_grid(Nx, Ny, Nz, h, k, l) 
     sizeA = size(A3D, 1)
     for i = 1:sizeA
         A3D[i, i] = A3D[i, i] + eps^2
     end
     A3DMatern = A3D^m
-    length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, m, eps, h, k, l)] = A3DMatern)
+    #length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, m, eps, h, k, l)] = A3DMatern)
     #if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
     #  @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
     #end
