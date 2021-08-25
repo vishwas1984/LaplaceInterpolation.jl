@@ -28,7 +28,7 @@ end
 # One-dimensional codes
 
 """ 
-    nabl_1d_grid(n, h, bc)
+    nablasq_1d_grid(n, h, bc)
 
 Laplacian matrix on a 1D grid
 
@@ -40,7 +40,7 @@ Laplacian matrix on a 1D grid
 # Outputs:
     - discrete Laplacian matrix
 """
-function nabla_1d_grid(n::Int64, h::Float64 = 1.0, bc = 1)
+function nablasq_1d_grid(n::Int64, h::Float64 = 1.0, bc = 1)
   o = ones(n) / h
   del = spdiagm_nonsquare(n + 1, n, -1 => -o, 0 => o)
   A1D = del' * del
@@ -88,7 +88,7 @@ y_mat = matern_1d_grid(y, discard, 2, 0.1, h)
 function matern_1d_grid(y::Vector{T}, idx::Vector{Int64}, 
                         m::Int64 = 1, eps = 0.0, h::Float64 = 1.0, bc = 1) where{T<:Number}
   n = length(y)
-  A1D = nabla_1d_grid(n, h, bc)
+  A1D = nablasq_1d_grid(n, h, bc)
   C = sparse(I, n, n)
   for i in idx
     C[i, i] = 0.0
@@ -151,7 +151,7 @@ function bdy_nodes(Nx, Ny)
 end
 
 """ 
-    nabla_2d_grid(Nx, Ny, h, k, bc)
+    nablasq_2d_grid(Nx, Ny, h, k, bc)
 
 Laplacian matrix on a 2D grid
 
@@ -165,7 +165,7 @@ Laplacian matrix on a 2D grid
 # Outputs:
     - discrete Laplacian matrix in 2D
 """
-function nabla_2d_grid(Nx::Int64, Ny::Int64, h::Float64, k::Float64, bc)
+function nablasq_2d_grid(Nx::Int64, Ny::Int64, h::Float64, k::Float64, bc)
   o1 = ones(Nx) / h
   del1 = spdiagm_nonsquare(Nx + 1, Nx, -1 => -o1, 0 => o1)
   o2 = ones(Ny) / k
@@ -238,7 +238,7 @@ y_mat = matern_2d_grid(y, discard, 2, 0.1, h, k)
 function matern_2d_grid(mat::Matrix, discard::Vector, m::Int64 = 1, eps = 0.0, 
                         h::Float64 = 1.0, k::Float64 = 1.0, bc = 1)
     rows, columns = size(mat)
-    A2D = nabla_2d_grid(rows, columns, h, k, bc)
+    A2D = nablasq_2d_grid(rows, columns, h, k, bc)
     sizeA = size(A2D, 1)
     C = sparse(I, sizeA, sizeA)
     for i in discard
