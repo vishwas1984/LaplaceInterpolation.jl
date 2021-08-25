@@ -71,7 +71,7 @@ function nablasq_3d_grid(Nx, Ny, Nz, h, k, l, bc)
                        yneighbors[count] / k ^ 2 + zneighbors[count] / l ^ 2
           count = count + 1
       end
-    length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)] = A3D)
+    length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l, bc)] = A3D)
     #if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
     #  @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
     #end
