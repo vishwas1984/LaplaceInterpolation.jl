@@ -14,7 +14,7 @@ const SETTINGS = Settings(15)
 
 # Dict for storing A_matrices
 const A_matrix = Dict{Tuple{Int64, Int64, Int64, Int64, Float64, Float64, Float64,
-                            Float64}, SparseMatrixCSC{Float64, Int64}}()
+                            Float64, Int64}, SparseMatrixCSC{Float64, Int64}}()
 """
   nablasq_3d_grid(Nx,Ny)
 
@@ -27,41 +27,50 @@ Construct the 3D Laplace matrix
   - `h::Float64`: Grid spacing in the first dimension
   - `k::Float64`: Grid spacing in the second dimension
   - `l::Float64`: Grid spacing in the third dimension
+  - `bc`: Boundary conditions (1 implies Neumann BC and 0 implies Do nothing BC)
 
 # Outputs 
 
   - `-nablasq` (discrete Laplacian, real-symmetric positive-definite) on Nx×Ny×Nz grid
 
 """
-function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
-    haskey(A_matrix, (Nx, Ny, Nz, 1, 0.0, h, k, l)) && return A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)]
+function nablasq_3d_grid(Nx, Ny, Nz, h, k, l, bc)
+    haskey(A_matrix, (Nx, Ny, Nz, 1, 0.0, h, k, l, bc)) && return A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l, bc)]
+
     o₁ = ones(Nx) / h
     del1 = spdiagm_nonsquare(Nx + 1, Nx, -1 => -o₁, 0 => o₁)
-    Ax = del1'*del1
-    Ax[1,2] = -2.0/(h*h)
-    Ax[Nx, Nx-1] = -2.0/(h*h)
     o₂ = ones(Ny) / k
     del2 = spdiagm_nonsquare(Ny + 1, Ny, -1 => -o₂,0 => o₂)
-    Ay = del2'*del2
-    Ay[1,2] = -2.0/(k*k)
-    Ay[Ny, Ny-1] = -2.0/(k*k)
     O3 = ones(Nz) / l
     del3 = spdiagm_nonsquare(Nz + 1, Nz, -1 => -O3, 0 => O3)
+    Ax = del1'*del1
+    Ay = del2'*del2
     Az = del3'*del3
-    Az[1,2] = -2.0/(l*l)
-    Az[Nz, Nz-1] = -2.0/(l*l)
-    A3D = (kron(sparse(I, Nz, Nz), sparse(I, Ny, Ny), Ax) + 
+    if (bc == 1)
+      Ax[1,2] = -2.0/(h*h)
+      Ax[Nx, Nx-1] = -2.0/(h*h)
+      Ay[1,2] = -2.0/(k*k)
+      Ay[Ny, Ny-1] = -2.0/(k*k)
+      Az[1,2] = -2.0/(l*l)
+      Az[Nz, Nz-1] = -2.0/(l*l)
+      
+      A3D = (kron(sparse(I, Nz, Nz), sparse(I, Ny, Ny), Ax) + 
             kron(sparse(I, Nz, Nz), Ay, sparse(I, Nx, Nx)) + 
             kron(Az, sparse(I, Ny, Ny), sparse(I, Nx, Nx)))
-    # BoundaryNodes, xneighbors, yneighbors, zneighbors = 
-    #         return_boundary_nodes(Nx, Ny, Nz)
-    # count = 1
-    # for i in BoundaryNodes
-    #     A3D[i, i] = 0.0
-    #     A3D[i, i] = A3D[i, i] + xneighbors[count] / h ^ 2 + 
-    #                  yneighbors[count] / k ^ 2 + zneighbors[count] / l ^ 2
-    #     count = count + 1
-    # end
+    else
+      
+      A3D = (kron(sparse(I, Nz, Nz), sparse(I, Ny, Ny), Ax) + 
+            kron(sparse(I, Nz, Nz), Ay, sparse(I, Nx, Nx)) + 
+            kron(Az, sparse(I, Ny, Ny), sparse(I, Nx, Nx)))
+
+      BoundaryNodes, xneighbors, yneighbors, zneighbors =  return_boundary_nodes(Nx, Ny, Nz)
+      count = 1
+      for i in BoundaryNodes
+          A3D[i, i] = 0.0
+          A3D[i, i] = A3D[i, i] + xneighbors[count] / h ^ 2 + 
+                       yneighbors[count] / k ^ 2 + zneighbors[count] / l ^ 2
+          count = count + 1
+      end
     length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)] = A3D)
     #if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
     #  @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
@@ -70,15 +79,15 @@ function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
 end
 
 """ Helper function to give the matern matrix """
-function _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l)
-    haskey(A_matrix, (Nx, Ny, Nz, m, eps, h, k, l)) && return A_matrix[(Nx, Ny, Nz, m, eps, h, k, l)]
-    A3D = nablasq_3d_grid(Nx, Ny, Nz, h, k, l) 
+function _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l, bc)
+    haskey(A_matrix, (Nx, Ny, Nz, m, eps, h, k, l, bc)) && return A_matrix[(Nx, Ny, Nz, m, eps, h, k, l, bc)]
+    A3D = nablasq_3d_grid(Nx, Ny, Nz, h, k, l, bc) 
     sizeA = size(A3D, 1)
     for i = 1:sizeA
         A3D[i, i] = A3D[i, i] + eps^2
     end
     A3DMatern = A3D^m
-    length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, m, eps, h, k, l)] = A3DMatern)
+    length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, m, eps, h, k, l, bc)] = A3DMatern)
     #if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
     #  @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
     #end
@@ -87,7 +96,7 @@ end
 
 """
 
-  matern_3d_grid(imgg, discard, m, eps, h, k, l)
+  matern_3d_grid(imgg, discard, m, eps, h, k, l, bc)
 
 Interpolates a single punch
 
@@ -101,6 +110,7 @@ Interpolates a single punch
   - `h = 1.0`: Aspect ratio in the first dimension
   - `k = 1.0`: Aspect ratio in the second dimension
   - `l = 1.0`: Aspect ratio in the third dimension 
+  - `bc`: Boundary conditions (1 implies Neumann BC and 0 implies Do nothing BC)
 
 # Outputs
   - array containing the restored image
@@ -109,11 +119,11 @@ Interpolates a single punch
 """
 function matern_3d_grid(imgg, discard::Union{Vector{CartesianIndex{3}}, Vector{Int64}},
                 m::Int64 = 1,  eps::Float64 = 0.0, 
-                h = 1.0, k = 1.0, l = 1.0) 
+                h = 1.0, k = 1.0, l = 1.0, bc = 1) 
     Nx, Ny, Nz = size(imgg)
     A3D = (eps == 0.0)&&(m == 1) ? 
-                nablasq_3d_grid(Nx, Ny, Nz, h, k, l) :
-                _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l) 
+                nablasq_3d_grid(Nx, Ny, Nz, h, k, l, bc) :
+                _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l, bc) 
     totalsize = Nx * Ny * Nz
     C = sparse(I, totalsize, totalsize)
     rhs_a = copy(imgg)[:]
