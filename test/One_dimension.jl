@@ -3,19 +3,18 @@
 
 @testset "One dimensional interpolation" begin
     N = 4
-    A1 = 2*sparse(I, N, N)
-    A1[1, 1] = A1[4, 4] = 2.0 
+    A1 = 2.0*sparse(I, N, N)
+    A1[1, 1] = A1[4, 4] = A1[3, 4] = A1[1,2] = 2.0 
     A1[2, 1] = A1[3, 2] = A1[2, 3] = A1[4, 3] = -1.0
-    A1[3, 4] = A1[1,2] = -2.0
 
-    @test nablasq_1d_grid(4, 1.0, 1) == A1 # Neumann Boundary Conditions
+    @test nablasq_1d_grid(N, 1.0, 1) == A1 # Neumann Boundary Conditions
 
-    A1 = 2*sparse(I, N, N)
+    A1 = 2.0*sparse(I, N, N)
     A1[1, 1] = A1[4, 4] = 1.0 
     A1[2, 1] = A1[3, 2] = A1[2, 3] = A1[4, 3] = -1.0
     A1[3, 4] = A1[1,2] = -1.0
 
-    @test nablasq_1d_grid(4,1.0, 0) == A1 # Do Nothing Boundary Conditions
+    @test nablasq_1d_grid(N,1.0, 0) == A1 # Do Nothing Boundary Conditions
 
 #     x = 1:N
 #     h = Float64(x[2] - x[1])
