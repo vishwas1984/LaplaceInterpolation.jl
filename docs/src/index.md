@@ -75,15 +75,14 @@ The `Notebooks` folder contains this and other examples.
 ## Mathematical Details
 
 Radial basis functions and splines can be unified conceptually through the
-notion of Green's functions and eigenfunction expansions ![(Fasshauer,
+notion of Green's functions and eigenfunction expansions [(Fasshauer,
 2012)](https://link.springer.com/chapter/10.1007/978-1-4614-0772-0_4).  The
 general multivariate Matern kernels are of the form 
-$$ K(\mathbf{x}; \mathbf{z}) = K_{m-d/2}(\epsilon||\mathbf{x}-\mathbf{z}||)(\epsilon||\mathbf{x}-\mathbf{z}||)^{m-d/2}$$, 
-for $$m > d/2$$. 
-where $K_{ν}$ is the modified Bessel function of the second kind, and can be
+\[ K(\mathbf x ; \mathbf z) = K_{m-d/2}(\epsilon||\mathbf x -\mathbf z ||)(ϵ||\mathbf x - \mathbf z ||)^{m-d/2}\] 
+for $m > d/2$, where $K_ν$ is the modified Bessel function of the second kind, and can be
 obtained as Green’s kernels of 
-$$ L = (\epsilon^2I-\Delta)^m $$
-where $\Delta$ denotes the Laplacian operator in $d$ dimensions. Polyharmonic
+\[ L = (ϵ^2I-Δ)^m \]
+where $Δ$ denotes the Laplacian operator in $d$ dimensions. Polyharmonic
 splines, including thin plate splines, are a special case of the above, and this
 class includes the thin plate splines. 
 
@@ -108,8 +107,8 @@ neighboring node spots and the number of such nodes on the diagonal. In general,
 $A^{(d)}$ sum to zero. 
 
 Denote by $L = A^{(d)}$ the discrete analog of the Laplacian operator. To use
-the Matern operator, one substitutes $L = B^{(d)}(m, \epsilon) = ((A^{(d)})^m -
-\epsilon^2 I)$. Importantly, $A$ is sparse, containing at most 5 nonzero entries
+the Matern operator, one substitutes $L = B^{(d)}(m, ϵ) = ((A^{(d)})^m - ϵ^2 I)$. 
+Importantly, $A$ is sparse, containing at most 5 nonzero entries
 per row when $d = 2$ and $7$ nonzero entries per row when $d = 3$ and so on. The
 Matern matrix $B^{(d)}(m, \epsilon)$ is also sparse, having $2(m+d)-1$ nonzero
 entries per row. The sparsity of the matrix allows for the interpolation to
