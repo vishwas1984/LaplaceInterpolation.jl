@@ -1,7 +1,7 @@
 
 """
 
-    nablasq_3d_grid(Nx,Ny)
+    nablasq_3d_grid(Nx,Ny, Nz, h, k, l, bc)
 
 Construct the 3D Laplace matrix
 
