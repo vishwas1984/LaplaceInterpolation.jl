@@ -7,8 +7,8 @@ Manifest.toml
 *.jld
 Notebooks/Manifest.toml
 *checkpoint.ipynb
-obselete/
-Notebooks/obselete
+obsolete/
+Notebooks/obsolete
 
 *.swp
 *.info
