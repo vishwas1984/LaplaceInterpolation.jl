@@ -20,7 +20,7 @@ Construct the 3D Laplace matrix
 
 """
 function nablasq_3d_grid(Nx, Ny, Nz, h, k, l, bc)
-    haskey(A_matrix, (Nx, Ny, Nz, 1, 0.0, h, k, l, bc)) && return A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l, bc)]
+    #haskey(A_matrix, (Nx, Ny, Nz, 1, 0.0, h, k, l, bc)) && return A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l, bc)]
 
     o₁ = ones(Nx) / h
     del1 = spdiagm_nonsquare(Nx + 1, Nx, -1 => -o₁, 0 => o₁)
@@ -62,7 +62,7 @@ end
 
 """ Helper function to give the matern matrix """
 function _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l, bc)
-    haskey(A_matrix, (Nx, Ny, Nz, m, eps, h, k, l, bc)) && return A_matrix[(Nx, Ny, Nz, m, eps, h, k, l, bc)]
+    #haskey(A_matrix, (Nx, Ny, Nz, m, eps, h, k, l, bc)) && return A_matrix[(Nx, Ny, Nz, m, eps, h, k, l, bc)]
     A3D = nablasq_3d_grid(Nx, Ny, Nz, h, k, l, bc) 
     sizeA = size(A3D, 1)
     for i = 1:sizeA
