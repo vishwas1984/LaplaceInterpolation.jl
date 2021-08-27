@@ -120,7 +120,7 @@ to solve in linear time.
 ### One dimensional
 
 ```@docs
-nablasq_grid
+nablasq_1d_grid
 matern_1d_grid
 ```
 
@@ -128,6 +128,7 @@ matern_1d_grid
 
 ```@docs
 bdy_nodes
+nablasq_2d_grid
 matern_2d_grid
 ```
 
@@ -149,7 +150,7 @@ nablasq_arb
 interp
 ```
 
-#### Spherical Punching
+### Spherical Punching
 
 ```@docs
 punch_holes_3D
