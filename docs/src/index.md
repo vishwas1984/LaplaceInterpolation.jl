@@ -153,7 +153,7 @@ nablasq_arb
 interp
 ```
 
-#### Spherical Punching
+### Spherical Punching
 
 ```@docs
 punch_holes_3D
