@@ -1,7 +1,5 @@
 
-# functions: return_boundary_nodes, 
-# Matern_3d_Grid, Laplace_3D_grid,
-# Parallel_Matern_3DGrid
+# Licensed to V. Rao and C. Haley in 2021 under GPL v 2.0
 
 """
   return_boundary_nodes(xpoints, ypoints, zpoints)
@@ -59,6 +57,8 @@ end
 
   Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, m)
 
+Use an approximate Matern operator to interpolate punches of defined radius.
+
 ...
 # Arguments
   - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
@@ -105,6 +105,8 @@ end
 """
 
   Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l)
+
+Use an approximate Laplace operator to interpolate punches of defined radius.
 
 ...
 # Arguments

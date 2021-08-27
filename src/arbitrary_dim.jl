@@ -1,25 +1,4 @@
 
-#=
-""" Give the boundary nodes """
-function bdy_nodes(dims::Tuple)
-    D = length(dims)
-    nbdy = prod(dims) - prod(dims .- 2)
-    bdy = CartesianIndex{D}[]
-    for (i, d) in enumerate(dims)
-        # This only works with julia v 1.6
-        push!(bdy, CartesianIndices((dims[1:(i-1)]..., 1:(d-1):d, dims[(i+1):D]...))[:]...)
-    end
-    bdy = unique(bdy)
-    neighbors = zeros(length(bdy), D)
-    for (j, b) in enumerate(bdy)
-        for i in 1:D
-          neighbors[j, i] = ((Tuple(b)[i] == 1)||(Tuple(b)[i] == dims[i])) ? 1 : 2
-        end
-    end
-    return bdy, neighbors
-end
-=#
-
 """
   bdy_nodes(dims)
 
@@ -28,7 +7,7 @@ Boundary node computation, for arbitrary dimension
 ...
 # Arguments
 
-  - `dims::Tuple` number of points in each direction
+  - `dims::Tuple` number of points in each direction, must be ints
 ...
 
 ...
@@ -55,7 +34,24 @@ function bdy_nodes(dims::Tuple)
     return bdy, neighbors
 end
 
-""" Write the matrix """
+""" 
+
+    nablasq_arb(dims, aspect_ratios)
+
+Compute the interpolating (Laplace) matrix for a volume with given dimensions
+
+# Arguments
+
+  - `dims::Tuple` number of points in each dimension, must be ints
+  - `aspect_ratios::Tuple` the aspect ratio in each dimension, in units
+
+# Outputs
+
+  - `A::Matrix{Float64}`: matrix of size prod(dims) containing the Laplacian
+
+Note that the boundary condition is average, and Neumann has not been implemented. 
+
+"""
 function nablasq_arb(dims, aspect_ratios)
   D = length(dims)
   oh = map(i -> ones(dims[i])/aspect_ratios[i], 1:length(dims))
@@ -89,7 +85,25 @@ function _Matern_matrix(dims, m, eps, aspect_ratios)
     return A^m
 end
 
-""" Compute the interpolation """
+""" 
+
+    interp(data, ind, m, eps, aspect_ratios)
+
+Compute a Matern or Laplace interpolation on a multidimensional dataset 
+
+# Arguments
+  
+  - `data::Array`: Array containing the data
+  - `ind::Array`: Array of indices for which the data are to be interpolated
+  - `m::Int64`: Matern parameter m (m = 1 for Laplace interpolation)
+  - `eps::Float64`: Matern parameter epsilon (eps = 0.0 for Laplace)
+  - `aspect_ratios::Tuple`: Tuple containing the aspect ratios in each of the dimensions
+
+# Outputs
+
+  - `u::Array`: Array (same size as data) containing the interpolated result. 
+
+"""
 function interp(data, ind, m, eps, aspect_ratios) 
     dims = size(data)
     A = (eps == 0.0)&&(m == 1) ? 
