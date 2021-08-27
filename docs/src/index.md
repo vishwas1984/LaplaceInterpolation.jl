@@ -158,7 +158,7 @@ interp
 ```@docs
 punch_holes_3D
 punch_holes_2D
-punch_3d_cart
-center_list 
+punch_3D_cart
+<!-- center_list  -->
 ```
 
