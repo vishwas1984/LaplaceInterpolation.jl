@@ -62,6 +62,10 @@ the same computer with ease.
 # Similar Packages
 ```Laplacians.jl``` authored by Dan Spielman.
 
+# Contributing
+
+Contributions are welcome in the form of issues, pull requests. Support questions can be directed to vhebbur at anl.gov.
+
 # Funding
 This material is based upon work supported by the U.S. Department of Energy,
 Office of Science, Office of Basic Energy Sciences.
