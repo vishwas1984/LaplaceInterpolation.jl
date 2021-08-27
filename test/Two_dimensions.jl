@@ -8,7 +8,7 @@
     h = k = 1.0
     A2 = nablasq_2d_grid(N, N, h, k, 1)  #Neumann Boundaries
     @test (A2[1, 1] == 4.0) && (A2[2, 2] == 4.0) && (A2[6, 6] == 4.0)
-    @test (A2[1, 2] == -2.0) && (A2[6, 5] == -2.0) && (A2[6, 9] == -1.0)
+    @test (A2[1, 2] == -2.0) && (A2[16, 15] == -2.0) && (A2[6, 5] == -1.0)
     
     A2 = nablasq_2d_grid(N, N, h, k, 0)  #Do Nothing Boundaries
     @test (A2[1, 1] == 2.0) && (A2[2, 2] == 3.0) && (A2[6, 6] == 4.0)
