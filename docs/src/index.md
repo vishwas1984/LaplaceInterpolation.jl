@@ -68,7 +68,7 @@ plot(p1, p2, p3, p4, layout = (2, 2), legend = false, size = (900, 500))
 
 ```
 
-![Mandrill_Random](Mandrill_Random.png)
+![Mandrill_Random](doc)
 
 The `Notebooks` folder contains this and other examples. 
 
@@ -77,10 +77,10 @@ The `Notebooks` folder contains this and other examples.
 Radial basis functions and splines can be unified conceptually through the
 notion of Green's functions and eigenfunction expansions ![(Fasshauer,
 2012)](https://link.springer.com/chapter/10.1007/978-1-4614-0772-0_4).  The
-general multivariate Matern kernels are of the form
-$$ K(\mathbf{x}; \mathbf{z}) = K_{m-d/2}(\epsilon||\mathbf{x}-\mathbf{z}||)(\epsilon||\mathbf{x}-\mathbf{z}||)^{m-d/2}, $$
-for $m > d/2$. 
-where $K_{\nu}$ is the modified Bessel function of the second kind, and can be
+general multivariate Matern kernels are of the form 
+$$ K(\mathbf{x}; \mathbf{z}) = K_{m-d/2}(\epsilon||\mathbf{x}-\mathbf{z}||)(\epsilon||\mathbf{x}-\mathbf{z}||)^{m-d/2}$$, 
+for $$m > d/2$$. 
+where $$K_{\nu}$$ is the modified Bessel function of the second kind, and can be
 obtained as Green’s kernels of 
 $$ L = (\epsilon^2I-\Delta)^m $$
 where $\Delta$ denotes the Laplacian operator in $d$ dimensions. Polyharmonic
@@ -138,6 +138,9 @@ matern_2d_grid
 nablasq_3d_grid
 matern_3d_grid
 matern_w_punch
+Laplace_3D_Grid
+Parallel_Matern_3DGrid
+interp_nexus 
 spdiagm_nonsquare
 return_boundary_nodes
 Matern3D_Grid
@@ -155,6 +158,7 @@ interp
 ```@docs
 punch_holes_3D
 punch_holes_2D
+punch_3d_cart
 center_list 
 ```
 
