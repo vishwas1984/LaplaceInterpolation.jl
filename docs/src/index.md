@@ -138,9 +138,9 @@ matern_2d_grid
 nablasq_3d_grid
 matern_3d_grid
 matern_w_punch
-Laplace_3D_Grid
-Parallel_Matern_3DGrid
-interp_nexus 
+#Laplace_3D_Grid
+#Parallel_Matern_3DGrid
+#interp_nexus 
 spdiagm_nonsquare
 return_boundary_nodes
 Matern3D_Grid
