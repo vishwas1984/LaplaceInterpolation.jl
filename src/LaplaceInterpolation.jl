@@ -13,7 +13,7 @@ module LaplaceInterpolation
   export Matern3D_Grid, Parallel_Matern3D_Grid
 
   include("punch.jl")
-  export punch_holes_3D, punch_holes_2D, punch_3d_cart, center_list 
+  export punch_holes_3D, punch_holes_2D, punch_3D_cart, center_list 
 
   include("nexus.jl")
   # These functions are unexported
