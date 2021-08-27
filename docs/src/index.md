@@ -80,7 +80,7 @@ notion of Green's functions and eigenfunction expansions ![(Fasshauer,
 general multivariate Matern kernels are of the form 
 $$ K(\mathbf{x}; \mathbf{z}) = K_{m-d/2}(\epsilon||\mathbf{x}-\mathbf{z}||)(\epsilon||\mathbf{x}-\mathbf{z}||)^{m-d/2}, $$
 for $m > d/2$. 
-where $K_{\nu}$ is the modified Bessel function of the second kind, and can be
+where $$K_{\nu}$$ is the modified Bessel function of the second kind, and can be
 obtained as Green’s kernels of 
 $$ L = (\epsilon^2I-\Delta)^m $$
 where $\Delta$ denotes the Laplacian operator in $d$ dimensions. Polyharmonic
