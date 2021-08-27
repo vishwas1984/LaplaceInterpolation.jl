@@ -29,7 +29,7 @@
     y_mat_DN = matern_1d_grid(y, discard, 2, 0.1, h, 0) #Do Nothing Boundaries
 
     @test y_lap_N[discard] ≈ [0.18163563200134025, -0.587785252292473]
-    @test y_lap_DN[discard] ≈ [0.18163563200134025, -0.2938926261462365]
+    @test y_lap_DN[discard] ≈ [0.18163563200134025, -0.587785252292473]
     @test y_mat_N[discard] ≈ [0.334291319051756743, -0.8930938339654969]
     @test y_mat_DN[discard] ≈ [0.2503155527973194, -1.0026370054554663]
 
