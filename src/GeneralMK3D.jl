@@ -34,14 +34,9 @@ Construct the 3D Laplace matrix
   - `-nablasq` (discrete Laplacian, real-symmetric positive-definite) on Nx×Ny×Nz grid
 
 """
-<<<<<<< HEAD
 function nablasq_3d_grid(Nx, Ny, Nz, h, k, l, bc)
     haskey(A_matrix, (Nx, Ny, Nz, 1, 0.0, h, k, l, bc)) && return A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l, bc)]
 
-=======
-function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
-    #haskey(A_matrix, (Nx, Ny, Nz, 1, 0.0, h, k, l)) && return A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)]
->>>>>>> origin
     o₁ = ones(Nx) / h
     del1 = spdiagm_nonsquare(Nx + 1, Nx, -1 => -o₁, 0 => o₁)
     o₂ = ones(Ny) / k
@@ -77,11 +72,7 @@ function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
           count = count + 1
       end
     end
-<<<<<<< HEAD
     length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l, bc)] = A3D)
-=======
-    #length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, 1, 0.0, h, k, l)] = A3D)
->>>>>>> origin
     #if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
     #  @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
     #end
@@ -89,25 +80,15 @@ function nablasq_3d_grid(Nx, Ny, Nz, h, k, l)
 end
 
 """ Helper function to give the matern matrix """
-<<<<<<< HEAD
 function _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l, bc)
     haskey(A_matrix, (Nx, Ny, Nz, m, eps, h, k, l, bc)) && return A_matrix[(Nx, Ny, Nz, m, eps, h, k, l, bc)]
     A3D = nablasq_3d_grid(Nx, Ny, Nz, h, k, l, bc) 
-=======
-function _Matern_matrix(Nx, Ny, Nz, m, eps, h, k, l)
-    #haskey(A_matrix, (Nx, Ny, Nz, m, eps, h, k, l)) && return A_matrix[(Nx, Ny, Nz, m, eps, h, k, l)]
-    A3D = nablasq_3d_grid(Nx, Ny, Nz, h, k, l) 
->>>>>>> origin
     sizeA = size(A3D, 1)
     for i = 1:sizeA
         A3D[i, i] = A3D[i, i] + eps^2
     end
     A3DMatern = A3D^m
-<<<<<<< HEAD
     length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, m, eps, h, k, l, bc)] = A3DMatern)
-=======
-    #length(A_matrix) <  SETTINGS.A_matrix_STORE_MAX && (A_matrix[(Nx, Ny, Nz, m, eps, h, k, l)] = A3DMatern)
->>>>>>> origin
     #if length(A_matrix) == SETTINGS.A_matrix_STORE_MAX
     #  @warn "A_matrix cache full, no longer caching Laplace interpolation matrices."
     #end
@@ -154,7 +135,7 @@ function matern_3d_grid(imgg, discard::Union{Vector{CartesianIndex{3}}, Vector{I
     end
     Id = sparse(I, totalsize, totalsize)    
     u = ((C - (Id - C) * A3D)) \ rhs_a
-    return u
+    return reshape(u, Nx, Ny, Nz)
     #v = reshape(u, Ny, Nx, Nz)
     #return permutedims(v, (2,1,3)) 
 end
