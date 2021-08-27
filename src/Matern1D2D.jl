@@ -157,14 +157,14 @@ end
 Laplacian matrix on a 2D grid
 
 # Arguments:
-    - `Nx::Int64`: Number of points in first dimension
-    - `Ny::Int64`: Number of points in second dimension
-    - `h::Float64`: Aspect ratio in first dimension
-    - `k::Float64`: Aspect ratio in second dimension
-    - `bc`: Boundary conditions (1 implies Neumann BC and 0 implies Do nothing BC)
+  - `Nx::Int64`: Number of points in first dimension
+  - `Ny::Int64`: Number of points in second dimension
+  - `h::Float64`: Aspect ratio in first dimension
+  - `k::Float64`: Aspect ratio in second dimension
+  - `bc`: Boundary conditions (1 implies Neumann BC and 0 implies Do nothing BC)
 
 # Outputs:
-    - discrete Laplacian matrix in 2D
+  - discrete Laplacian matrix in 2D
 """
 function nablasq_2d_grid(Nx::Int64, Ny::Int64, h::Float64, k::Float64, bc)
   o1 = ones(Nx) / h

@@ -4,17 +4,13 @@
 
 Boundary node computation, for arbitrary dimension
 
-...
 # Arguments
 
   - `dims::Tuple` number of points in each direction, must be ints
-...
 
-...
 # Outputs
   - `Vector{Int64}`: vector containing the indices of coordinates 
   on the boundary of the hyperrectangle volume
-...
 
 """
 function bdy_nodes(dims::Tuple)
