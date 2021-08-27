@@ -28,23 +28,30 @@ end
 # One-dimensional codes
 
 """ 
-    nablasq_grid(n, h)
+    nablasq_1d_grid(n, h, bc)
 
 Laplacian matrix on a 1D grid
 
 # Arguments:
     - `n`: Number of points
     - `h`: Aspect ratio
+    - `bc`: Boundary conditions (1 implies Neumann BC and 0 implies Do nothing BC)
 
 # Outputs:
     - discrete Laplacian matrix
 """
-function nablasq_grid(n::Int64, h::Float64 = 1.0)
+function nablasq_1d_grid(n::Int64, h::Float64 = 1.0, bc = 1)
   o = ones(n) / h
   del = spdiagm_nonsquare(n + 1, n, -1 => -o, 0 => o)
   A1D = del' * del
-  A1D[1, 1] = 1.0 / h ^ 2
-  A1D[n, n] = 1.0 / h ^ 2
+
+  if (bc == 1)  # Neumann BC
+    A1D[1,2] = -2.0/(h*h)
+    A1D[n,n-1] = -2.0/(h*h)
+  else   # Do nothing BC 
+    A1D[1, 1] = 1.0 / (h*h)
+    A1D[n, n] = 1.0 / (h*h)
+  end
   return A1D
 end
 
@@ -60,6 +67,7 @@ Matern Interpolation in one dimension
   - `m::Int64 = 1`: Matern parameter m
   - `eps = 0.0`: Matern parameter eps
   - `h = 1.0`: aspect ratio
+  - `bc`: Boundary conditions (1 implies Neumann BC and 0 implies Do nothing BC)
 
 # Outputs:
   - vector of interpolated data
@@ -78,9 +86,9 @@ y_mat = matern_1d_grid(y, discard, 2, 0.1, h)
   
 """
 function matern_1d_grid(y::Vector{T}, idx::Vector{Int64}, 
-                        m::Int64 = 1, eps = 0.0, h::Float64 = 1.0) where{T<:Number}
+                        m::Int64 = 1, eps = 0.0, h::Float64 = 1.0, bc = 1) where{T<:Number}
   n = length(y)
-  A1D = nablasq_grid(n, h)
+  A1D = nablasq_1d_grid(n, h, bc)
   C = sparse(I, n, n)
   for i in idx
     C[i, i] = 0.0
@@ -143,7 +151,7 @@ function bdy_nodes(Nx, Ny)
 end
 
 """ 
-    nablasq_grid(Nx, Ny, h, k)
+    nablasq_2d_grid(Nx, Ny, h, k, bc)
 
 Laplacian matrix on a 2D grid
 
@@ -152,26 +160,49 @@ Laplacian matrix on a 2D grid
     - `Ny::Int64`: Number of points in second dimension
     - `h::Float64`: Aspect ratio in first dimension
     - `k::Float64`: Aspect ratio in second dimension
+    - `bc`: Boundary conditions (1 implies Neumann BC and 0 implies Do nothing BC)
 
 # Outputs:
     - discrete Laplacian matrix in 2D
 """
-function nablasq_grid(Nx::Int64, Ny::Int64, h::Float64, k::Float64)
+function nablasq_2d_grid(Nx::Int64, Ny::Int64, h::Float64, k::Float64, bc)
   o1 = ones(Nx) / h
   del1 = spdiagm_nonsquare(Nx + 1, Nx, -1 => -o1, 0 => o1)
   o2 = ones(Ny) / k
   del2 = spdiagm_nonsquare(Ny + 1, Ny, -1 => -o2,0 => o2)
-  A2D = (kron(sparse(I, Ny, Ny), del1' * del1) + 
-          kron(del2' * del2, sparse(I, Nx, Nx)))
-  bdy, xnb, ynb = bdy_nodes(Nx, Ny)
-  count = 1
-  for i in bdy
-      A2D[i, i] = 0.0
-      A2D[i, i] = A2D[i, i] + xnb[count] / h ^ 2 + ynb[count] / k ^ 2 
-      count += 1
+  Ax = del1'*del1
+  Ay = del2'*del2
+  if (bc == 1)  # Neumann BC
+    Ax[1,2] = -2.0/(h*h)
+    Ax[Nx, Nx-1] = -2.0/(h*h)
+    Ay[1,2] = -2.0/(k*k)
+    Ay[Ny, Ny-1] = -2.0/(k*k)
+    A2D = (kron(sparse(I, Ny, Ny), Ax) + 
+          kron(Ay, sparse(I, Nx, Nx)))
+  else  # Do nothing BC
+    A2D = (kron(sparse(I, Ny, Ny), Ax) + 
+          kron(Ay, sparse(I, Nx, Nx)))
+    bdy, xnb, ynb = bdy_nodes(Nx, Ny)
+    count = 1
+    for i in bdy
+       A2D[i, i] = 0.0
+       A2D[i, i] = A2D[i, i] + xnb[count] / h ^ 2 + ynb[count] / k ^ 2 
+       count += 1
+    end
   end
   return A2D
 end
+  # A2D = (kron(sparse(I, Ny, Ny), Ax) + 
+  #         kron(Ay, sparse(I, Nx, Nx)))
+  # # bdy, xnb, ynb = bdy_nodes(Nx, Ny)
+  # # count = 1
+  # # for i in bdy
+  # #     A2D[i, i] = 0.0
+  # #     A2D[i, i] = A2D[i, i] + xnb[count] / h ^ 2 + ynb[count] / k ^ 2 
+  # #     count += 1
+  # # end
+  
+
 
 """
 
@@ -185,6 +216,7 @@ end
   - `m`: The Matern exponent (integer)
   - `h`: The aspect ratio in the first dimension
   - `k`: The aspect ratio in the second dimension
+  - `bc`: Boundary conditions (1 implies Neumann BC and 0 implies Do nothing BC)
 
 # Outputs
   - matrix containing the interpolated image
@@ -204,9 +236,9 @@ y_mat = matern_2d_grid(y, discard, 2, 0.1, h, k)
 
 """
 function matern_2d_grid(mat::Matrix, discard::Vector, m::Int64 = 1, eps = 0.0, 
-                        h::Float64 = 1.0, k::Float64 = 1.0)
+                        h::Float64 = 1.0, k::Float64 = 1.0, bc = 1)
     rows, columns = size(mat)
-    A2D = nablasq_grid(rows, columns, h, k)
+    A2D = nablasq_2d_grid(rows, columns, h, k, bc)
     sizeA = size(A2D, 1)
     C = sparse(I, sizeA, sizeA)
     for i in discard
