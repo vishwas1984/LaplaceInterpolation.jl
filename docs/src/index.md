@@ -14,7 +14,7 @@ punch_holes_nexus
 
 ```@docs
 nablasq_grid
-matern_1D_grid
+matern_1d_grid
 ```
 
 ## Two dimensional
@@ -29,12 +29,28 @@ matern_2d_grid
 ```@docs
 nablasq_3d_grid
 matern_3d_grid
+matern_w_punch
 Laplace_3D_Grid
-parallel_Matern_3DGrid
-parallel_Laplace_3Dgrid
+Parallel_Matern_3DGrid
 interp_nexus 
 spdiagm_nonsquare
 return_boundary_nodes
 Matern3D_Grid
-Parallel_Matern3D_Grid
 ```
+
+# Arbitrary dimensions
+
+```@docs
+nablasq_arb 
+interp
+```
+
+# Spherical Punching
+
+```@docs
+punch_holes_3D
+punch_holes_2D
+punch_3d_cart
+center_list 
+```
+
