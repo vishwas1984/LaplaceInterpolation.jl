@@ -1,11 +1,7 @@
 
-# functions: nablasq_3d_grid, return_boundary_nodes, 
-# return_boundary_nodes_3D, punch_holes_nexus_Cartesian, 
-# Matern_3d_Grid, Laplace_3D_grid,
-# parallel_Matern_3DGrid, parallel_Laplace_3Dgrid
-
 """
-  nablasq_3d_grid(Nx,Ny)
+
+    nablasq_3d_grid(Nx,Ny)
 
 Construct the 3D Laplace matrix
 
@@ -78,11 +74,10 @@ end
 
 """
 
-  matern_3d_grid(imgg, discard, m, eps, h, k, l, bc)
+    matern_3d_grid(imgg, discard, m, eps, h, k, l, bc)
 
 Interpolates a single punch
 
-...
 # Arguments
   - `imgg`: the matrix containing the image
   - `discard::Union{Vector{CartesianIndex{3}}}, Vector{Int64}}`: the linear or 
@@ -96,7 +91,6 @@ Interpolates a single punch
 
 # Outputs
   - array containing the restored image
-...
 
 """
 function matern_3d_grid(imgg, discard::Union{Vector{CartesianIndex{3}}, Vector{Int64}},
@@ -121,11 +115,10 @@ end
 
 """
 
-  matern_w_punch(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, m, eps, h, k, l, symm)
+    matern_w_punch(imgg, Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, m, eps, h, k, l, symm)
 
 Interpolate, in serial, multiple punches
 
-...
 # Arguments
   - `imgg`: the matrix containing the image
   - ` Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max::Int64`: the extents in h,k,l resp 
@@ -153,10 +146,8 @@ m = 1
 eps = 0.0
 interp = matern_w_punch(imgg, #Qh_min, Qh_max, Qk_min, Qk_max, Ql_min, Ql_max, radius,
                       radius, xpoints, ypoints, zpoints, m, eps, 
-                      h, k, l, symm);
+                      h, k, l, symm)
 ```
-
-...
 """
 function matern_w_punch(imgg, radius, xpoints, ypoints, zpoints,
                         m = 1, eps = 0.0, h = 1.0, k = 1.0, l = 1.0, symm = 'G';

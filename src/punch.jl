@@ -1,24 +1,21 @@
 
 
 """
-  punch_holes_2D(centers, radius, xpoints, ypoints)
+
+    punch_holes_2D(centers, radius, xpoints, ypoints)
 
 Punch holes in a 2D dataset
 
-...
 # Arguments
 
   - `centers::Union{Vector}`: the vector containing the punch centers
   - `radius::Vector`: the tuple containing the punch radii 
   - `Nx::Int64`: the number of points in the x direction
   - `Ny::Int64`: the number of points in the y direction
-...
 
-...
 # Outputs
   - `absolute_indices::Vector{Int64}`: vector containing the indices of coordinates 
   inside the punch
-...
 
 """
 function punch_holes_2D(centers, radius::Union{T, Vector{T}}, 
@@ -44,11 +41,11 @@ function punch_holes_2D(centers, radius::Union{T, Vector{T}},
 end
 
 """
-  punch_holes_3D(centers, radius, xpoints, ypoints, zpoints)
+
+    punch_holes_3D(centers, radius, xpoints, ypoints, zpoints)
 
 Punch holes in a 3D volume dataset
 
-...
 # Arguments
 
   - `centers::Vector{T}`: the vector containing the centers of the punches
@@ -56,13 +53,10 @@ Punch holes in a 3D volume dataset
   - `Nx::Int64`: the number of points in the x-direction, this code is hard-coded to start from one. 
   - `Ny::Int64`: the number of points in the y-direction
   - `Nz::Int64`: the number of points in the z-direction
-...
 
-...
 # Outputs
   - `absolute_indices::Vector{Int64}`: vector containing the indices of coordinates 
   inside the punch
-...
 
 """
 function punch_holes_3D(centers, radius, Nx, Ny, Nz)
@@ -88,11 +82,11 @@ function punch_holes_3D(centers, radius, Nx, Ny, Nz)
 end
 
 """
-  punch_3D_cart(center, radius, xpoints, ypoints, zpoints; <kwargs>)
+
+    punch_3D_cart(center, radius, xpoints, ypoints, zpoints; <kwargs>)
 
 This punch gives outputs either as linear or Cartesian indices
 
-...
 # Arguments
 
   - `center::Tuple{T}`: the tuple containing the center of a round punch
@@ -104,13 +98,10 @@ This punch gives outputs either as linear or Cartesian indices
 # Optional
 
   - `linear::Bool = false` can return a linear index
-...
 
-...
 # Outputs
   - `inds::Vector{Int64}`: vector containing the indices of coordinates 
   inside the punch
-...
 
 """
 function punch_3D_cart(center, radius, x, y, z; linear = false)

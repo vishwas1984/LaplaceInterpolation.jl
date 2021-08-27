@@ -2,7 +2,8 @@
 # Licensed to V. Rao and C. Haley in 2021 under GPL v 2.0
 
 """
-  return_boundary_nodes(xpoints, ypoints, zpoints)
+
+    return_boundary_nodes(xpoints, ypoints, zpoints)
 
 ...
 # Arguments
@@ -55,7 +56,7 @@ end
 
 """
 
-  Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, m)
+    Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, m)
 
 Use an approximate Matern operator to interpolate punches of defined radius.
 
@@ -104,11 +105,10 @@ end
 
 """
 
-  Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l)
+    Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l)
 
 Use an approximate Laplace operator to interpolate punches of defined radius.
 
-...
 # Arguments
   - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
   - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
@@ -121,7 +121,6 @@ Use an approximate Laplace operator to interpolate punches of defined radius.
 
 # Outputs
   - tuple containing the restored image and the punched image.
-...
 
 """
 function Laplace3D_Grid(xpoints, ypoints, zpoints, imgg, radius, h, k, l)
@@ -148,7 +147,6 @@ end
 
 Compute the spherically-punched, Laplace-interpolated 3D data
 
-...
 # Arguments
   - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
   - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
@@ -228,7 +226,6 @@ end
 
 Compute the spherically-punched, Matern-interpolated 3D data
 
-...
 # Arguments
   - `xpoints::Vector{T} where T<:Real`: the vector containing the x coordinate
   - `ypoints::Vector{T} where T<:Real`: the vector containing the y coordinate
@@ -252,7 +249,7 @@ Compute the spherically-punched, Matern-interpolated 3D data
 
 # Example 
 
-```julia-repl
+```
 (xmin, xmax) = (ymin, ymax) = (zmin,zmax) = (0.0, 1.0)
 xpoints = ypoints = zpoints = -0.2:0.2:1.2
 h = k = l = 0.2
@@ -263,9 +260,6 @@ radius = 0.2
 restored = Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, 
                                   h, k, l, xmin, xmax, ymin, ymax, zmin, zmax, m)
 ```
-
-...
-
 """
 function Parallel_Matern3D_Grid(xpoints::Union{StepRangeLen{T},Vector{T}}, 
                                 ypoints::Union{StepRangeLen{T},Vector{T}}, 
@@ -275,7 +269,6 @@ function Parallel_Matern3D_Grid(xpoints::Union{StepRangeLen{T},Vector{T}},
                                 h::Float64, k::Float64, l::Float64, 
                                 xmin::R, xmax::R, ymin::R, ymax::R, zmin::R, zmax::R, 
                                 m::Int) where{T<:Number,P<:Number,Q<:Number,R<:Number}
-  # 
   fun(x,y,z,w) = Int(round((x -y)/z) - w ) 
   ran(x,y,z,w) = fun(x, y, z, w) .+ (0, 2*w + 1)
   #
@@ -300,45 +293,8 @@ function Parallel_Matern3D_Grid(xpoints::Union{StepRangeLen{T},Vector{T}},
     z3d_restored[i1 + 1:i2, j1 + 1:j2, k1 + 1:k2] = reshape(restored_img, 
                            (2 * stride_h + 1, 2 * stride_k + 1, 2 * stride_l + 1))
   end
-  #
   return z3d_restored[:]
-  #
 end
 
-# function Parallel_Matern3D_Grid(xpoints, ypoints, zpoints, imgg, epsilon, radius, h, k, l, xmin, xmax, ymin, ymax, zmin, zmax, m)
-#   xbegin = xpoints[1];
-#   ybegin = ypoints[1];
-#   zbegin = zpoints[1];
-#   cartesian_product_boxes = [];
-#   stride = Int(round(radius/h));
-#   z3d_restored = copy(imgg);
-#   for i = xmin:xmax+1
-#       i1 = Int(round((i-xbegin) /h))-stride;
-#       i2 = i1+2*stride+1;
-#       for j = ymin:ymax+1
-#           j1 = Int(round((j-ybegin)/h))-stride;
-#           j2 = j1+2*stride+1;
-#           for k = zmin:zmax+1
-#               k1 = Int(round((k-ybegin)/h)) - stride;
-#               k2 = k1+2*stride+1;
-#               append!(cartesian_product_boxes,[(i1,i2,j1,j2,k1,k2)]);
-#           end
-#       end
-#   end
-
-#   Threads.@threads for i = 1:length(cartesian_product_boxes)
-#     i1 = cartesian_product_boxes[i][1];
-#     i2 = cartesian_product_boxes[i][2];
-#     j1 = cartesian_product_boxes[i][3];
-#     j2 = cartesian_product_boxes[i][4];
-#     k1 = cartesian_product_boxes[i][5];
-#     k2 = cartesian_product_boxes[i][6];
-#     z3temp = imgg[i1+1:i2,j1+1:j2,k1+1:k2];
-#     restored_img, punched_image = Matern3D_Grid(xpoints[i1+1:i2], ypoints[j1+1:j2], zpoints[k1+1:k2], z3temp, epsilon, radius, h, k, l, m);
-#     restored_img_reshape = reshape(restored_img, (2*stride+1,2*stride+1,2*stride+1));
-#     z3d_restored[i1+1:i2, j1+1:j2, k1+1:k2] = restored_img_reshape;
-#   end
-#   return z3d_restored[:];
-# end
 
 

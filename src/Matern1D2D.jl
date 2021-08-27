@@ -2,7 +2,7 @@
 # Helper code
 
 """
-  spdiagm_nonsquare(m, n, args...)
+    spdiagm_nonsquare(m, n, args...)
 
 Construct a sparse diagonal matrix from pairs of vectors and diagonals. 
 
@@ -58,7 +58,7 @@ end
 
 """ 
 
-   matern_1d_grid(y, idx, m, eps, h)
+    matern_1d_grid(y, idx, m, eps, h)
 
 Matern Interpolation in one dimension
 
@@ -110,19 +110,18 @@ end
 # Two dimensional codes
 
 """
-  bdy_nodes(Nx, Ny)
 
-...
+    bdy_nodes(Nx, Ny)
+
+Find the nodes on the boundary of a 2D array of size (Nx, Ny)
+
 # Arguments
 
   - `Nx::Int64`: the number of points in the first dimension
   - `Ny::Int64`: the number of points in the second dimension
-...
 
-...
 # Outputs
   - vector containing the indices of coordinates on the boundary of the 2D rectangle
-...
 
 """
 function bdy_nodes(Nx, Ny)
@@ -152,6 +151,7 @@ function bdy_nodes(Nx, Ny)
 end
 
 """ 
+
     nablasq_2d_grid(Nx, Ny, h, k, bc)
 
 Laplacian matrix on a 2D grid
@@ -193,23 +193,11 @@ function nablasq_2d_grid(Nx::Int64, Ny::Int64, h::Float64, k::Float64, bc)
   end
   return A2D
 end
-  # A2D = (kron(sparse(I, Ny, Ny), Ax) + 
-  #         kron(Ay, sparse(I, Nx, Nx)))
-  # # bdy, xnb, ynb = bdy_nodes(Nx, Ny)
-  # # count = 1
-  # # for i in bdy
-  # #     A2D[i, i] = 0.0
-  # #     A2D[i, i] = A2D[i, i] + xnb[count] / h ^ 2 + ynb[count] / k ^ 2 
-  # #     count += 1
-  # # end
-  
-
 
 """
 
-  matern_2d_grid(mat, discard, m, eps, h, k)
+    matern_2d_grid(mat, discard, m, eps, h, k)
 
-...
 # Arguments
   - `mat`: the matrix containing the image
   - `idx`: the linear indices of the nodes to be discarded
@@ -224,16 +212,20 @@ end
 
 # Example:
 
-```<julia-repl>
+```
 x = y = 1:30
 h = k = x[2] - x[1]
 y = sin.(2 * pi * x * 0.2) * cos.(2 * pi * y * 0.3)
 discard = randperm(900)[1:450]
-# Laplace interpolation
+```
+For Laplace interpolation
+```
 y_lap = matern_2d_grid(y, discard, 1, 0.0, h, k)
-# Matern interpolation
+```
+For Matern interpolation
+```
 y_mat = matern_2d_grid(y, discard, 2, 0.1, h, k)
-...
+```
 
 """
 function matern_2d_grid(mat::Matrix, discard::Vector, m::Int64 = 1, eps = 0.0, 
