@@ -78,36 +78,47 @@ Radial basis functions and splines can be unified conceptually through the
 notion of Green's functions and eigenfunction expansions [(Fasshauer,
 2012)](https://link.springer.com/chapter/10.1007/978-1-4614-0772-0_4).  The
 general multivariate Matern kernels are of the form 
-\[ K(\mathbf x ; \mathbf z) = K_{m-d/2}(\epsilon||\mathbf x -\mathbf z ||)(ϵ||\mathbf x - \mathbf z ||)^{m-d/2}\] 
+
+$K(\mathbf x ; \mathbf z) = K_{m-d/2}(\epsilon||\mathbf x -\mathbf z ||)(ϵ||\mathbf x - \mathbf z ||)^{m-d/2}$
+
 for $m > d/2$, where $K_ν$ is the modified Bessel function of the second kind, and can be
 obtained as Green’s kernels of 
-\[ L = (ϵ^2I-Δ)^m \]
+
+```math 
+L = (ϵ^2I-Δ)^m 
+```
+
 where $Δ$ denotes the Laplacian operator in $d$ dimensions. Polyharmonic
 splines, including thin plate splines, are a special case of the above, and this
 class includes the thin plate splines. 
 
-The discrete gridded interpolation seeks
-to find an interpolation $u (\mathbf x )$ that satisfies the differential operator in
-$d$ dimensions on the nodes $\mathbf x_i$ where there is no data and equals
-$y_i$ everywhere else. Discretely, one solves the
-matrix problem
-\[\mathbf C  (\mathbf u  - \mathbf y ) - (1 - \mathbf C ) L \mathbf u  = 0 \]
+The discrete gridded interpolation seeks to find an interpolation $u (\mathbf x
+)$ that satisfies the differential operator in $d$ dimensions on the nodes
+$\mathbf x_i$ where there is no data and equals $y_i$ everywhere else.
+Discretely, one solves the matrix problem
+
+```math 
+\mathbf C  (\mathbf u  - \mathbf y ) - (1 - \mathbf C ) L \mathbf u  = 0 
+```
+
 where $\mathbf{y}$ contains the $y_i$'s and placeholders where there is no data, $L$
-denotes the discrete matrix operator and 
-\[ C_{i,j} = \left \{ \begin{array}{ll} 1 & \mathbf x_i \mbox{ known, } i = j\\ 0 & \mbox{otherwise.} \end{array} \right. \]
-indicates whether node $\mathbf x_i$ is observed. 
+denotes the discrete matrix operator and $C$ is a diagonal matrix that indicates 
+whether node $\mathbf x_i$ is observed. 
 
 In $d-$ dimensions the matrix $A^{(d)}$ of size $M \times M$ expands the first
-order finite difference curvature and has entries
-\[ A^{(d)}_{i,j} = \left \{ \begin{array}{ll} -1 & j \in N(\mathbf x_i) \\
-\sum_{j \in N(\mathbf x_i)} 1 & j = i \\ 0 & \mbox{otherwise} \end{array} \right.\]
-where $\mathcal N (\mathbf x_i)$ is the set of neighbors of the node $\mathbf x_i$. Note
-that if node $i$ is a boundary node, the row $A^{(d)}_{i,:}$ has $-1$s in the
-neighboring node spots and the number of such nodes on the diagonal. In general, the rows of
-$A^{(d)}$ sum to zero. 
+order finite difference curvature and its $(i,j)$th entry is -1 when node j is
+in the set of neighbors of the node $\mathbf x_i$, and has the number of such neighbors on the diagonal. 
+Note that if node $i$ is a boundary node, the $i$-th row of $A^{(d)}$ has
+$-1$s in the neighboring node spots and the number of such nodes on the
+diagonal. In general, the rows of $A^{(d)}$ sum to zero. 
 
 Denote by $L = A^{(d)}$ the discrete analog of the Laplacian operator. To use
-the Matern operator, one substitutes $L = B^{(d)}(m, ϵ) = ((A^{(d)})^m - ϵ^2 I)$. 
+the Matern operator, one substitutes 
+
+```math 
+L = B^{(d)}(m, ϵ) = ((A^{(d)})^m - ϵ^2 I).
+```
+
 Importantly, $A$ is sparse, containing at most 5 nonzero entries
 per row when $d = 2$ and $7$ nonzero entries per row when $d = 3$ and so on. The
 Matern matrix $B^{(d)}(m, \epsilon)$ is also sparse, having $2(m+d)-1$ nonzero
