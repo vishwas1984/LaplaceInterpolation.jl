@@ -38,32 +38,6 @@ Radial basis functions and splines can be unified conceptually through the notio
 Green's functions and eigenfunction expansions [@fasshauer2012green]. 
 The general multivariate Mat\'ern kernels [@stein1995] are of the form
 
-```math
-\begin{equation} 
-K(\mathbf{x}; \mathbf{z}) = K_{m-d/2}(\epsilon||\mathbf{x}-\mathbf{z}||)(\epsilon||\mathbf{x}-\mathbf{z}||)^{m-d/2}, \quad m>\frac{d}{2} 
-\end{equation}
-```
-
-where $K_{\nu}$ is the modified Bessel function of the second kind, and can be obtained as Green’s kernels of (see [@fasshauer2011reproducing])
-
-```math
-\begin{equation} 
-L = (\epsilon^2I-\Delta)^m, \quad m>\frac{d}{2} 
-\end{equation}
-```
-
-where $\Delta$ denotes the Laplacian operator in $d$ dimensions. Polyharmonic splines, that is, radial basis functions
-of the form
-
-```math
-\begin{equation} 
-K(\mathbf{x}; \mathbf{z}) = \left\{ \begin{array}{ll} ||\mathbf{x} - \mathbf{z} ||^{2m-d} & d \mbox{ odd,} \\
-||\mathbf{x} - \mathbf{z} ||^{2m-d} \log ||\mathbf{x} - \mathbf{z} || & d \mbox{
-even} 
-\end{equation}
-```
-
-
 
 Denote by $L = A^{(d)}$ the discrete analog of the Laplacian operator
 in (4). To use the Matern operator, one
