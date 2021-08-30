@@ -1,4 +1,4 @@
-n---
+---
 title: 'LaplaceInterpolation.jl: A Julia package for fast interpolation on a grid'
 tags:
   - Julia
