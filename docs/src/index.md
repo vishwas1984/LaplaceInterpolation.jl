@@ -143,15 +143,15 @@ nablasq_2d_grid
 matern_2d_grid
 ```
 
-### Three diimensional
+### Three dimensional
 
 ```@docs
 nablasq_3d_grid
 matern_3d_grid
 matern_w_punch
-Laplace_3D_Grid
-Parallel_Matern_3DGrid
-interp_nexus 
+<!-- #Laplace_3D_Grid
+#Parallel_Matern_3DGrid
+#interp_nexus  -->
 spdiagm_nonsquare
 return_boundary_nodes
 Matern3D_Grid
@@ -169,7 +169,7 @@ interp
 ```@docs
 punch_holes_3D
 punch_holes_2D
-punch_3d_cart
-center_list 
+punch_3D_cart
+<!-- center_list  -->
 ```
 

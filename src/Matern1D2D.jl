@@ -58,7 +58,7 @@ end
 
 """ 
 
-    matern_1d_grid(y, idx, m, eps, h)
+    matern_1d_grid(y, idx, m, eps, h, bc)
 
 Matern Interpolation in one dimension
 
@@ -196,7 +196,7 @@ end
 
 """
 
-    matern_2d_grid(mat, discard, m, eps, h, k)
+    matern_2d_grid(mat, discard, m, eps, h, k, bc)
 
 # Arguments
   - `mat`: the matrix containing the image
