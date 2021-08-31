@@ -47,14 +47,14 @@ general multivariate Matern kernels are of the form
 
 $K(\mathbf x ; \mathbf z) = K_{m-d/2}(\epsilon||\mathbf x -\mathbf z ||)(ϵ||\mathbf x - \mathbf z ||)^{m-d/2}$
 
-for $m > d/2$, where $K_ν$ is the modified Bessel function of the second kind, and can be
+for $m > d/2$, where $K$ is the modified Bessel function of the second kind with parameter $\nu$, and can be
 obtained as Green’s kernels of 
 
 ```math 
-L = (ϵ^2I-Δ)^m 
+L = (\epsilon^2I-\Delta)^m 
 ```
 
-where $Δ$ denotes the Laplacian operator in $d$ dimensions. Polyharmonic
+where $\Delta$ denotes the Laplacian operator in $d$ dimensions. Polyharmonic
 splines, including thin plate splines, are a special case of the above, and this
 class includes the thin plate splines. 
 
@@ -82,7 +82,7 @@ Denote by $L = A^{(d)}$ the discrete analog of the Laplacian operator. To use
 the Matern operator, one substitutes 
 
 ```math 
-L = B^{(d)}(m, ϵ) = ((A^{(d)})^m - ϵ^2 I).
+L = B^{(d)}(m, \epsilon) = ((A^{(d)})^m - \epsilon^2 I).
 ```
 
 Importantly, $A$ is sparse, containing at most 5 nonzero entries
