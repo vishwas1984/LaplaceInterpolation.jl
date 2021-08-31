@@ -29,7 +29,7 @@ bibliography: paper.bib
 # Summary
 
 We implement a linear-time algorithm for interpolation on a regular
-multidimensional grid, implemented in the Julia language. The algorithm is an
+multidimensional grid in the Julia language. The algorithm is an
 approximate Laplace interpolation [@press1992] when no parameters are given, and
 when parameters $m\in\mathbb{Z}$ and $\epsilon > 0$ are set, the interpolant
 approximates a Matérn kernel, of which radial basis functions and polyharmonic
@@ -117,29 +117,6 @@ Existing, related software includes, as of the time of this writing
 * [Laplacians.jl](https://github.com/danspielman/Laplacians.jl), whose function
 `harmonic_interp` is similar to our vanilla implementation. 
 
-## Python
-
-We also provide a python wrapper for LaplaceInterpolation.jl, [gridinterppy](https://github.com/lootie/gridinterppy).
-
-# Statement of Need
-
-While there exist numerous implementations of interpolation routines that fill
-missing data points on arbitrary grids, these are (i) largely restricted to one
-and two dimensions (ii) slow to run. The implementation we propose is
-dimension-agnostic, based on a linear-time algorithm, and implements an
-approximate Matérn kernel interpolation (of which thin plate splines,
-polyharmonic splines, and radial basis functions are a special case.)  
-
-# Why is it so fast?
-
-This is because the problem largely boils down to the solution of $Ax = b$
-[@mainberger2011optimising] where the square matrix $A$'s size is the product of
-the number of points in each of the dimensions, and is dense.  For the special
-case where the data points are on a regular grid, and the Matérn kernel
-interpolant is used, a remarkable simplification occurs, in which a discrete
-approximation to the Green's function for the operator results in an interpolant
-having sparse matrix representation.  
-
 # Other software for interpolation
 
 Existing, related software includes, as of the time of this writing
@@ -158,5 +135,10 @@ Existing, related software includes, as of the time of this writing
 
 * [astropy.convolve](https://docs.astropy.org/en/stable/api/astropy.convolution.convolve.html) will interpolate gridded data by rescaling a convoution kernel when it encounters missing values.
 * [scipy.interpolate.RBF](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.Rbf.html)
+
+# Python Wrapper
+
+We also provide a python wrapper for LaplaceInterpolation.jl, [gridinterppy](https://github.com/lootie/gridinterppy).
+
 
 # References
