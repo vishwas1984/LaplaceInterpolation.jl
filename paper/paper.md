@@ -28,7 +28,7 @@ bibliography: paper.bib
 
 # Summary
 
-We introduce a linear-time algorithm for interpolation on a regular
+We implement a linear-time algorithm for interpolation on a regular
 multidimensional grid, implemented in the Julia language. The algorithm is an
 approximate Laplace interpolation [@press1992] when no parameters are given, and
 when parameters $m\in\mathbb{Z}$ and $\epsilon > 0$ are set, the interpolant
@@ -40,73 +40,56 @@ dimensions.
 
 # Mathematical Background
 
-Radial basis functions and splines can be unified conceptually through the notion of
-Green's functions and eigenfunction expansions [@fasshauer2012green]. 
-The general multivariate Mat\'ern kernels [@stein1995] are of the form
+Radial basis functions and splines can be unified conceptually through the
+notion of Green's functions and eigenfunction expansions [(Fasshauer,
+2012)](https://link.springer.com/chapter/10.1007/978-1-4614-0772-0_4).  The
+general multivariate Matern kernels are of the form 
 
-```math
-K(\mathbf{x}; \mathbf{z}) = K_{m-d/2}(\epsilon||\mathbf{x}-\mathbf{z}||)(\epsilon||\mathbf{x}-\mathbf{z}||)^{m-d/2}, \quad m>\frac{d}{2} 
-```
+$K(\mathbf x ; \mathbf z) = K_{m-d/2}(\epsilon||\mathbf x -\mathbf z ||)(ϵ||\mathbf x - \mathbf z ||)^{m-d/2}$
 
-where $K_{\nu}$ is the modified Bessel function of the second kind, and can be obtained as Green’s kernels of (see [@fasshauer2011reproducing])
-
-```math
-L = (\epsilon^2I-\Delta)^m, \quad m>\frac{d}{2} 
-```
-
-where $\Delta$ denotes the Laplacian operator in $d$ dimensions. Polyharmonic splines, that is, radial basis functions
-of the form
-
-```math
-K(\mathbf{x}; \mathbf{z}) = \left\{ \begin{array}{ll} ||\mathbf{x} - \mathbf{z} ||^{2m-d} & d \mbox{ odd,} \\
-||\mathbf{x} - \mathbf{z} ||^{2m-d} \log ||\mathbf{x} - \mathbf{z} || & d \mbox{
-even} 
-```
-
-are a special case of the above, and this class includes the thin plate splines. 
-
-The discrete gridded interpolation [@press1992,@mainberger2011optimising] seeks
-to find an interpolation $u(\mathbf{x})$ that satisfies the differential operator in
-$d$ dimensions on the nodes `$\mathbf{x}_i$` where there is no data and equals
-`$y_i$` everywhere else. Discretely, one solves the
-matrix problem
+for $m > d/2$, where $K_ν$ is the modified Bessel function of the second kind, and can be
+obtained as Green’s kernels of 
 
 ```math 
-\mathbf{C} (\mathbf{u} - \mathbf{y}) - (1 - \mathbf{C}) L \mathbf{u} = 0 
+L = (ϵ^2I-Δ)^m 
 ```
 
-where $\mathbf{y}$ contains the `$y_i$`'s and placeholders where there is no
-data, $L$ denotes the discrete matrix operator and 
+where $Δ$ denotes the Laplacian operator in $d$ dimensions. Polyharmonic
+splines, including thin plate splines, are a special case of the above, and this
+class includes the thin plate splines. 
 
-```math
-C_{i,j} = \left \{ \begin{array}{ll} 1 & \mathbf{x}_i \mbox{ known, } i = j
-\\ 0 & \mbox{otherwise.} \end{array} \right. 
+The discrete gridded interpolation seeks to find an interpolation $u (\mathbf x
+)$ that satisfies the differential operator in $d$ dimensions on the nodes
+$\mathbf x_i$ where there is no data and equals $y_i$ everywhere else.
+Discretely, one solves the matrix problem
+
+```math 
+\mathbf C  (\mathbf u  - \mathbf y ) - (1 - \mathbf C ) L \mathbf u  = 0 
 ```
 
-indicates whether node `$\mathbf{x}_i$` is observed. 
+where $\mathbf{y}$ contains the $y_i$'s and placeholders where there is no data, $L$
+denotes the discrete matrix operator and $C$ is a diagonal matrix that indicates 
+whether node $\mathbf x_i$ is observed. 
 
 In $d-$ dimensions the matrix $A^{(d)}$ of size $M \times M$ expands the first
-order finite difference curvature and has entries
+order finite difference curvature and its $(i,j)$th entry is -1 when node j is
+in the set of neighbors of the node $\mathbf x_i$, and has the number of such neighbors on the diagonal. 
+Note that if node $i$ is a boundary node, the $i$-th row of $A^{(d)}$ has
+$-1$s in the neighboring node spots and the number of such nodes on the
+diagonal. In general, the rows of $A^{(d)}$ sum to zero. 
 
-```{=latex}
-A^{(d)}_{i,j} = \left \{ \begin{array}{ll} -1 & j \in N(\mathbf{x}_i) \\
-\sum_{j \in N(\mathbf{x}_i)} 1 & j = i \\ 0 & \mbox{otherwise} \end{array}
-\right.
+Denote by $L = A^{(d)}$ the discrete analog of the Laplacian operator. To use
+the Matern operator, one substitutes 
+
+```math 
+L = B^{(d)}(m, ϵ) = ((A^{(d)})^m - ϵ^2 I).
 ```
 
-where `$\mathcal{N}(\mathbf{x}_i)$` is the set of neighbors of the node
-`$\mathbf{x}_i$`. Note that if node $i$ is a boundary node, the row
-`$A^{(d)}_{i,:}$` has $-1$s in the neighboring node spots and the number of such
-nodes on the diagonal. In general, the rows of $A^{(d)}$ sum to zero. 
-
-Denote by $L = A^{(d)}$ the discrete analog of the Laplacian operator
-in (4). To use the Matérn operator, one
-substitutes $L = B^{(d)}(m, \epsilon) = ((A^{(d)})^m - \epsilon^2 I)$ in
-(4). Importantly, $A$ is sparse, containing at most 5 nonzero
-entries per row when $d = 2$ and $7$ nonzero entries per row when $d = 3$ and so
-on. The Mat\'ern matrix $B^{(d)}(m, \epsilon)$ is also sparse, having $2(m+d)-1$
-nonzero entries per row. The sparsity of the matrix allows for the solution to
-(4) in linear time.
+Importantly, $A$ is sparse, containing at most 5 nonzero entries
+per row when $d = 2$ and $7$ nonzero entries per row when $d = 3$ and so on. The
+Matern matrix $B^{(d)}(m, \epsilon)$ is also sparse, having $2(m+d)-1$ nonzero
+entries per row. The sparsity of the matrix allows for the interpolation to
+solve in linear time.
 
 # Statement of Need
 
