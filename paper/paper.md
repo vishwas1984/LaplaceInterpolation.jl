@@ -44,7 +44,7 @@ Radial basis functions and splines can be unified conceptually through the
 notion of Green's functions and eigenfunction expansions [@fasshauer2012green].  The
 general multivariate Matern kernels are of the form 
 
-$K(\mathbf x ; \mathbf z) = K_{m-d/2}(\epsilon||\mathbf x -\mathbf z ||)(\epsilon||\mathbf x - \mathbf z ||)^{m-d/2}$
+$$ K(\mathbf x ; \mathbf z) = K_{m-d/2}(\epsilon||\mathbf x -\mathbf z ||)(\epsilon||\mathbf x - \mathbf z ||)^{m-d/2}$$
 
 for $m > d/2$, where $K$ is the modified Bessel function of the second kind with parameter $\nu$, and can be
 obtained as Green’s kernels of 
@@ -102,20 +102,6 @@ case where the data points are on a regular grid, and the Matérn kernel
 interpolant is used, a remarkable simplification occurs, in which a discrete
 approximation to the Green's function for the operator results in an interpolant
 having sparse matrix representation.  
-
-# Other software for interpolation
-
-Existing, related software includes, as of the time of this writing
-
-## Julia 
-
-* [Interpolations.jl](https://github.com/JuliaMath/Interpolations.jl) does
-  B-splines and Lanczos interpolation, and has support for irregular grids.
-* [Dieerckx.jl](https://github.com/kbarbary/Dierckx.jl) a julia-wrapped Fortran
-  package for 1-D and 2-D splins.
-* [GridInterpolations.jl](https://github.com/sisl/GridInterpolations.jl) 
-* [Laplacians.jl](https://github.com/danspielman/Laplacians.jl), whose function
-`harmonic_interp` is similar to our vanilla implementation. 
 
 # Other software for interpolation
 
