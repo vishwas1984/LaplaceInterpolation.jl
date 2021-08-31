@@ -41,8 +41,7 @@ dimensions.
 # Mathematical Background
 
 Radial basis functions and splines can be unified conceptually through the
-notion of Green's functions and eigenfunction expansions [(Fasshauer,
-2012)](https://link.springer.com/chapter/10.1007/978-1-4614-0772-0_4).  The
+notion of Green's functions and eigenfunction expansions [@fasshauer2012green].  The
 general multivariate Matern kernels are of the form 
 
 $K(\mathbf x ; \mathbf z) = K_{m-d/2}(\epsilon||\mathbf x -\mathbf z ||)(\epsilon||\mathbf x - \mathbf z ||)^{m-d/2}$
@@ -50,9 +49,7 @@ $K(\mathbf x ; \mathbf z) = K_{m-d/2}(\epsilon||\mathbf x -\mathbf z ||)(\epsilo
 for $m > d/2$, where $K$ is the modified Bessel function of the second kind with parameter $\nu$, and can be
 obtained as Green’s kernels of 
 
-```math 
-L = (\epsilon^2I-\Delta)^m 
-```
+$$ L = (\epsilon^2I-\Delta)^m $$
 
 where $\Delta$ denotes the Laplacian operator in $d$ dimensions. Polyharmonic
 splines, including thin plate splines, are a special case of the above, and this
@@ -63,9 +60,7 @@ The discrete gridded interpolation seeks to find an interpolation $u (\mathbf x
 $\mathbf x_i$ where there is no data and equals $y_i$ everywhere else.
 Discretely, one solves the matrix problem
 
-```math 
-\mathbf C  (\mathbf u  - \mathbf y ) - (1 - \mathbf C ) L \mathbf u  = 0 
-```
+$$ \mathbf C  (\mathbf u  - \mathbf y ) - (1 - \mathbf C ) L \mathbf u  = 0 $$
 
 where $\mathbf{y}$ contains the $y_i$'s and placeholders where there is no data, $L$
 denotes the discrete matrix operator and $C$ is a diagonal matrix that indicates 
@@ -81,9 +76,7 @@ diagonal. In general, the rows of $A^{(d)}$ sum to zero.
 Denote by $L = A^{(d)}$ the discrete analog of the Laplacian operator. To use
 the Matern operator, one substitutes 
 
-```math 
-L = B^{(d)}(m, \epsilon) = ((A^{(d)})^m - \epsilon^2 I).
-```
+$$ L = B^{(d)}(m, \epsilon) = ((A^{(d)})^m - \epsilon^2 I). $$
 
 Importantly, $A$ is sparse, containing at most 5 nonzero entries
 per row when $d = 2$ and $7$ nonzero entries per row when $d = 3$ and so on. The
