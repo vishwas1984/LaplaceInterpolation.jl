@@ -45,7 +45,7 @@ notion of Green's functions and eigenfunction expansions [(Fasshauer,
 2012)](https://link.springer.com/chapter/10.1007/978-1-4614-0772-0_4).  The
 general multivariate Matern kernels are of the form 
 
-$K(\mathbf x ; \mathbf z) = K_{m-d/2}(\epsilon||\mathbf x -\mathbf z ||)(ϵ||\mathbf x - \mathbf z ||)^{m-d/2}$
+$K(\mathbf x ; \mathbf z) = K_{m-d/2}(\epsilon||\mathbf x -\mathbf z ||)(\epsilon||\mathbf x - \mathbf z ||)^{m-d/2}$
 
 for $m > d/2$, where $K$ is the modified Bessel function of the second kind with parameter $\nu$, and can be
 obtained as Green’s kernels of 
