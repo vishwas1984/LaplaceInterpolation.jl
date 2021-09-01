@@ -130,6 +130,9 @@ related software includes the following:
 
 # Acknowledgments
 
+The authors would like to thank Ray Osborn, Matt Krogstad, and Stefan Rosenkranz
+for their input on this work. 
+
 This material is based upon work supported by the U.S. Department of Energy,
 Office of Science, Office of Basic Energy Sciences, under contract 
 DE-AC02-06CH11357.
