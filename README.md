@@ -62,11 +62,17 @@ the same computer with ease.
 # Similar Packages
 ```Laplacians.jl``` authored by Dan Spielman.
 
+# Acknowledging this work
+
+Please acknowledge this work if you make use of it. At present, this work has been submitted to the Journal of Open Source Software.
+
+HTML: <a href="https://joss.theoj.org/papers/00d8d848d3644d8ac98f746ad236a6e3"><img src="https://joss.theoj.org/papers/00d8d848d3644d8ac98f746ad236a6e3/status.svg"></a>
+Markdown: [![status](https://joss.theoj.org/papers/00d8d848d3644d8ac98f746ad236a6e3/status.svg)](https://joss.theoj.org/papers/00d8d848d3644d8ac98f746ad236a6e3)
+
 # Contributing
 
 Contributions are welcome in the form of issues, pull requests. Support questions can be directed to vhebbur at anl.gov.
 
 # Funding
-This material is based upon work supported by the U.S. Department of Energy,
-Office of Science, Office of Basic Energy Sciences.
+This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Basic Energy Sciences.
 
