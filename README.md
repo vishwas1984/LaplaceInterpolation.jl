@@ -35,9 +35,9 @@ julia> include("run_notebooks.jl")
 ```
 which will start a jupyter notebook for you, with all relevant dependencies.
 
-# Documentation 
+# Examples
 
-Forthcoming. Please refer to the Examples notebooks for useage. Github displays notebooks with output, if you do not wish to run them yourself.
+Please refer to the Examples notebooks for useage. Github displays notebooks with output, if you do not wish to run them yourself.
 
 # Sample results
 
