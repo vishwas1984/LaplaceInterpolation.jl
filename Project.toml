@@ -1,7 +1,7 @@
 name = "LaplaceInterpolation"
 uuid = "afb1b68e-e51f-4e49-a799-0e085170423d"
-authors = ["Charlotte Haley <haleycharlotte@gmail.com>"]
-version = "0.1.0"
+authors = ["Vishwas Rao <vhebbur@anl.gov", "Charlotte Haley <haleycharlotte@gmail.com>"]
+version = "0.1.1"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
