@@ -10,12 +10,19 @@ This package is unregistered, so please install using
 Pkg> add https://github.com/vishwas1984/LaplaceInterpolation.jl
 ```
 
+## Dependencies
+Install the following dependencies
+```
+Pkg> add TestImages
+Pkg> add Images
+Pkg> add Plots
+```
 ## Getting started
 
 Suppose we need to interpolate the following image 
 
 ``` 
-using LaplaceInterpolation, TestImgaes
+using LaplaceInterpolation, TestImages, Images, Random, Plots
 
 img = Float64.(Gray.(testimage("mandrill")))
 ```
@@ -26,7 +33,7 @@ For illustration purposes, we'll punch a few holes and randomize some data
 rows, columns = (256, 512)
 N = rows*columns
 
-mat = convert(Array{Float64}, imgg)[1:rows,1:columns]
+mat_original = convert(Array{Float64}, img)[1:rows,1:columns]
 
 N2 = Int64(round(N/2))
 No_of_nodes_discarded = Int64(round(0.9*N2))
@@ -38,32 +45,31 @@ rad = 30*ones(Int64, 2)
 discard2 = punch_holes_2D(cent, rad, rows, columns);
 
 discard = vcat(discard1, discard2)
-mat[discard] .= 1
+mat_discard = copy(mat_original)
+mat_discard[discard] .= 1
 
-heatmap(mat, title = "Image with Missing data", yflip = true, 
+heatmap(mat_discard, title = "Image with Missing data", yflip = true, 
               c = :bone, clims = (0.0, 1.0))
 ```
 
 Interpolating using the laplace and matern approximations, we get
 
 ```
-restored_img_laplace = matern_2d_grid(mat, discard, 1, 0.0)
-restored_img_matern = matern_2d_grid(mat, discard, 2, 0.0)
+restored_img_laplace = matern_2d_grid(mat_discard, discard, 1, 0.0)
+restored_img_matern = matern_2d_grid(mat_discard, discard, 2, 0.0)
 ```
 
 And plotting, we have
 
 ```
-p1 = heatmap(mat, title = "Original Data", yflip = true, 
+p1 = heatmap(mat_original, title = "Original Data", yflip = true, 
               c = :bone, clims = (0.0, 1.0))
-p2 = heatmap(holeyimage1, title = "Image with Missing data", yflip = true, 
+p2 = heatmap(mat_discard, title = "Image with Missing data", yflip = true, 
               c = :bone, clims = (0.0, 1.0))
 p3 = heatmap(restored_img_laplace, title = "Laplace Interpolated Image", yflip =
-true, 
-              c = :bone, clims = (0.0, 1.0))
+true, c = :bone, clims = (0.0, 1.0))
 p4 = heatmap(restored_img_matern, title = "Matern, m = 2, eps = 0.0", yflip =
-true, 
-              c = :bone, clims = (0.0, 1.0))
+true, c = :bone, clims = (0.0, 1.0))
 plot(p1, p2, p3, p4, layout = (2, 2), legend = false, size = (900, 500))
 
 ```
