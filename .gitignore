@@ -5,7 +5,6 @@ docs/build/
 Manifest.toml
 *.npy
 *.jld
-Notebooks/Manifest.toml
 *checkpoint.ipynb
 obsolete/
 Notebooks/obsolete
