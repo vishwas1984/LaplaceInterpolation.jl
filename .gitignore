@@ -1,5 +1,7 @@
 *.pdf 
 
+Notebooks/python
+
 docs/build/
 
 Manifest.toml
