@@ -29,8 +29,10 @@ are located in the `/Notebooks` directory.
 To run the examples yourself, clone the repo, navigate to the Notebooks
 directory, start julia and use
 ```
-pkg> activate .
-pkg> instantiate
+julia> using Pkg; 
+julia> Pkg.activate(); 
+julia> Pkg.add(url="https://github.com/vishwas1984/LaplaceInterpolation.jl"); 
+julia> Pkg.instantiate()
 julia> include("run_notebooks.jl") 
 ```
 which will start a jupyter notebook for you, with all relevant dependencies.
