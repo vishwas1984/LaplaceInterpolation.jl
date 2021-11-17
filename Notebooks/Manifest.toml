@@ -552,14 +552,6 @@ git-tree-sha1 = "f2355693d6778a178ade15952b7ac47a4ff97996"
 uuid = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 version = "1.3.0"
 
-[[LaplaceInterpolation]]
-deps = ["LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "7141f5d5f994549d4c1be160f1c161f18abffa77"
-repo-rev = "master"
-repo-url = "https://github.com/vishwas1984/LaplaceInterpolation.jl"
-uuid = "afb1b68e-e51f-4e49-a799-0e085170423d"
-version = "0.1.1"
-
 [[Latexify]]
 deps = ["Formatting", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "Printf", "Requires"]
 git-tree-sha1 = "a8f4f279b6fa3c3c4f1adadd78a621b13a506bce"
