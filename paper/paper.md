@@ -66,8 +66,8 @@ where $\mathbf{y}$ contains the $y_i$'s and placeholders where there is no data,
 denotes the discrete matrix operator, and $C$ is a diagonal matrix that indicates 
 whether node $\mathbf x_i$ is observed. 
 
-In $d-$ dimensions the matrix $A^{(d)}$ of size $M \times M$ expands the 
-first-order finite difference curvature, and its $(i,j)$th entry is $-1$ when node j is
+In $d$ dimensions the matrix $A^{(d)}$ of size $M \times M$ expands the 
+first-order finite difference curvature, and its $(i,j)$th entry is $-1$ when node $j$ is
 in the set of neighbors of the node $\mathbf x_i$ and has the number of such neighbors on the diagonal. 
 Note that if node $i$ is a boundary node, the $i$th row of $A^{(d)}$ has
 $-1$s in the neighboring node spots and the number of such nodes on the
@@ -82,8 +82,8 @@ Importantly, $A$ is sparse, containing at most 5 nonzero entries
 per row when $d = 2$ and $7$ nonzero entries per row when $d = 3$ and so on. The
 Matérn
 matrix $B^{(d)}(m, \epsilon)$ is also sparse, having $2(m+d)-1$ nonzero
-entries per row. The sparsity of the matrix allows for the interpolation to
-solve in linear time.
+entries per row. The sparsity of the matrix allows for the interpolation to be
+solved in linear time.
 
 # Statement of Need
 
@@ -113,20 +113,22 @@ related software includes the following:
 
 * [Interpolations.jl](https://github.com/JuliaMath/Interpolations.jl), which does
   B-splines and Lanczos interpolation and has support for irregular grids
-* [Dieerckx.jl](https://github.com/kbarbary/Dierckx.jl), a Julia-wrapped Fortran
-  package for 1-D and 2-D splines
-* [GridInterpolations.jl](https://github.com/sisl/GridInterpolations.jl) 
+[@Interpolations]
+* [Dierckx.jl](https://github.com/kbarbary/Dierckx.jl), a Julia-wrapped Fortran
+  package for 1-D and 2-D splines [@Dierckx]
+* [GridInterpolations.jl](https://github.com/sisl/GridInterpolations.jl)
+  [@GridInterpolations]
 * [Laplacians.jl](https://github.com/danspielman/Laplacians.jl), whose function
-`harmonic_interp` is similar to our vanilla implementation 
+`harmonic_interp` is similar to our vanilla implementation [@Laplacians] 
 
 ## Python
 
-* [astropy.convolve](https://docs.astropy.org/en/stable/api/astropy.convolution.convolve.html), which will interpolate gridded data by rescaling a convoution kernel when it encounters missing values
-* [scipy.interpolate.RBF](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.Rbf.html)
+* [astropy.convolve](https://docs.astropy.org/en/stable/api/astropy.convolution.convolve.html), which will interpolate gridded data by rescaling a convoution kernel when it encounters missing values [@astropy2018]
+* [scipy.interpolate.RBF](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.Rbf.html) [@scipy]
 
 # Python Wrapper
 
-* [gridinterppy](https://github.com/lootie/gridinterppy), which serves  as  a Python wrapperr for LaplaceInterpolation.jl
+* [gridinterppy](https://github.com/lootie/gridinterppy), which serves as a Python wrapper for LaplaceInterpolation.jl [@gridinterppy]
 
 # Acknowledgments
 
