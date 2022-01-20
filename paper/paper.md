@@ -52,8 +52,7 @@ obtained as Green’s kernels of
 $$ L = (\epsilon^2I-\Delta)^m , $$
 
 where $\Delta$ denotes the Laplacian operator in $d$ dimensions. Polyharmonic
-splines, including thin plate splines, are a special case of the above, and this
-class includes the thin plate splines. 
+splines, including thin plate splines, are a special case of the above. 
 
 The discrete gridded interpolation seeks to find an interpolation $u (\mathbf x
 )$ that satisfies the differential operator in $d$ dimensions on the nodes
@@ -66,7 +65,9 @@ where $\mathbf{y}$ contains the $y_i$'s and placeholders where there is no data,
 denotes the discrete matrix operator, and $C$ is a diagonal matrix that indicates 
 whether node $\mathbf x_i$ is observed. 
 
-In $d$ dimensions the matrix $A^{(d)}$ of size $M \times M$ expands the 
+In $d$ dimensions the matrix $A^{(d)}$ of size $M \times M$, where $M$ is the
+product of the number of grid locations in each dimension, i.e. $M = \prod_{i =
+1}^d N_i$, expands the 
 first-order finite difference curvature, and its $(i,j)$th entry is $-1$ when node $j$ is
 in the set of neighbors of the node $\mathbf x_i$ and has the number of such neighbors on the diagonal. 
 Note that if node $i$ is a boundary node, the $i$th row of $A^{(d)}$ has
@@ -74,16 +75,52 @@ $-1$s in the neighboring node spots and the number of such nodes on the
 diagonal. In general, the rows of $A^{(d)}$ sum to zero. 
 
 Denote by $L = A^{(d)}$ the discrete analog of the Laplacian operator. To use
-the Matern operator, one substitutes 
+the Matérn operator, one substitutes 
 
 $$ L = B^{(d)}(m, \epsilon) = ((A^{(d)})^m - \epsilon^2 I). $$
 
-Importantly, $A$ is sparse, containing at most 5 nonzero entries
-per row when $d = 2$ and $7$ nonzero entries per row when $d = 3$ and so on. The
-Matérn
-matrix $B^{(d)}(m, \epsilon)$ is also sparse, having $2(m+d)-1$ nonzero
-entries per row. The sparsity of the matrix allows for the interpolation to be
-solved in linear time.
+# Algorithmic Complexity and Performance
+
+The sparsity of the matrix $A$ means that the algorithmic complexity for both
+Laplace and Matérn interpolation is $O(M)$.  Furthermore, $A$ contains at most 5
+nonzero entries per row when $d = 2$ and $7$ nonzero entries per row when $d =
+3$ and so on, which implies that the constant hidden by the big-O notation is
+small. The Matérn matrix $B^{(d)}(m, \epsilon)$ is also sparse, having
+$2(m+d)-1$ nonzero entries per row. 
+
+## Performance comparisons
+
+As a synthetic example, we generate a one dimensional realization of data from a
+Gaussian process (GP) with a Matérn covariance. The function to predict is
+$$ f(x) = \sin(2\pi  x  0.1) + 0.05 \zeta_x,$$
+where $\zeta_x \sim N(0,1)$ independently for every integer $x$. Prediction was
+done using Matérn covariance with length
+scale $1.0$ and roughness $1.5$ which corresponds to $m = 2$ and $\epsilon =
+\sqrt{3}$, and these data were given for $N_{\mbox{sample}} = 100$ random points
+out of $N_{\mbox{total}} = 1100$. Fig. 1 shows a toy version of
+this process with $N_{\mbox{sample}} = 10$ points and $N_{\mbox{total}} = 20$ in
+$x$ along with the Laplacian and Matérn interpolations using the true
+parameters. Note that, by construction, a continuous Matérn operator with the
+same parameters ought to perfectly reconstruct the data, and the errors we
+analyze here are due to the finite differencing. Boundary conditions add
+additional error.
+
+The timing and accuracy of the interpolation is shown in Fig. 1. Benchmarking
+the timings, one finds the results in panel (b). Note the log scale on the
+$y-$axis in this figure, mean processing times were $785, 975$, and $9736$
+$\mu$s for the Laplace, Matérn, and
+GP interpolation, respectively, representing an order of magnitude difference in
+timing. Furthermore, relative errors, shown in panel (c) had means of $4.2,
+3.1$, and $3.9$ for the Laplace interpolation, Matérn Interpolation, and the GP
+prediction at the missing points, respectively. That is, the discrete (Matérn)
+version of the interpolation gave results with similar accuracy as the GP
+prediction.
+
+![](figures/Onedim_GP.png) 
+*Figure 1: Left panel shows a realization of GP data generated using a 1D Matérn kernel. The data used to create the GP is greyed out, while known points and interpolated points using the three interpolation methods are shown.  (Colors are green for truth, brown for Laplace, turqouise for Matern(2, 1.05), and magenta for GP prediction.) The center panel shows the timings of the algorithm, and the right panel shows the accuracy. Parameters are given in text.*
+
+A Jupyter notebook is included in the repository to reproduce these performance
+figures. 
 
 # Statement of Need
 
