@@ -80,7 +80,7 @@ Interpolates a single punch
 
 # Arguments
   - `imgg`: the matrix containing the image
-  - `discard::Union{Vector{CartesianIndex{3}}}, Vector{Int64}}`: the linear or 
+  - `discard::Union{Vector{CartesianIndex{3}}}, Vector{Tuple{Int64, Int64, Int64}}, Vector{Int64}}`: the linear, Tuple or 
        Cartesian indices of the values to be filled 
   - `m::Int64 = 1` : Matern parameter 
   - `eps::Float64 = 0.0`: Matern parameter eps
@@ -93,7 +93,7 @@ Interpolates a single punch
   - array containing the restored image
 
 """
-function matern_3d_grid(imgg, discard::Union{Vector{CartesianIndex{3}}, Vector{Int64}},
+function matern_3d_grid(imgg, discard::Union{Vector{CartesianIndex{3}}, Vector{Tuple{Int64,Int64,Int64}}, Vector{Int64}},
                 m::Int64 = 1,  eps::Float64 = 0.0, 
                 h = 1.0, k = 1.0, l = 1.0, bc = 1) 
     Nx, Ny, Nz = size(imgg)
@@ -104,7 +104,11 @@ function matern_3d_grid(imgg, discard::Union{Vector{CartesianIndex{3}}, Vector{I
     C = sparse(I, totalsize, totalsize)
     rhs_a = copy(imgg)[:]
     for i in discard
-        j = (typeof(i) <: CartesianIndex) ? LinearIndices(imgg)[i] : i
+        if typeof(i) <: CartesianIndex
+          j = LinearIndices(imgg)[i]
+        elseif typeof(i) <: Tuple
+          j = LinearIndices(imgg)[CartesianIndex(i)]
+        end
         C[j, j] = 0.0
         rhs_a[j] = 0.0
     end
