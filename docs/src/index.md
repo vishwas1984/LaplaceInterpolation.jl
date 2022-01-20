@@ -2,7 +2,7 @@
 
 This package quickly interpolates data on a grid in one and higher dimensions. 
 
-Statement of Need
+## Statement of Need
 
 While numerous implementations of interpolation routines exist that fill missing data points on arbitrary grids, these are largely restricted to one and two dimensions and are slow to run. The implementation we propose is dimension-agnostic, based on a linear-time algorithm, and implements an approximate Matérn kernel interpolation (of which thin plate splines, polyharmonic splines, and radial basis functions are a special case).
 
