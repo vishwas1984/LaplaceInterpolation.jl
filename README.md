@@ -66,10 +66,10 @@ the same computer with ease.
 
 # Acknowledging this work
 
-Please acknowledge this work if you make use of it. At present, this work has been submitted to the Journal of Open Source Software.
+This work appears in the Journal of Open Source Software. Clicking "Cite this repository" on the right hand side (under "About") will format a bibliography entry for you. 
 
-HTML: <a href="https://joss.theoj.org/papers/00d8d848d3644d8ac98f746ad236a6e3"><img src="https://joss.theoj.org/papers/00d8d848d3644d8ac98f746ad236a6e3/status.svg"></a>
-Markdown: [![status](https://joss.theoj.org/papers/00d8d848d3644d8ac98f746ad236a6e3/status.svg)](https://joss.theoj.org/papers/00d8d848d3644d8ac98f746ad236a6e3)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.03766/status.svg)](https://doi.org/10.21105/joss.03766)
+
 
 # Contributing
 
